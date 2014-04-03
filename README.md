@@ -1,4 +1,6 @@
-simple-email-client-for-uni
+nine-men's-morris-for-uni
 ===========================
 
-Email client coded as part of university CS course
+Nine Men's Morris coded as part of university CS course
+
+Simple client - server architecture with user database

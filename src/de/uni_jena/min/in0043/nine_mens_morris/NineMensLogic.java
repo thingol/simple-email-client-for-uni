@@ -8,79 +8,69 @@ package de.uni_jena.min.in0043.nine_mens_morris;
  *
  */
 public class NineMensLogic {
-	// phase 01: place stones
-	// phase 02: move one step to free point
-	// phase 03: when less than three stones, move to any free point
+	private short phase = 0;          // {0,1,2,4,8,16}
+	private short whiteActivated = 0; // {0, ..., 9}
+	private short whiteInPlay = 0;    // {0, ..., 9}
+	private short whiteLost = 0;      // {0, ..., 9}
+	private short blackActivated = 0; // {0, ..., 9}
+	private short blackInPlay = 0;    // {0, ..., 9}
+	private short blackLost = 0;      // {0, ..., 9}
+	// board
 	
-	/*   0123456789ABC
-	 * 0 X-----X-----X
-	   1 |     |     |
-	   2 | X---X---X |
-	   3 | |   |   | |
-	   4 | | X-X-X | |
-	   5 | | |   | | |
-	   6 X-X-X   X-X-X
-	   7 | | |   | | |
-	   8 | | X-X-X | |
-	   9 | |   |   | |
-	   A | X---X---X |
-	   B |     |     |    
-	   C X-----X-----X
-	   
-	 * 
-	 * outer:  (0,0), (6,0), (C,0)
-	 *         (0,6),        (C,6)
-	 *         (0,C), (6,C)  (C,C)
-	 * 
-	 * middle: (2,2), (6,2), (A,2)
-	 *         (2,6),        (A,6)
-	 *         (A,2), (6,A), (A,A)
-	 *         
-	 * inner:  (4,4), (6,4), (8,4)
-	 *         (4,6),        (8,6)
-	 *         (4,8), (6,8), (8,8)
-	 *
-	     0123456
-	   0 X--X--X
-	   1 |X-X-X|
-	   2 ||XXX||
-	   3 XXX XXX
-	   4 ||XXX||
-	   5 |X-X-X|
-	   6 X--X--X
-	   
-	 * outer:  (0,0), (3,0), (6,0)
-	 *         (0,3),        (6,3)
-	 *         (0,6), (3,6)  (6,6)
-	 * 
-	 * middle: (1,1), (3,1), (6,1)
-	 *         (2,6),        (A,6)
-	 *         (A,2), (6,A), (A,A)
-	 *         
-	 * inner:  (4,4), (6,4), (8,4)
-	 *         (4,6),        (8,6)
-	 *         (4,8), (6,8), (8,8)
-	 *         
-	 *         
-	 * outer:  (0,0), (3,0), (6,0)
-	 *         (0,3),        (6,3)
-	 *         (0,6), (3,6)  (6,6)
-	 * 
-	 * middle: (1,1), (3,1), (6,1)
-	 *         (2,6),        (A,6)
-	 *         (A,2), (6,A), (A,A)
-	 *         
-	 * inner:  (4,4), (6,4), (8,4)
-	 *         (4,6),        (8,6)
-	 *         (4,8), (6,8), (8,8)
-	 *         
-	 *         phase               = {0,1,2}
-	 *         countWhiteActivated = {0, ..., 9}
-	 *         countWhiteInPlay    = {0, ..., 9}
-	 *         countWhiteLost      = {0, ..., 9}
-	 *         countBalckActivated = {0, ..., 9}
-	 *         countBlackInPlay    = {0, ..., 9}
-	 *         countBlackLost      = {0, ..., 9}
-	 *         board
-	 * */
+	public short getPhase() {
+		return phase;
+	}
+
+	public short getWhiteActivated() {
+		return whiteActivated;
+	}
+
+	public short getWhiteInPlay() {
+		return whiteInPlay;
+	}
+
+	public short getWhiteLost() {
+		return whiteLost;
+	}
+
+	public short getBlackActivated() {
+		return blackActivated;
+	}
+
+	public short getBlackInPlay() {
+		return blackInPlay;
+	}
+
+	public short getBlackLost() {
+		return blackLost;
+	}
+
+
+	public void advancePhase() {
+		switch (phase) {
+			case 0: // nine stones for each player to place on the board 
+				if (whiteActivated == 9) phase = 1; // both players are done with phase 0 in       
+				break;
+			
+			case 1: // 
+				if (whiteLost == 7) {
+					phase = 2;
+				} else if (blackLost == 7) {
+					phase = 4;
+				}
+				break;
+			
+			case 2: // white in phase two
+				if (blackLost == 7) phase = 8;
+				break;
+			
+			case 4: // black in phase two
+				if (whiteLost == 7) phase = 8;
+				break;
+			
+			case 8:  // both in phase two
+				if (whiteLost == 9 || blackLost == 9) phase = 16;
+				break;
+		}
+	}
 }  

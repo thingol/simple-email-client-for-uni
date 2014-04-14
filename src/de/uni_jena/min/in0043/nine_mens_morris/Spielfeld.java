@@ -1,15 +1,11 @@
 package de.uni_jena.min.in0043.nine_mens_morris;
 
-import java.awt.Graphics;
-import java.awt.Panel;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-
-
-public class Spielfeld extends Panel {
-	
-	/**
-	 * 
-	 */
+public class Spielfeld extends Panel implements MouseListener {
 	private static final long serialVersionUID = 1L;
 
 	public void paint(Graphics g)
@@ -20,14 +16,17 @@ public class Spielfeld extends Panel {
 		int middleY = height/2;
 		int addX = middleX-middleX/4;
 		int addY = middleY-middleY/4;
+		int r = width*height/30000;
 		
+		{//Spielfeld
+		//Outer
 		g.drawRect(middleX/4, middleY/4, (addX)*2, (addY)*2);
-		
+		//Middle
 		g.drawRect(middleX/4+addX/3, middleY/4+addY/3, (middleX-(middleX/4+addX/3))*2, (middleY-(middleY/4+addY/3))*2);
-		
+		//Inner
 		g.drawRect(middleX/4+2*addX/3, middleY/4+2*addY/3, (middleX-(middleX/4+2*addX/3))*2, (middleY-(middleY/4+2*addY/3))*2);
 		
-		g.drawLine(middleX, middleY, middleX, middleY);
+		//g.drawLine(middleX, middleY, middleX, middleY);
 		//Y Lines
 		g.drawLine(middleX, middleY/4, middleX, middleY/4+2*addY/3);
 		g.drawLine(middleX, middleY+middleY/4, middleX, middleY+(middleY/4+2*addY/3));
@@ -35,27 +34,61 @@ public class Spielfeld extends Panel {
 		g.drawLine(middleX/4, middleY, middleX/4+2*addX/3, middleY);
 		g.drawLine(middleX+middleX/4, middleY, middleX+middleX/4+2*addX/3, middleY);
 		
-		g.drawLine(100, 100, 100, 100);
+		//Now, this is getting fat
+		g.drawRect(middleX/4 +1, middleY/4+1, (addX)*2, (addY)*2);
+		g.drawRect(middleX/4 +2, middleY/4+2, (addX)*2, (addY)*2);
+		g.drawRect(middleX/4+addX/3 +1, middleY/4+addY/3 +1, (middleX-(middleX/4+addX/3))*2, (middleY-(middleY/4+addY/3))*2);
+		g.drawRect(middleX/4+addX/3 +2, middleY/4+addY/3 +2, (middleX-(middleX/4+addX/3))*2, (middleY-(middleY/4+addY/3))*2);
+		g.drawRect(middleX/4+2*addX/3 +1, middleY/4+2*addY/3 +1, (middleX-(middleX/4+2*addX/3))*2, (middleY-(middleY/4+2*addY/3))*2);
+		g.drawRect(middleX/4+2*addX/3 +2, middleY/4+2*addY/3 +2, (middleX-(middleX/4+2*addX/3))*2, (middleY-(middleY/4+2*addY/3))*2);
+		g.drawLine(middleX+1, middleY/4, middleX+1, middleY/4+2*addY/3);
+		g.drawLine(middleX+2, middleY/4, middleX+2, middleY/4+2*addY/3);
+		g.drawLine(middleX+1, middleY+middleY/4, middleX+1, middleY+(middleY/4+2*addY/3));
+		g.drawLine(middleX+2, middleY+middleY/4, middleX+2, middleY+(middleY/4+2*addY/3));
+		g.drawLine(middleX/4, middleY+1, middleX/4+2*addX/3, middleY+1);
+		g.drawLine(middleX/4, middleY+2, middleX/4+2*addX/3, middleY+2);
+		g.drawLine(middleX+middleX/4, middleY+1, middleX+middleX/4+2*addX/3, middleY+1);
+		g.drawLine(middleX+middleX/4, middleY+2, middleX+middleX/4+2*addX/3, middleY+2);
+		}
 		
-		/*//Now, this is getting fat
-		g.drawRect(middleX/4+1, middleY/4+1, (middleX-middleX/4)*2, (middleY-middleY/4)*2);
-		g.drawRect(middleX/4+2, middleY/4+2, (middleX-middleX/4)*2, (middleY-middleY/4)*2);
-
-		g.drawRect(middleX-100+1, middleY-100+1, middleX*2/3, middleY*2/3);
-		g.drawRect(middleX-100+2, middleY-100+2, middleX*2/3, middleY*2/3);
-
-		g.drawRect(middleX-50+1, middleY-50+1, middleX/3, middleY/3);
-		g.drawRect(middleX-50+2, middleY-50+2, middleX/3, middleY/3);
-
-		g.drawLine(middleX+2, middleY-150, middleX+2, middleY-50);
-		g.drawLine(middleX+2, middleY+150, middleX+2, middleY+50);
-		g.drawLine(middleX+3, middleY-150, middleX+3, middleY-50);
-		g.drawLine(middleX+3, middleY+150, middleX+3, middleY+50);
-
-		g.drawLine(middleX-150, middleY+2, middleX-50, middleY+2);
-		g.drawLine(middleX+150, middleY+2, middleX+50, middleY+2);
-		g.drawLine(middleX-150, middleY+3, middleX-50, middleY+3);
-		g.drawLine(middleX+150, middleY+3, middleX+50, middleY+3);//*/
-		
+		for(int i = 0; i <= 9; i++)
+		{ //Adds the stones, still not final tho... looks kinda bad.
+			g.fillOval(60+i*r, height-60, r, r);
+			g.drawOval(width-60-i*r, height-60, r, r);
+		}
 	}
+	
+	public static void main(String args[])
+	{
+		new Spielfeld().BuildUp();
+	}
+	
+	public void BuildUp()
+	{
+		Frame mFra = new Frame(" Nine Men's Morris - Retro Style");
+		mFra.add(this);
+		mFra.setSize(1024,720);
+		mFra.setForeground(Color.yellow);
+		mFra.setBackground(Color.blue);
+		
+		this.addMouseListener(this);
+		mFra.setVisible(true);
+		
+		mFra.addWindowListener(new WindowAdapter(){
+			  public void windowClosing(WindowEvent we){
+			    System.exit(0);
+			  }
+			});
+	}
+	
+	public void mouseClicked(MouseEvent e) {}
+		public void mousePressed(MouseEvent e) {
+			System.out.println("Pressed at x:"+e.getX()+" y:"+e.getY());
+		}
+		public void mouseReleased(MouseEvent e) {
+			System.out.println("Released at x:"+e.getX()+" y:"+e.getY());
+		}
+		public void mouseEntered(MouseEvent e)
+		{}
+		public void mouseExited(MouseEvent e) {}
 }

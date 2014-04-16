@@ -1,5 +1,3 @@
-package de.uni_jena.min.in0043.nine_mens_morris;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.event.WindowAdapter;
@@ -66,11 +64,12 @@ public class Spielfeld extends Panel implements MouseListener {
 	public void BuildUp()
 	{
 		Frame mFra = new Frame(" Nine Men's Morris - Retro Style");
-		mFra.add(this);
 		mFra.setSize(1024,720);
 		mFra.setForeground(Color.yellow);
 		mFra.setBackground(Color.blue);
+		mFra.add(this);
 		
+		mFra.add(this);
 		this.addMouseListener(this);
 		mFra.setVisible(true);
 		

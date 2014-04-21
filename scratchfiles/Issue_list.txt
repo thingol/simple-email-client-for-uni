@@ -1,0 +1,35 @@
+phase PLACING_STONES: place stones
+phase NORMAL_PLAY: move one step to unoccupied point
+phase *_REDUCED: when less than four stones, move to any occupied point
+
+DONE:
+
+moveStone
+  * if active != player
+    - throw RulesViolation (Exception)
+  * try move
+    - if phase == *_REDUCED
+      * if owner != active
+        - throw WrongColour
+      * if !isTargetValid
+        - throw IllegalMove
+      * move stone
+      * set last moved to stone
+      * checkMills
+        - if new
+          * removeStone
+
+TODO
+      
+checkMills
+
+removeStone
+  * much like moveStone
+  
+stones
+  * point
+  * owner
+  
+point
+  * id
+  * inUse

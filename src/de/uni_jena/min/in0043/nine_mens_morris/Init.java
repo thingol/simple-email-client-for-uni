@@ -7,6 +7,9 @@ import java.awt.Frame;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -18,28 +21,37 @@ import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup;
  *
  */
 public class Init {
-
+	
+	private static Logger log = LogManager.getLogger(Init.class.getName());
+	
 	private static void gui() {
-		final Frame myFrame = new Frame();
+		log.entry("gui()");
+		/*final Frame myFrame = new Frame();
 		myFrame.add(new Spielfeld());
 		myFrame.setSize(800,800);
 		myFrame.setVisible(true);
 			
 		myFrame.addWindowListener(new WindowAdapter(){
 			  public void windowClosing(WindowEvent we){
+				  log.entry("windowClosing(WindowEvent we)");
 				  myFrame.dispose();
+				  log.exit("windowClosing(WindowEvent we)");
 			  }
 		});
+		*/
+		log.exit("gui()");
 	}
-
+	
 	public static void main(String[] args) {
+		log.entry("main(String[] args)");
 
         ArgumentParser parser = ArgumentParsers.newArgumentParser("nine_mens_morris")
                 .description("Play Nine Men's Morris")
                 .version("${nine_mens_morris} v0.0.1 alpa by CJ0fail and thingol\n(c) 2014")
                 .defaultHelp(true);
-        parser.addArgument("--debug")
-                .setDefault(true)
+        parser.addArgument("-nd","--no-debug")
+                .action(Arguments.storeTrue())
+                .setDefault(false)
                 .help("Log all manner of (ir)relevant things");
         parser.addArgument("-v","--version")
                 .action(Arguments.version())
@@ -50,22 +62,24 @@ public class Init {
         fGrp.addArgument("-s","--server")
                 .help("Start a server (not implemented)")
                 .action(Arguments.storeTrue());
-        fGrp.addArgument("-og","--online-game")
+        fGrp.addArgument("-n","--network-game")
                 .help("Play online. Requires a server. (not implemented)")
                 .action(Arguments.storeTrue());
-        fGrp.addArgument("-lg","--local-game")
-                .help("Play locally.").setDefault(true)
+        fGrp.addArgument("-l","--local-game")
+                .help("Play locally.")
                 .action(Arguments.storeTrue());
 
         try {
             parser.parseArgs(args);
             parser.printHelp();
-            System.out.println("\n\nStarting local game.");
 
-            gui();
+            if(args.length == -1) gui();
 
+            log.exit("main(String[] args)");
         } catch (ArgumentParserException e) {
+        	log.error(e);
             parser.handleError(e);
+            log.exit(false);
         }
 	}
 }

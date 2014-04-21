@@ -26,9 +26,12 @@ public class Init {
 	
 	private static void gui() {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		final Frame myFrame = new Frame();
 		myFrame.add(new Head());
 =======
+=======
+>>>>>>> b67653bd2ed6a3e013fed8301fcb0ddcf5708778
 		log.entry("gui()");
 		/*final Frame myFrame = new Frame();
 		myFrame.add(new Spielfeld());

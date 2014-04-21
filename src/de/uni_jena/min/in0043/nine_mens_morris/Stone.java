@@ -1,3 +1,5 @@
+package de.uni_jena.min.in0043.nine_mens_morris;
+
 public class Stone{
 	
 	public int posX;

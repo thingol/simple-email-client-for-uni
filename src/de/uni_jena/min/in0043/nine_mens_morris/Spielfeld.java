@@ -1,3 +1,5 @@
+package de.uni_jena.min.in0043.nine_mens_morris;
+
 import java.awt.*;
 
 public class Spielfeld{

@@ -1,3 +1,5 @@
+package de.uni_jena.min.in0043.nine_mens_morris;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -28,7 +30,26 @@ public class Head extends Panel implements MouseListener {
 			White[i].posY = mFra.getSize().height - 80;
 		}
 	}
+	
+	public Head(NineMensLogic nnn) {
+		mFra = new Frame("Nine Men's Morris - Retro Style");
+		mFra.setSize(1024, 720);
+		sF = new Spielfeld();
+		Black = new Stone[9];
+		White = new Stone[9];
 
+		for (int i = 0; i < 9; i++) {
+			int r = mFra.getSize().width * mFra.getSize().height / 30000;
+			Black[i] = new Stone();
+			Black[i].posX = 40 + i * r;
+			Black[i].posY = mFra.getSize().height - 80;
+
+			White[i] = new Stone();
+			White[i].posX = mFra.getSize().width - 80 - i * r;
+			White[i].posY = mFra.getSize().height - 80;
+		}
+	}
+	
 	public void paint(Graphics g) {
 		int height = mFra.getSize().height;
 		int width = mFra.getSize().width;
@@ -249,12 +270,6 @@ public class Head extends Panel implements MouseListener {
 					}//if
 					
 				}//forI
-				
-				for(int i = 0; i < 9; i++)
-				{System.out.println("Stone Black " + i + " inPlacement: " + Black[i].inPlacement);
-				 System.out.println("Stone White " + i + " inPlacement: " + White[i].inPlacement);
-				}
-				System.out.println(yep);
 	}
 
 	public void mouseReleased(MouseEvent e) {

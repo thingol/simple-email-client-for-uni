@@ -3,74 +3,136 @@
  */
 package de.uni_jena.min.in0043.nine_mens_morris;
 
+import de.uni_jena.min.in0043.nine_mens_morris.NineMensExceptions.*;
+
 /**
  * @author mariushk
  *
  */
 public class NineMensLogic {
-	private short phase = 0;          // {0,1,2,4,8,16}
-	private short whiteActivated = 0; // {0, ..., 9}
-	private short whiteInPlay = 0;    // {0, ..., 9}
-	private short whiteLost = 0;      // {0, ..., 9}
-	private short blackActivated = 0; // {0, ..., 9}
-	private short blackInPlay = 0;    // {0, ..., 9}
-	private short blackLost = 0;      // {0, ..., 9}
-	// board
 	
-	public short getPhase() {
+	private NineMensPhase phase;
+	private NineMensBoard board;
+	private NineMensStones[] stones = new NineMensStones[18];
+	private NineMensStones lastMoved;
+	private NineMensPlayer activePlayer;
+	
+	private int whiteActivated = 0; // {0, ..., 9}
+	private int whiteInPlay = 0;    // {0, ..., 9}
+	private int whiteLost = 0;      // {0, ..., 9}
+	private int blackActivated = 0; // {0, ..., 9}
+	private int blackInPlay = 0;    // {0, ..., 9}
+	private int blackLost = 0;      // {0, ..., 9}
+	private int round = 0;
+
+	
+	public NineMensLogic() {
+		board = new NineMensBoard();
+		phase = NineMensPhase.PLACING_STONES;
+		activePlayer = NineMensPlayer.WHITE;
+		NineMensStones.setBoard(board);
+		for(int i = 0; i < 18;) {
+			stones[i++] = new NineMensStones(NineMensPlayer.BLACK);
+			stones[i] = new NineMensStones(NineMensPlayer.WHITE);
+		}
+	}
+	
+	public NineMensPlayer getActivePlayer() {
+		return activePlayer;
+	}
+	
+	public NineMensPhase getPhase() {
 		return phase;
 	}
-
-	public short getWhiteActivated() {
+	
+    public int getRound() { return round; }
+	
+    public int getWhiteActivated() {
 		return whiteActivated;
 	}
 
-	public short getWhiteInPlay() {
+	public int getWhiteInPlay() {
 		return whiteInPlay;
 	}
 
-	public short getWhiteLost() {
+	public int getWhiteLost() {
 		return whiteLost;
 	}
 
-	public short getBlackActivated() {
+	public int getBlackActivated() {
 		return blackActivated;
 	}
 
-	public short getBlackInPlay() {
+	public int getBlackInPlay() {
 		return blackInPlay;
 	}
 
-	public short getBlackLost() {
+	public int getBlackLost() {
 		return blackLost;
 	}
 
 
-	public void advancePhase() {
+	public boolean advanceRound() throws GameOver {
+		advancePhase();
+		return true;
+	}
+	
+	public boolean checkMills() {
+		return true;
+	}
+	
+    public boolean moveStone(NineMensPlayer player, int stone, int point) throws RulesViolated {
+    	if (activePlayer != player) {
+    		throw new RulesViolated("It's the other player's turn!");
+    	}
+    	
+    	boolean moveOk = stones[stone].move(board.getPoint(point));
+    	
+    	if(moveOk) {
+    		lastMoved = stones[stone];
+    		checkMills();
+    	} else {
+    		lastMoved = null;
+    	}
+    	
+    	return moveOk;
+    }
+    
+	private void advancePhase() throws GameOver {
 		switch (phase) {
-			case 0: // nine stones for each player to place on the board 
-				if (whiteActivated == 9) phase = 1; // both players are done with phase 0 in       
+			case PLACING_STONES: 
+				if (whiteActivated == 9) phase = NineMensPhase.NORMAL_PLAY;       
 				break;
 			
-			case 1: // 
+			case NORMAL_PLAY: // 
 				if (whiteLost == 7) {
-					phase = 2;
+					phase = NineMensPhase.WHITE_REDUCED;
 				} else if (blackLost == 7) {
-					phase = 4;
+					phase = NineMensPhase.BLACK_REDUCED;
 				}
 				break;
 			
-			case 2: // white in phase two
-				if (blackLost == 7) phase = 8;
+			case WHITE_REDUCED: 
+				if (blackLost == 6) { 
+					phase = NineMensPhase.BOTH_REDUCED;
+				} else if (blackLost == 9) {
+					phase = NineMensPhase.GAME_OVER;
+				}
 				break;
 			
-			case 4: // black in phase two
-				if (whiteLost == 7) phase = 8;
+			case BLACK_REDUCED:
+				if (whiteLost == 6) { 
+					phase = NineMensPhase.BOTH_REDUCED;
+				} else if (whiteLost == 9) {
+					phase = NineMensPhase.GAME_OVER;
+				}
 				break;
 			
-			case 8:  // both in phase two
-				if (whiteLost == 9 || blackLost == 9) phase = 16;
-				break;
+			case BOTH_REDUCED:
+				if (whiteLost == 9 || blackLost == 9) phase = NineMensPhase.GAME_OVER;
+			case GAME_OVER:
+				throw new GameOver();
 		}
 	}
-}  
+
+}

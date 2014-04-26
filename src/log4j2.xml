@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" name="RoutingTest" packages="de.uni_jena.min.in0043.*">
+  <Properties>
+    <Property name="filename">nine-mens.log</Property>
+  </Properties>
+  <ThresholdFilter level="trace"/>
+ 
+  <Appenders>
+    <Console name="STDOUT">
+      <PatternLayout pattern="%m%n"/>
+    </Console>
+    <RollingFile name="Rolling" fileName="${filename}"
+                 filePattern="nine-mens.log.%i.gz">
+      <PatternLayout>
+        <pattern>%d %p %c{2} %M(%F:%L) %m%n</pattern>
+      </PatternLayout>
+      <SizeBasedTriggeringPolicy size="500000" />
+    </RollingFile>
+  </Appenders>
+ 
+  <Loggers>
+    <Logger name="de.uni_jena.min.in0043.nine_mens_morris" level="trace" additivity="false">
+      <AppenderRef ref="Rolling"/>
+    </Logger>
+ 
+    <Root level="info">
+      <AppenderRef ref="STDOUT"/>
+    </Root>
+  </Loggers>
+ 
+</Configuration> 

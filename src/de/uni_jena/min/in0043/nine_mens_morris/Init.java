@@ -4,11 +4,6 @@
 package de.uni_jena.min.in0043.nine_mens_morris;
 
 import java.awt.Frame;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
@@ -16,42 +11,30 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.MutuallyExclusiveGroup;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import de.uni_jena.min.in0043.nine_mens_morris.gui.Head;
+
 /**
- * @author mariushk
+ * @author CJ0fail, thinol
  *
  */
 public class Init {
 	
-	private static Logger log = LogManager.getLogger(Init.class.getName());
+	private static Logger log = LogManager.getLogger();
 	
 	private static void gui() {
-<<<<<<< HEAD
-<<<<<<< HEAD
+		log.entry();
+
 		final Frame myFrame = new Frame();
 		myFrame.add(new Head());
-=======
-=======
->>>>>>> b67653bd2ed6a3e013fed8301fcb0ddcf5708778
-		log.entry("gui()");
-		/*final Frame myFrame = new Frame();
-		myFrame.add(new Spielfeld());
->>>>>>> b67653bd2ed6a3e013fed8301fcb0ddcf5708778
-		myFrame.setSize(800,800);
-		myFrame.setVisible(true);
-			
-		myFrame.addWindowListener(new WindowAdapter(){
-			  public void windowClosing(WindowEvent we){
-				  log.entry("windowClosing(WindowEvent we)");
-				  myFrame.dispose();
-				  log.exit("windowClosing(WindowEvent we)");
-			  }
-		});
-		*/
-		log.exit("gui()");
+
+		log.exit();
 	}
 	
 	public static void main(String[] args) {
-		log.entry("main(String[] args)");
+		log.entry();
 
         ArgumentParser parser = ArgumentParsers.newArgumentParser("nine_mens_morris")
                 .description("Play Nine Men's Morris")
@@ -77,13 +60,14 @@ public class Init {
                 .help("Play locally.")
                 .action(Arguments.storeTrue());
 
+
         try {
             parser.parseArgs(args);
             parser.printHelp();
 
             if(args.length == -1) gui();
 
-            log.exit("main(String[] args)");
+            log.exit();
         } catch (ArgumentParserException e) {
         	log.error(e);
             parser.handleError(e);

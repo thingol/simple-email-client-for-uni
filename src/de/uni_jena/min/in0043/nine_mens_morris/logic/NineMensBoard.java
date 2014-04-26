@@ -229,7 +229,6 @@ public class NineMensBoard {
 		
 		NineMensPlayer owner = point.getStone().getOwner();
 		for(LinkedList<Point> l : mills) {
-			System.out.println("mill: " + l);
 			
 			if(l.contains(point)) {
 				boolean gotMill = true;

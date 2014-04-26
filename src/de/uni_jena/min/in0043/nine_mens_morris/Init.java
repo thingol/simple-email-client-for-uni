@@ -35,6 +35,7 @@ public class Init {
 	
 	public static void main(String[] args) {
 		log.entry();
+		log.info("Starting up");
 
         ArgumentParser parser = ArgumentParsers.newArgumentParser("nine_mens_morris")
                 .description("Play Nine Men's Morris")
@@ -43,7 +44,7 @@ public class Init {
         parser.addArgument("-nd","--no-debug")
                 .action(Arguments.storeTrue())
                 .setDefault(false)
-                .help("Log all manner of (ir)relevant things");
+                .help("Disable extensive logging");
         parser.addArgument("-v","--version")
                 .action(Arguments.version())
                 .help("Show version information");
@@ -67,6 +68,7 @@ public class Init {
 
             if(args.length == -1) gui();
 
+            log.info("Shutting down");
             log.exit();
         } catch (ArgumentParserException e) {
         	log.error(e);

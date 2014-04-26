@@ -1,11 +1,13 @@
 /**
  * 
  */
-package de.uni_jena.min.in0043.nine_mens_morris.logic;
+package de.uni_jena.min.in0043.nine_mens_morris.core;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.Pseudograph;
 
@@ -13,11 +15,11 @@ import org.jgrapht.graph.Pseudograph;
  * @author mariushk
  *
  */
-public class NineMensBoard {
+public class Board {
 
 	class Point {
 		private int id;
-		private NineMensStone stone;
+		private Stone stone;
 		
 		
 		public Point(int id) {
@@ -28,7 +30,7 @@ public class NineMensBoard {
 			return id;
 		}
 		
-		public NineMensStone getStone() {
+		public Stone getStone() {
 			return stone;
 		}
 		
@@ -41,27 +43,33 @@ public class NineMensBoard {
 			return stone != null;
 		}
 		
-		public void occupy(NineMensStone stone) {
+		public void occupy(Stone stone) {
 			this.stone = stone;
 		}
 		
 	}
 	
+	private static Logger log = LogManager.getLogger();
+	
 	private Pseudograph<Point, DefaultEdge> boardGraph =
-			new Pseudograph<NineMensBoard.Point, DefaultEdge>(DefaultEdge.class);
+			new Pseudograph<Board.Point, DefaultEdge>(DefaultEdge.class);
 	
 	private ArrayList<LinkedList<Point>> mills = new ArrayList<LinkedList<Point>>(16);
 	private Point[] points = new Point[24];
 	
 	@SuppressWarnings("unchecked")
-	public NineMensBoard() {
+	public Board() {
+		log.entry();
 		
+		log.trace("creating points");
 		for(int i = 0; i < 24; i++) {
 			points[i] = new Point(i);
 			boardGraph.addVertex(points[i]);
 		}
+		log.trace("done");
 		
 		// setting up the board
+		log.trace("creating graph of board");
 		boardGraph.addEdge(points[0], points[1]);
 		boardGraph.addEdge(points[0], points[9]);
 
@@ -114,8 +122,10 @@ public class NineMensBoard {
 		boardGraph.addEdge(points[21], points[22]);
 		
 		boardGraph.addEdge(points[22], points[23]);
+		log.trace("done");
 		
 		// setting up the possible mills for easy checking
+		log.trace("setting up structures for easy checking of mills");
 		LinkedList<Point> lst = new LinkedList<Point>();
 		lst.add(points[0]);
 		lst.add(points[1]);
@@ -211,12 +221,18 @@ public class NineMensBoard {
 		lst.add(points[14]);
 		lst.add(points[23]);
 		mills.add((LinkedList<Point>)lst.clone());
+		log.trace("done");
+		log.exit();
 	}
 	
 	public boolean oneStep(Point p1, Point p2) {
+		log.entry();
+		log.trace("checking distance between points " + p1 + " and " + p2);
 		if(boardGraph.getEdge(p1, p2) != null) {
+			log.exit(true);
 			return true;
 		} else {
+			log.exit(false);
 			return false;
 		}
 	}
@@ -227,7 +243,7 @@ public class NineMensBoard {
 	
 	public boolean checkMills(Point point) {
 		
-		NineMensPlayer owner = point.getStone().getOwner();
+		Player owner = point.getStone().getOwner();
 		for(LinkedList<Point> l : mills) {
 			
 			if(l.contains(point)) {

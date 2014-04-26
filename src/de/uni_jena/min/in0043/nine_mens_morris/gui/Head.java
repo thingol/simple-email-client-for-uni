@@ -3,7 +3,7 @@ package de.uni_jena.min.in0043.nine_mens_morris.gui;
 import java.awt.*;
 import java.awt.event.*;
 
-import de.uni_jena.min.in0043.nine_mens_morris.logic.NineMensLogic;
+import de.uni_jena.min.in0043.nine_mens_morris.core.Logic;
 
 
 public class Head extends Panel implements MouseListener {
@@ -33,7 +33,7 @@ public class Head extends Panel implements MouseListener {
 		}
 	}
 	
-	public Head(NineMensLogic nnn) {
+	public Head(Logic nnn) {
 		mFra = new Frame("Nine Men's Morris - Retro Style");
 		mFra.setSize(1024, 720);
 		sF = new Spielfeld();

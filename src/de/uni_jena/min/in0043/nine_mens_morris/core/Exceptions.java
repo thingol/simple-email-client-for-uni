@@ -1,15 +1,15 @@
 /**
  * 
  */
-package de.uni_jena.min.in0043.nine_mens_morris.logic;
+package de.uni_jena.min.in0043.nine_mens_morris.core;
 
 /**
  * @author mariushk
  *
  */
-public class NineMensExceptions {
+public class Exceptions {
 	
-	static class GameOver extends Exception {
+	public static class GameOver extends Exception {
 
 		/**
 		 * 
@@ -22,7 +22,7 @@ public class NineMensExceptions {
 
 	}
 	
-	static class RulesViolated extends Exception {
+	public static class RulesViolated extends Exception {
 
 		/**
 		 * 

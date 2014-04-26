@@ -1,6 +1,6 @@
 phase PLACING_STONES: place stones
 phase NORMAL_PLAY: move one step to unoccupied point
-phase *_REDUCED: when less than four stones, move to any occupied point
+phase *_REDUCED: when less than four stones, move to any unoccupied point
 
 DONE:
 
@@ -10,18 +10,19 @@ moveStone
   * try move
     - if phase == *_REDUCED
       * if owner != active
-        - throw WrongColour
+        - return 0
       * if !isTargetValid
-        - throw IllegalMove
+        - return 0
       * move stone
       * set last moved to stone
       * checkMills
-        - if new
-          * removeStone
+        - if return 2
+
+checkMills
 
 TODO
       
-checkMills
+
 
 removeStone
   * much like moveStone

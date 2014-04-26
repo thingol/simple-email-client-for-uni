@@ -1,9 +1,14 @@
 /**
  * 
  */
-package de.uni_jena.min.in0043.nine_mens_morris;
+package de.uni_jena.min.in0043.nine_mens_morris.logic;
 
-import de.uni_jena.min.in0043.nine_mens_morris.NineMensExceptions.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import de.uni_jena.min.in0043.nine_mens_morris.Init;
+import de.uni_jena.min.in0043.nine_mens_morris.logic.NineMensBoard.Point;
+import de.uni_jena.min.in0043.nine_mens_morris.logic.NineMensExceptions.*;
 
 /**
  * @author mariushk
@@ -11,10 +16,11 @@ import de.uni_jena.min.in0043.nine_mens_morris.NineMensExceptions.*;
  */
 public class NineMensLogic {
 	
+	private static Logger log = LogManager.getLogger("EventLogger");
 	private NineMensPhase phase;
 	private NineMensBoard board;
-	private NineMensStones[] stones = new NineMensStones[18];
-	private NineMensStones lastMoved;
+	private NineMensStone[] stones = new NineMensStone[18];
+	private NineMensStone lastMoved;
 	private NineMensPlayer activePlayer;
 	
 	private int whiteActivated = 0; // {0, ..., 9}
@@ -30,10 +36,10 @@ public class NineMensLogic {
 		board = new NineMensBoard();
 		phase = NineMensPhase.PLACING_STONES;
 		activePlayer = NineMensPlayer.WHITE;
-		NineMensStones.setBoard(board);
-		for(int i = 0; i < 18;) {
-			stones[i++] = new NineMensStones(NineMensPlayer.BLACK);
-			stones[i] = new NineMensStones(NineMensPlayer.WHITE);
+		NineMensStone.setBoard(board);
+		for(int i = 0; i < 9; i++) {
+			stones[i] = new NineMensStone(NineMensPlayer.WHITE);
+			stones[i+9] = new NineMensStone(NineMensPlayer.BLACK);
 		}
 	}
 	
@@ -72,32 +78,6 @@ public class NineMensLogic {
 	}
 
 
-	public boolean advanceRound() throws GameOver {
-		advancePhase();
-		return true;
-	}
-	
-	public boolean checkMills() {
-		return true;
-	}
-	
-    public boolean moveStone(NineMensPlayer player, int stone, int point) throws RulesViolated {
-    	if (activePlayer != player) {
-    		throw new RulesViolated("It's the other player's turn!");
-    	}
-    	
-    	boolean moveOk = stones[stone].move(board.getPoint(point));
-    	
-    	if(moveOk) {
-    		lastMoved = stones[stone];
-    		checkMills();
-    	} else {
-    		lastMoved = null;
-    	}
-    	
-    	return moveOk;
-    }
-    
 	private void advancePhase() throws GameOver {
 		switch (phase) {
 			case PLACING_STONES: 
@@ -134,5 +114,41 @@ public class NineMensLogic {
 				throw new GameOver();
 		}
 	}
+	
+	public boolean advanceRound() throws GameOver {
+		advancePhase();
+		return true;
+	}
 
+    public boolean moveStone(int stone, int point) throws RulesViolated {
+    	log.debug("entering moveStone()");
+    	if (activePlayer != stones[stone].getOwner()) {
+    		log.error("Rules violated");
+    		throw new RulesViolated("It's the other player's turn!");
+    	}
+ 
+    	boolean moveOk;
+    	
+    	// not pretty...
+    	if(phase == NineMensPhase.PLACING_STONES) moveOk = stones[stone].place(board.getPoint(point));
+    	else moveOk = stones[stone].move(board.getPoint(point));
+        
+    	if(moveOk) {
+    		log.debug("move was ok");
+    		log.debug("Checking for newly created mills");
+    		if(board.checkMills(stones[stone].getPoint())) {
+    			log.debug("Mill found");   			
+    		}
+    		if(activePlayer == NineMensPlayer.WHITE) activePlayer = NineMensPlayer.BLACK;
+    		else activePlayer = NineMensPlayer.WHITE;
+    		log.debug("setting active user to " + activePlayer);
+    			
+    	} else {
+    		log.debug("move was not ok");
+    	}
+    	log.debug("leaving moveStone()");
+    	return moveOk;
+    }
+    
+	
 }

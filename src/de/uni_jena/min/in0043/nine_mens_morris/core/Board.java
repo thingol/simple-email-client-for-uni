@@ -47,6 +47,9 @@ public class Board {
 			this.stone = stone;
 		}
 		
+		public void withdraw() {
+			this.stone = null;
+		}
 	}
 	
 	private static Logger log = LogManager.getLogger();

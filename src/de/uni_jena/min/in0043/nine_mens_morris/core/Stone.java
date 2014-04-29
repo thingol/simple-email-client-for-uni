@@ -30,18 +30,24 @@ public class Stone {
 	public Point getPoint() { return point; }
 	
 	protected boolean move(Point p) {
+		log.entry(p);
 		if(p.isOccupied() || !(board.oneStep(this.point, p))) {
+			log.error("stone could not be moved");
+			log.exit(false);
 			return false;
 		}
 		
+		this.point.withdraw();
 		p.occupy(this);
 		this.point = p;
 
+		log.trace("stone moved");
+		log.exit(true);
 		return true;		
 	}
 	
 	protected boolean place(Point p) {
-		log.entry();
+		log.entry(p);
 		if(p.isOccupied() || point != null) {
 			log.error("stone could not be placed");
 			log.exit(false);
@@ -55,5 +61,11 @@ public class Stone {
 		log.exit(true);
 		return true;		
 	}
-
+	
+	protected void remove() {
+		log.entry();
+		this.point.withdraw();
+		this.point = null;
+		log.exit();
+	}
 }

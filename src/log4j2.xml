@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="warn" name="RoutingTest" packages="de.uni_jena.min.in0043.*">
+<Configuration status="info" name="RoutingTest" packages="de.uni_jena.min.in0043.*">
   <Properties>
     <Property name="filename">nine-mens.log</Property>
   </Properties>
@@ -7,7 +7,7 @@
  
   <Appenders>
     <Console name="STDOUT">
-      <PatternLayout pattern="%m%n"/>
+      <PatternLayout pattern="%d %p %c{2} %M(%F:%L) %m%n"/>
     </Console>
     <RollingFile name="Rolling" fileName="${filename}"
                  filePattern="nine-mens.log.%i.gz">
@@ -19,7 +19,7 @@
   </Appenders>
  
   <Loggers>
-    <Logger name="de.uni_jena.min.in0043.nine_mens_morris" level="trace" additivity="false">
+    <Logger name="de.uni_jena.min.in0043.nine_mens_morris" level="trace" additivity="true">
       <AppenderRef ref="Rolling"/>
     </Logger>
  

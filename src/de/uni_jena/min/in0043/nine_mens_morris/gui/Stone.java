@@ -16,5 +16,11 @@ public class Stone{
 		placedAt = -1;
 		inPlacement = false;
 	}
+	
+	public void set()
+	{
+		if(inPlacement)
+		{posY -= 1;}
+	}
 
 }

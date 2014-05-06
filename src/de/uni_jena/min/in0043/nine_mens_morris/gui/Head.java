@@ -10,11 +10,14 @@ import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
 public class Head extends Panel implements MouseListener {
 
 	private static final long serialVersionUID = -5704850734397028920L;
-	public Spielfeld sF;
-	public Stone[] Black;
-	public Stone[] White;
-	public Frame mFra;
-	Logic nmm;
+	private Spielfeld sF;
+	private Stone[] Black;
+	private Stone[] White;
+	private Frame mFra;
+	private Logic nmm;
+	private boolean mill;
+	private boolean millBlocked;
+	
 
 	public Head() {
 		mFra = new Frame("Nine Men's Morris - Retro Style");
@@ -22,6 +25,9 @@ public class Head extends Panel implements MouseListener {
 		sF = new Spielfeld();
 		Black = new Stone[9];
 		White = new Stone[9];
+		mill = false;
+		millBlocked = false;
+		nmm = new Logic();
 
 		for (int i = 0; i < 9; i++) {
 			int r = mFra.getSize().width * mFra.getSize().height / 30000;
@@ -41,6 +47,7 @@ public class Head extends Panel implements MouseListener {
 		sF = new Spielfeld();
 		Black = new Stone[9];
 		White = new Stone[9];
+		mill = false;
 		nmm = nnn;
 
 		for (int i = 0; i < 9; i++) {
@@ -160,15 +167,22 @@ public class Head extends Panel implements MouseListener {
 		});
 	}
 	
-	public void moveBSt(MouseEvent e)
+	public void moveS(MouseEvent e)
 	{
+		Stone[] st = new Stone[9];
 		boolean yep = true;
 		int r = mFra.getSize().width * mFra.getSize().height / 30000 /2;
+		int x = e.getX();
+		int y = e.getY();
+		//Which Stone do we want to move?
+		if(nmm.getActivePlayer() == Player.WHITE)
+		{	st = White;	}
+		else st = Black;
 		
 		for(int i = 0; i < 9; i++)
 		{
 			//This sets the stone to a corner
-			if(Black[i].inPlacement == true && Black[i].placed == false && Black[i].now == true)
+			if(st[i].inPlacement == true && st[i].placed == false && st[i].now == true)
 			{  //Did I choose a piece?            Is it already placed?     Else the Stone moves instantly
 				for(int l = 0; l < 24; l++)
 				{
@@ -178,13 +192,19 @@ public class Head extends Panel implements MouseListener {
 						{
 							if(e.getX() == sF.placement[l][0] - r + j && e.getY() == sF.placement[l][1] -r + k && sF.placed[l] == false)
 							{
-								Black[i].inPlacement = false;
-								Black[i].posX = sF.placement[l][0] - r;
-								Black[i].posY = sF.placement[l][1] - r;
+								int s;
+								if(nmm.getActivePlayer() == Player.WHITE) s = i;
+								else s = i+9;
+								if(nmm.moveStone(s, l) > 0)
+								{st[i].inPlacement = false;
+								st[i].posX = sF.placement[l][0] - r;
+								st[i].posY = sF.placement[l][1] - r;
 								sF.placed[l] = true;
-								Black[i].placed = true;
+								st[i].placed = true;
 								yep = true;
-								break;
+								if(nmm.moveStone(s, l) == 2)
+								if(millBlocked == false) mill = true;
+								break;}
 							}
 						}
 					}
@@ -193,103 +213,68 @@ public class Head extends Panel implements MouseListener {
 			//This just wants to know if one stone has been selected yet
 			for(int j = 0; j < 9; j++)
 			{
-				if(Black[j].inPlacement == true)
-					yep = false;
-			}
-			
-			if(Black[i].inPlacement == false && yep == true && Black[i].placed == false) {
-				
-			for(int j = 0; j < 2*r; j++)
-			{
-				for(int k = 0; k < 2*r; k++)
-				{
-					if(e.getX() == Black[i].posX + j)
-					{
-						if(e.getY() == Black[i].posY + k)
-						{
-							Black[i].inPlacement = true;
-							Black[i].set();
-						}
-					}
-				}
-			}//forJ
-			}//if
-			
-		}//forI
-	}
-	
-	public void moveWSt(MouseEvent e)
-	{
-		boolean yep = true;
-		int height = mFra.getSize().height;
-		int width = mFra.getSize().width;
-		int r = width * height / 30000 /2;
-		int x = e.getX();
-		int y = e.getY();
-		for(int i = 0; i < 9; i++)
-		{
-			//This sets the stone to a corner
-			if(White[i].inPlacement == true && White[i].placed == false && White[i].now == true)
-			{  //Did I choose a piece?            Is it already placed?     Else the Stone moves instantly
-				for(int l = 0; l < 24; l++)
-				{
-					for(int j = 0; j < 2*r; j++)
-					{
-						for(int k = 0; k < 2*r; k++)
-						{
-							if(e.getX() == sF.placement[l][0] - r + j && e.getY() == sF.placement[l][1] -r + k && sF.placed[l] == false)
-							{
-								White[i].inPlacement = false;
-								White[i].posX = sF.placement[l][0] - r;
-								White[i].posY = sF.placement[l][1] - r;
-								sF.placed[l] = true;
-								White[i].placed = true;
-								yep = true;
-								break;
-							}
-						}
-					}
-				}
-			}
-			//This just wants to know if one stone has been selected yet
-			for(int j = 0; j < 9; j++)
-			{
-				if(White[j].inPlacement == true)
+				if(st[j].inPlacement == true)
 					yep = false;
 			}
 			//Selects the Stone
-			if(White[i].inPlacement == false && yep == true && White[i].placed == false) {
+			if(st[i].inPlacement == false && yep == true && st[i].placed == false) {
 				// >> I didn't choose a piece yet, doesn't work tho...
 			for(int j = 0; j < 2*r; j++)
 			{
 				for(int k = 0; k < 2*r; k++)
 				{
-					if(x == White[i].posX + j)
+					if(x == st[i].posX + j)
 					{
-						if(y == White[i].posY + k)
+						if(y == st[i].posY + k)
 						{
-							White[i].inPlacement = true;
-							White[i].set();
+							st[i].inPlacement = true;
+							st[i].set();
 						}
 					}
-				} // REGADOEFKNOEJKEN
+				}
 			}//forJ
 			}//if
 			
 		}//forI
+		
+		if(nmm.getActivePlayer() == Player.BLACK)
+		{	st = Black;	}
+		else st = White;
 	}
 	
-	public void delete()
+	public void delete(MouseEvent e)
 	{
-		for(int i = 0; i<9; i++)
+		Stone[] st = new Stone[9];
+		if(nmm.getActivePlayer() == Player.BLACK)
+		{	st = White;	}
+		else st = Black;
+		int r = mFra.getSize().width * mFra.getSize().height / 30000 /2;
+		
+		for(int i = 0; i < 9; i++)
 		{
-			if( nmm.removeStone(i) == true)
-		   {Black[i].posX = -50;
-			Black[i].posY = -50;}
-		if(nmm.removeStone(i+9) == true)
-			{White[i].posX = -50;
-			White[i].posY = -50;}
+			for(int j = 0; j < 2*r; j++)
+			{
+				for(int k = 0; k < 2*r; k++)
+				{
+					if(e.getX() == st[i].posX + j && e.getY() == st[i].posY + k)
+					{
+						if(nmm.getActivePlayer() == Player.BLACK){
+							nmm.removeStone(i);
+						}
+						else{
+							nmm.removeStone(i+9);
+						}
+						st[i].posX = -50;
+						st[i].posY = -50;
+						
+					}
+				}
+			}
 		}
+		if(nmm.getActivePlayer() == Player.BLACK)
+		{	White = st;	}
+		else Black = st;
+		repaint();
 	}
 
 	
@@ -300,10 +285,14 @@ public class Head extends Panel implements MouseListener {
 	public void mousePressed(MouseEvent e) {
 //				this.setBackground(new Color((int) (Math.random()*255),(int) (Math.random()*255),(int) (Math.random()*255)));
 //				repaint();
-				if(nmm.getActivePlayer() == Player.BLACK)
-					moveBSt(e);
-				else if(nmm.getActivePlayer() == Player.WHITE)
-					moveWSt(e);
+				if(mill)
+				{	delete(e);
+					mill = false;
+					millBlocked = true;}
+				else{
+					moveS(e);
+					millBlocked = false;
+				}
 				
 	}
 

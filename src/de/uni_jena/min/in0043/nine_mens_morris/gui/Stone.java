@@ -21,6 +21,10 @@ public class Stone{
 	{
 		if(inPlacement)
 		{posY -= 1;}
+		if(placedAt == -2)
+		{posX = -50;
+		 posY = -50;
+		}
 	}
 
 }

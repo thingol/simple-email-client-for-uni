@@ -60,45 +60,51 @@ public class Logic {
 
 	private void advancePhase() {
 		log.entry();
+		Phase newPhase = phase;
 		switch (phase) {
 			case PLACING_STONES: 
 				if (whiteActivated == 9) {
-					phase = Phase.NORMAL_PLAY;
+					newPhase = Phase.NORMAL_PLAY;
 				}
 				break;
 			
 			case NORMAL_PLAY:
 				if (whiteLost == 7) {
-					phase = Phase.WHITE_REDUCED;
+					newPhase = Phase.WHITE_REDUCED;
 				} else if (blackLost == 7) {
-					phase = Phase.BLACK_REDUCED;
+					newPhase = Phase.BLACK_REDUCED;
 				}
 				break;
 			
 			case WHITE_REDUCED: 
 				if (blackLost == 6) { 
-					phase = Phase.BOTH_REDUCED;
+					newPhase = Phase.BOTH_REDUCED;
 				} else if (blackLost == 9) {
-					phase = Phase.GAME_OVER;
+					newPhase = Phase.GAME_OVER;
 				}
 				break;
 			
 			case BLACK_REDUCED:
 				if (whiteLost == 6) { 
-					phase = Phase.BOTH_REDUCED;
+					newPhase = Phase.BOTH_REDUCED;
 				} else if (whiteLost == 9) {
-					phase = Phase.GAME_OVER;
+					newPhase = Phase.GAME_OVER;
 				}
 				break;
 			
 			case BOTH_REDUCED:
-				if (whiteLost == 9 || blackLost == 9) phase = Phase.GAME_OVER;
+				if (whiteLost == 9 || blackLost == 9) newPhase = Phase.GAME_OVER;
 				break;
 
 			case GAME_OVER:
 				log.error("Game is over!");
+
 		}
-		log.info("Moving to phase " + phase);
+		if(phase == newPhase) {
+			log.info("Phase is " + phase);
+		} else {
+			log.info("Moving to phase " + phase);
+		}
 		log.exit();
 	}
 	

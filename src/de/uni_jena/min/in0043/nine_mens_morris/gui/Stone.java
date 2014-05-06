@@ -17,14 +17,16 @@ public class Stone{
 		inPlacement = false;
 	}
 	
-	public void set()
+	public void set(int pla)
 	{
-		if(inPlacement)
-		{posY -= 1;}
-		if(placedAt == -2)
-		{posX = -50;
-		 posY = -50;
-		}
+		posY -= pla;
+	}
+	
+	public void set(int pla, int bla)
+	{
+		posX = pla;
+		posY = bla;
+		
 	}
 
 }

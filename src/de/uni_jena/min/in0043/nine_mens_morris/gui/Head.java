@@ -26,7 +26,6 @@ public class Head extends Panel implements MouseListener {
 		Black = new Stone[9];
 		White = new Stone[9];
 		mill = false;
-		millBlocked = false;
 		nmm = new Logic();
 
 		for (int i = 0; i < 9; i++) {
@@ -195,15 +194,16 @@ public class Head extends Panel implements MouseListener {
 								int s;
 								if(nmm.getActivePlayer() == Player.WHITE) s = i;
 								else s = i+9;
-								if(nmm.moveStone(s, l) > 0)
+								int z = nmm.moveStone(s, l);
+								if(z > 0)
 								{st[i].inPlacement = false;
 								st[i].posX = sF.placement[l][0] - r;
 								st[i].posY = sF.placement[l][1] - r;
 								sF.placed[l] = true;
+								st[i].placedAt = l;
 								st[i].placed = true;
 								yep = true;
-								if(nmm.moveStone(s, l) == 2)
-								if(millBlocked == false) mill = true;
+								if(z == 2) mill = true;
 								break;}
 							}
 						}
@@ -216,6 +216,7 @@ public class Head extends Panel implements MouseListener {
 				if(st[j].inPlacement == true)
 					yep = false;
 			}
+			
 			//Selects the Stone
 			if(st[i].inPlacement == false && yep == true && st[i].placed == false) {
 				// >> I didn't choose a piece yet, doesn't work tho...
@@ -225,10 +226,10 @@ public class Head extends Panel implements MouseListener {
 				{
 					if(x == st[i].posX + j)
 					{
-						if(y == st[i].posY + k)
-						{
+						if(y == st[i].posY + k && st[i].inPlacement == false)
+						{							//else this function is not deterministic
 							st[i].inPlacement = true;
-							st[i].set();
+							st[i].set(5);
 						}
 					}
 				}
@@ -236,10 +237,7 @@ public class Head extends Panel implements MouseListener {
 			}//if
 			
 		}//forI
-		
-		if(nmm.getActivePlayer() == Player.BLACK)
-		{	st = Black;	}
-		else st = White;
+
 	}
 	
 	public void delete(MouseEvent e)
@@ -258,41 +256,42 @@ public class Head extends Panel implements MouseListener {
 				{
 					if(e.getX() == st[i].posX + j && e.getY() == st[i].posY + k)
 					{
+						boolean m2;
 						if(nmm.getActivePlayer() == Player.BLACK){
-							nmm.removeStone(i);
+							m2 = nmm.removeStone(i);
 						}
 						else{
-							nmm.removeStone(i+9);
+							m2 = nmm.removeStone(i+9);
 						}
-						st[i].posX = -50;
-						st[i].posY = -50;
-						
+						if(m2) {
+						sF.placed[st[i].placedAt] = false;
+						st[i].placedAt = -2;
+						st[i].set(-50, -50);
+						mill = false;
+						}
 					}
 				}
 			}
 		}
-		if(nmm.getActivePlayer() == Player.BLACK)
-		{	White = st;	}
-		else Black = st;
-		repaint();
+			repaint();
 	}
 
 	
 	
 	public void mouseClicked(MouseEvent e) {
+		
+		System.out.println(mill);
+		
+		if(mill)
+		{	delete(e);}
+		else{
+			moveS(e);
+		}
 	}
 
 	public void mousePressed(MouseEvent e) {
 //				this.setBackground(new Color((int) (Math.random()*255),(int) (Math.random()*255),(int) (Math.random()*255)));
 //				repaint();
-				if(mill)
-				{	delete(e);
-					mill = false;
-					millBlocked = true;}
-				else{
-					moveS(e);
-					millBlocked = false;
-				}
 				
 	}
 

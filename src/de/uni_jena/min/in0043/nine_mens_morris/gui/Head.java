@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import de.uni_jena.min.in0043.nine_mens_morris.core.Logic;
+import de.uni_jena.min.in0043.nine_mens_morris.core.Phase;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
 
 
@@ -16,7 +17,6 @@ public class Head extends Panel implements MouseListener {
 	private Frame mFra;
 	private Logic nmm;
 	private boolean mill;
-	private boolean millBlocked;
 	
 
 	public Head() {
@@ -178,11 +178,14 @@ public class Head extends Panel implements MouseListener {
 		{	st = White;	}
 		else st = Black;
 		
-		for(int i = 0; i < 9; i++)
+		if(nmm.getPhase() == Phase.PLACING_STONES)
 		{
+			for(int i = 0; i < 9; i++)
+		{
+			
 			//This sets the stone to a corner
-			if(st[i].inPlacement == true && st[i].placed == false && st[i].now == true)
-			{  //Did I choose a piece?            Is it already placed?     Else the Stone moves instantly
+			if(st[i].inPlacement == true && st[i].placed == false)
+			{  //Did I choose a piece?            Is it already placed?
 				for(int l = 0; l < 24; l++)
 				{
 					for(int j = 0; j < 2*r; j++)
@@ -237,7 +240,73 @@ public class Head extends Panel implements MouseListener {
 			}//if
 			
 		}//forI
-
+		}
+		else {
+			for(int i = 0; i < 9; i++)
+			{
+				if(st[i].inPlacement == true)
+				{  //Did I choose a piece?            Is it already placed?
+					for(int l = 0; l < 24; l++)
+					{
+						for(int j = 0; j < 2*r; j++)
+						{
+							for(int k = 0; k < 2*r; k++)
+							{
+								if(e.getX() == sF.placement[l][0] - r + j && e.getY() == sF.placement[l][1] -r + k)
+								{
+									int s;
+									if(nmm.getActivePlayer() == Player.WHITE) s = i;
+									else s = i+9;
+									int z = nmm.moveStone(s, l);
+									if(z > 0)
+									{st[i].inPlacement = false;
+									st[i].posX = sF.placement[l][0] - r;
+									st[i].posY = sF.placement[l][1] - r;
+									sF.placed[l] = true;
+									st[i].placedAt = l;
+									st[i].placed = true;
+									yep = true;
+									if(z == 2) mill = true;
+									break;}
+									else
+									{
+										System.out.println("ERROR!");
+									}
+								}
+							}
+						}
+					}
+				}
+				//This just wants to know if one stone has been selected yet
+				for(int j = 0; j < 9; j++)
+				{
+					if(st[j].inPlacement == true)
+						yep = false;
+				}
+				
+				//Selects the Stone
+				if(st[i].inPlacement == false && yep == true && st[i].placed == false) {
+					// >> I didn't choose a piece yet, doesn't work tho...
+				for(int j = 0; j < 2*r; j++)
+				{
+					for(int k = 0; k < 2*r; k++)
+					{
+						if(x == st[i].posX + j)
+						{
+							if(y == st[i].posY + k && st[i].inPlacement == false)
+							{							//else this function is not deterministic
+								st[i].inPlacement = true;
+								st[i].set(5);
+							}
+						}
+					}
+				}//forJ
+				}//if
+				
+			}//forI
+		}
+		
+		System.out.println(nmm.getPhase());
 	}
 	
 	public void delete(MouseEvent e)
@@ -297,10 +366,6 @@ public class Head extends Panel implements MouseListener {
 
 	public void mouseReleased(MouseEvent e) {
 		repaint();
-		for(int i = 0; i < 9; i++)
-		{if(Black[i].inPlacement == true && Black[i].placed == false) Black[i].now = true;
-		if(White[i].inPlacement == true && White[i].placed == false) White[i].now = true;
-		}
 	}
 
 	public void mouseEntered(MouseEvent e) {

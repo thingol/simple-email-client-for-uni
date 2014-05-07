@@ -7,7 +7,6 @@ public class Stone{
 	public int placedAt;
 	public boolean placed;
 	public boolean inPlacement;
-	public boolean now;
 	
 	public Stone()
 	{

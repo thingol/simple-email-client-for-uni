@@ -242,6 +242,7 @@ public class Head extends Panel implements MouseListener {
 		}//forI
 		}
 		else {
+			
 			for(int i = 0; i < 9; i++)
 			{
 				if(st[i].inPlacement == true)
@@ -270,6 +271,8 @@ public class Head extends Panel implements MouseListener {
 									break;}
 									else
 									{
+										st[i].inPlacement = false;
+										st[i].set(-5);
 										System.out.println("ERROR!");
 									}
 								}
@@ -285,8 +288,7 @@ public class Head extends Panel implements MouseListener {
 				}
 				
 				//Selects the Stone
-				if(st[i].inPlacement == false && yep == true && st[i].placed == false) {
-					// >> I didn't choose a piece yet, doesn't work tho...
+				if(st[i].inPlacement == false && yep == true) {
 				for(int j = 0; j < 2*r; j++)
 				{
 					for(int k = 0; k < 2*r; k++)
@@ -305,8 +307,6 @@ public class Head extends Panel implements MouseListener {
 				
 			}//forI
 		}
-		
-		System.out.println(nmm.getPhase());
 	}
 	
 	public void delete(MouseEvent e)

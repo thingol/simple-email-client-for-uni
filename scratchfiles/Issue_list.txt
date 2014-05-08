@@ -34,3 +34,9 @@ stones
 point
   * id
   * inUse
+
+Head
+	Selects stone after it has been set
+	Where once was a stone, if you click it and
+	the currently selected stone can't move there
+	it magically gets unselected

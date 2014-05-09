@@ -3,6 +3,9 @@ package de.uni_jena.min.in0043.nine_mens_morris.gui;
 import java.awt.*;
 import java.awt.event.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uni_jena.min.in0043.nine_mens_morris.core.Logic;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Phase;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
@@ -11,6 +14,7 @@ import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
 public class Head extends Panel implements MouseListener {
 
 	private static final long serialVersionUID = -5704850734397028920L;
+	private static Logger log = LogManager.getLogger();
 	private Spielfeld sF;
 	private Stone[] Black;
 	private Stone[] White;
@@ -241,6 +245,7 @@ public class Head extends Panel implements MouseListener {
 			
 		}//forI
 		}
+		//Every other phase
 		else {
 			
 			for(int i = 0; i < 9; i++)
@@ -263,7 +268,6 @@ public class Head extends Panel implements MouseListener {
 									{st[i].inPlacement = false;
 									st[i].posX = sF.placement[l][0] - r;
 									st[i].posY = sF.placement[l][1] - r;
-									sF.placed[l] = true;
 									st[i].placedAt = l;
 									st[i].placed = true;
 									yep = true;
@@ -273,7 +277,7 @@ public class Head extends Panel implements MouseListener {
 									{
 										st[i].inPlacement = false;
 										st[i].set(-5);
-										System.out.println("ERROR!");
+										log.error("ERROR!");
 									}
 								}
 							}
@@ -349,7 +353,7 @@ public class Head extends Panel implements MouseListener {
 	
 	public void mouseClicked(MouseEvent e) {
 		
-		System.out.println(mill);
+		log.trace("mill = " + mill);
 		
 		if(mill)
 		{	delete(e);}

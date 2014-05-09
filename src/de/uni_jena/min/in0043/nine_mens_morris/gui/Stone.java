@@ -16,12 +16,12 @@ public class Stone{
 		inPlacement = false;
 	}
 	
-	public void set(int pla)
+	protected void set(int pla)
 	{
 		posY -= pla;
 	}
 	
-	public void set(int pla, int bla)
+	protected void set(int pla, int bla)
 	{
 		posX = pla;
 		posY = bla;

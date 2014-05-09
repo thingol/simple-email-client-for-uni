@@ -18,7 +18,7 @@ import de.uni_jena.min.in0043.nine_mens_morris.core.Logic;
  * @author mariushk
  *
  */
-public class Moves {
+public class FullGame {
 	private static Logic nml;
 
 	/**
@@ -62,6 +62,8 @@ public class Moves {
 		assertEquals("nml.moveStone(8,18)  => 1",1,nml.moveStone(8,18));
 		assertEquals("nml.moveStone(17,17) => 2",2,nml.moveStone(17,17));
 		assertTrue("nml.removeStone(8)    => true", nml.removeStone(8));
-		}
+
+		
+	}
 
 }

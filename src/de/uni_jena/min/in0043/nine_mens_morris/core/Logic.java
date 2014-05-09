@@ -59,41 +59,45 @@ public class Logic {
 
 
 	private void advancePhase() {
-		log.entry("whiteActivated: " + whiteActivated + ", blackActivated: " + blackActivated);
+		log.entry("round: " + round + ", phase: " + phase);
 		Phase oldPhase = phase;
 		switch (phase) {
-			case PLACING_STONES: 
+			case PLACING_STONES:
+				log.trace("whiteActivated: " + whiteActivated + ", blackActivated: " + blackActivated);
 				if (whiteActivated == 9) {
 					phase = Phase.NORMAL_PLAY;
 				}
 				break;
 			
 			case NORMAL_PLAY:
-				if (whiteLost == 7) {
+				log.trace("whiteLost: " + whiteLost + ", blackLost: " + blackLost);
+				if (whiteLost == 6) {
 					phase = Phase.WHITE_REDUCED;
-				} else if (blackLost == 7) {
+				} else if (blackLost == 6) {
 					phase = Phase.BLACK_REDUCED;
 				}
 				break;
 			
-			case WHITE_REDUCED: 
+			case WHITE_REDUCED:
+				log.trace("blackLost: " + blackLost);
 				if (blackLost == 6) { 
 					phase = Phase.BOTH_REDUCED;
-				} else if (blackLost == 9) {
+				} else if (whiteLost == 7) {
 					phase = Phase.GAME_OVER;
 				}
 				break;
 			
 			case BLACK_REDUCED:
+				log.trace("whiteLost: " + whiteLost);
 				if (whiteLost == 6) { 
 					phase = Phase.BOTH_REDUCED;
-				} else if (whiteLost == 9) {
+				} else if (blackLost == 7) {
 					phase = Phase.GAME_OVER;
 				}
 				break;
 			
 			case BOTH_REDUCED:
-				if (whiteLost == 9 || blackLost == 9) phase = Phase.GAME_OVER;
+				if (whiteLost == 7 || blackLost == 7) phase = Phase.GAME_OVER;
 				break;
 
 			case GAME_OVER:
@@ -197,9 +201,14 @@ public class Logic {
 			log.info("removing stone");
 			st.remove();
 			removeStone = false;
-			if(activePlayer == Player.WHITE) activePlayer = Player.BLACK;
+			if(activePlayer == Player.WHITE) {
+				activePlayer = Player.BLACK;
+				blackLost++;
+				advancePhase();
+			}
     		else {
     			activePlayer = Player.WHITE;
+                whiteLost++;
     			advanceRound();
     		}
     		log.trace("setting active user to " + activePlayer);

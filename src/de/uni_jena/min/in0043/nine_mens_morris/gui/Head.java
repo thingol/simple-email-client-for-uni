@@ -3,6 +3,9 @@ package de.uni_jena.min.in0043.nine_mens_morris.gui;
 import java.awt.*;
 import java.awt.event.*;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.uni_jena.min.in0043.nine_mens_morris.core.Logic;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Phase;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
@@ -10,6 +13,7 @@ import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
 public class Head extends Panel implements MouseListener {
 
 	private static final long serialVersionUID = -5704850734397028920L;
+	private static Logger log = LogManager.getLogger();
 	private Spielfeld sF;
 	private Stone[] Black;
 	private Stone[] White;
@@ -222,6 +226,7 @@ public class Head extends Panel implements MouseListener {
 					if (st[j].inPlacement == true)
 						yep = false;
 				}
+<<<<<<< HEAD
 
 				// Selects the Stone
 				if (st[i].inPlacement == false && yep == true
@@ -260,6 +265,41 @@ public class Head extends Panel implements MouseListener {
 									int s;
 									if (nmm.getActivePlayer() == Player.WHITE)
 										s = i;
+=======
+			}//forJ
+			}//if
+			
+		}//forI
+		}
+		//Every other phase
+		else {
+			
+			for(int i = 0; i < 9; i++)
+			{
+				if(st[i].inPlacement == true)
+				{  //Did I choose a piece?            Is it already placed?
+					for(int l = 0; l < 24; l++)
+					{
+						for(int j = 0; j < 2*r; j++)
+						{
+							for(int k = 0; k < 2*r; k++)
+							{
+								if(e.getX() == sF.placement[l][0] - r + j && e.getY() == sF.placement[l][1] -r + k)
+								{
+									int s;
+									if(nmm.getActivePlayer() == Player.WHITE) s = i;
+									else s = i+9;
+									int z = nmm.moveStone(s, l);
+									if(z > 0)
+									{st[i].inPlacement = false;
+									st[i].posX = sF.placement[l][0] - r;
+									st[i].posY = sF.placement[l][1] - r;
+									st[i].placedAt = l;
+									st[i].placed = true;
+									yep = true;
+									if(z == 2) mill = true;
+									break;}
+>>>>>>> dc9ef1b8f5c3268604c4a77f04e1a693c35af443
 									else
 										s = i + 9;
 									int z = nmm.moveStone(s, l);
@@ -277,7 +317,7 @@ public class Head extends Panel implements MouseListener {
 									} else {
 										st[i].inPlacement = false;
 										st[i].set(-5);
-										System.out.println("ERROR!");
+										log.error("ERROR!");
 									}
 								}
 							}
@@ -347,12 +387,21 @@ public class Head extends Panel implements MouseListener {
 	}
 
 	public void mouseClicked(MouseEvent e) {
+<<<<<<< HEAD
 
 		System.out.println(mill);
 
 		if (mill) {
 			delete(e);
 		} else {
+=======
+		
+		log.trace("mill = " + mill);
+		
+		if(mill)
+		{	delete(e);}
+		else{
+>>>>>>> dc9ef1b8f5c3268604c4a77f04e1a693c35af443
 			moveS(e);
 		}
 	}

@@ -17,13 +17,8 @@ moveStone
       * set last moved to stone
       * checkMills
         - if return 2
-
-checkMills
-
-TODO
-      
-
-
+        
+ 
 removeStone
   * much like moveStone
   
@@ -40,3 +35,15 @@ Head
 	Where once was a stone, if you click it and
 	the currently selected stone can't move there
 	it magically gets unselected
+
+checkMills
+
+TODO
+      
+moveStone
+	Can at least one stone move
+
+GUI
+	make things more private if possible
+	Stones are set(5) after placed
+	Redundantes rausstreichen

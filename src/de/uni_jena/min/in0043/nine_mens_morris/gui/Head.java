@@ -7,7 +7,6 @@ import de.uni_jena.min.in0043.nine_mens_morris.core.Logic;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Phase;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
 
-
 public class Head extends Panel implements MouseListener {
 
 	private static final long serialVersionUID = -5704850734397028920L;
@@ -17,7 +16,6 @@ public class Head extends Panel implements MouseListener {
 	private Frame mFra;
 	private Logic nmm;
 	private boolean mill;
-	
 
 	public Head() {
 		mFra = new Frame("Nine Men's Morris - Retro Style");
@@ -39,7 +37,7 @@ public class Head extends Panel implements MouseListener {
 			White[i].posY = mFra.getSize().height - 80;
 		}
 	}
-	
+
 	public Head(Logic nnn) {
 		mFra = new Frame("Nine Men's Morris - Retro Style");
 		mFra.setSize(1024, 720);
@@ -60,7 +58,7 @@ public class Head extends Panel implements MouseListener {
 			White[i].posY = mFra.getSize().height - 50;
 		}
 	}
-	
+
 	public void paint(Graphics g) {
 		int height = mFra.getSize().height;
 		int width = mFra.getSize().width;
@@ -69,13 +67,13 @@ public class Head extends Panel implements MouseListener {
 		int addX = middleX - middleX / 4;
 		int addY = middleY - middleY / 4;
 		int r = width * height / 30000;
-		
-		/*for (int i = 0; i < 9; i++) {
-		Black[i].posX = 40 + i * r;
-		Black[i].posY = mFra.getSize().height - 80;
-		White[i].posX = mFra.getSize().width - 80 - i * r;
-		White[i].posY = mFra.getSize().height - 80;
-		}*/
+
+		/*
+		 * for (int i = 0; i < 9; i++) { Black[i].posX = 40 + i * r;
+		 * Black[i].posY = mFra.getSize().height - 80; White[i].posX =
+		 * mFra.getSize().width - 80 - i * r; White[i].posY =
+		 * mFra.getSize().height - 80; }
+		 */
 
 		{// Board
 			// Outer
@@ -135,12 +133,11 @@ public class Head extends Panel implements MouseListener {
 		}
 
 		for (int i = 0; i < 9; i++) {
-			if(Black[i] != null && White[i] != null)
-			{
+			if (Black[i] != null && White[i] != null) {
 				g.fillOval(Black[i].posX, Black[i].posY, r, r);
 				g.drawOval(White[i].posX, White[i].posY, r, r);
-			}
-			else;
+			} else
+				;
 		}
 		sF.places(mFra);
 	}
@@ -165,112 +162,119 @@ public class Head extends Panel implements MouseListener {
 			}
 		});
 	}
-	
-	public void moveS(MouseEvent e)
-	{
+
+	public void moveS(MouseEvent e) {
 		Stone[] st = new Stone[9];
 		boolean yep = true;
-		int r = mFra.getSize().width * mFra.getSize().height / 30000 /2;
+		int r = mFra.getSize().width * mFra.getSize().height / 30000 / 2;
 		int x = e.getX();
 		int y = e.getY();
-		//Which Stone do we want to move?
-		if(nmm.getActivePlayer() == Player.WHITE)
-		{	st = White;	}
-		else st = Black;
-		
-		if(nmm.getPhase() == Phase.PLACING_STONES)
-		{
-			for(int i = 0; i < 9; i++)
-		{
-			
-			//This sets the stone to a corner
-			if(st[i].inPlacement == true && st[i].placed == false)
-			{  //Did I choose a piece?            Is it already placed?
-				for(int l = 0; l < 24; l++)
-				{
-					for(int j = 0; j < 2*r; j++)
-					{
-						for(int k = 0; k < 2*r; k++)
-						{
-							if(e.getX() == sF.placement[l][0] - r + j && e.getY() == sF.placement[l][1] -r + k && sF.placed[l] == false)
-							{
-								int s;
-								if(nmm.getActivePlayer() == Player.WHITE) s = i;
-								else s = i+9;
-								int z = nmm.moveStone(s, l);
-								if(z > 0)
-								{st[i].inPlacement = false;
-								st[i].posX = sF.placement[l][0] - r;
-								st[i].posY = sF.placement[l][1] - r;
-								sF.placed[l] = true;
-								st[i].placedAt = l;
-								st[i].placed = true;
-								yep = true;
-								if(z == 2) mill = true;
-								break;}
+		// Which Stone do we want to move?
+		if (nmm.getActivePlayer() == Player.WHITE) {
+			st = White;
+		} else
+			st = Black;
+
+		if (nmm.getPhase() == Phase.PLACING_STONES) {
+			for (int i = 0; i < 9; i++) {
+
+				// This sets the stone to a corner
+				if (st[i].inPlacement == true && st[i].placed == false) { // Did
+																			// I
+																			// choose
+																			// a
+																			// piece?
+																			// Is
+																			// it
+																			// already
+																			// placed?
+					for (int l = 0; l < 24; l++) {
+						for (int j = 0; j < 2 * r; j++) {
+							for (int k = 0; k < 2 * r; k++) {
+								if (e.getX() == sF.placement[l][0] - r + j
+										&& e.getY() == sF.placement[l][1] - r
+												+ k && sF.placed[l] == false) {
+									int s;
+									if (nmm.getActivePlayer() == Player.WHITE)
+										s = i;
+									else
+										s = i + 9;
+									int z = nmm.moveStone(s, l);
+									if (z > 0) {
+										st[i].inPlacement = false;
+										st[i].posX = sF.placement[l][0] - r;
+										st[i].posY = sF.placement[l][1] - r;
+										sF.placed[l] = true;
+										st[i].placedAt = l;
+										st[i].placed = true;
+										yep = true;
+										if (z == 2)
+											mill = true;
+										break;
+									}
+								}
 							}
 						}
 					}
 				}
-			}
-			//This just wants to know if one stone has been selected yet
-			for(int j = 0; j < 9; j++)
-			{
-				if(st[j].inPlacement == true)
-					yep = false;
-			}
-			
-			//Selects the Stone
-			if(st[i].inPlacement == false && yep == true && st[i].placed == false) {
-				// >> I didn't choose a piece yet, doesn't work tho...
-			for(int j = 0; j < 2*r; j++)
-			{
-				for(int k = 0; k < 2*r; k++)
-				{
-					if(x == st[i].posX + j)
-					{
-						if(y == st[i].posY + k && st[i].inPlacement == false)
-						{							//else this function is not deterministic
-							st[i].inPlacement = true;
-							st[i].set(5);
-						}
-					}
+				// This just wants to know if one stone has been selected yet
+				for (int j = 0; j < 9; j++) {
+					if (st[j].inPlacement == true)
+						yep = false;
 				}
-			}//forJ
-			}//if
-			
-		}//forI
-		}
-		else {
-			
-			for(int i = 0; i < 9; i++)
-			{
-				if(st[i].inPlacement == true)
-				{  //Did I choose a piece?            Is it already placed?
-					for(int l = 0; l < 24; l++)
-					{
-						for(int j = 0; j < 2*r; j++)
-						{
-							for(int k = 0; k < 2*r; k++)
-							{
-								if(e.getX() == sF.placement[l][0] - r + j && e.getY() == sF.placement[l][1] -r + k)
-								{
+
+				// Selects the Stone
+				if (st[i].inPlacement == false && yep == true
+						&& st[i].placed == false) {
+					// >> I didn't choose a piece yet, doesn't work tho...
+					for (int j = 0; j < 2 * r; j++) {
+						for (int k = 0; k < 2 * r; k++) {
+							if (x == st[i].posX + j) {
+								if (y == st[i].posY + k
+										&& st[i].inPlacement == false) { // else
+																			// this
+																			// function
+																			// is
+																			// not
+																			// deterministic
+									st[i].inPlacement = true;
+									st[i].set(5);
+								}
+							}
+						}
+					}// forJ
+				}// if
+
+			}// forI
+		} else {
+
+			for (int i = 0; i < 9; i++) {
+				if (st[i].inPlacement == true) { // Did I choose a piece? Is it
+													// already placed?
+					for (int l = 0; l < 24; l++) {
+						for (int j = 0; j < 2 * r; j++) {
+							for (int k = 0; k < 2 * r; k++) {
+								if (e.getX() == sF.placement[l][0] - r + j
+										&& e.getY() == sF.placement[l][1] - r
+												+ k) {
 									int s;
-									if(nmm.getActivePlayer() == Player.WHITE) s = i;
-									else s = i+9;
-									int z = nmm.moveStone(s, l);
-									if(z > 0)
-									{st[i].inPlacement = false;
-									st[i].posX = sF.placement[l][0] - r;
-									st[i].posY = sF.placement[l][1] - r;
-									sF.placed[l] = true;
-									st[i].placedAt = l;
-									st[i].placed = true;
-									yep = true;
-									if(z == 2) mill = true;
-									break;}
+									if (nmm.getActivePlayer() == Player.WHITE)
+										s = i;
 									else
-									{
+										s = i + 9;
+									int z = nmm.moveStone(s, l);
+									if (z > 0) {
+										st[i].inPlacement = false;
+										st[i].posX = sF.placement[l][0] - r;
+										st[i].posY = sF.placement[l][1] - r;
+										sF.placed[l] = true;
+										st[i].placedAt = l;
+										st[i].placed = true;
+										yep = true;
+										if (z == 2)
+											mill = true;
+										break;
+									} else {
 										st[i].inPlacement = false;
 										st[i].set(-5);
 										System.out.println("ERROR!");
@@ -280,88 +284,84 @@ public class Head extends Panel implements MouseListener {
 						}
 					}
 				}
-				//This just wants to know if one stone has been selected yet
-				for(int j = 0; j < 9; j++)
-				{
-					if(st[j].inPlacement == true)
+				// This just wants to know if one stone has been selected yet
+				for (int j = 0; j < 9; j++) {
+					if (st[j].inPlacement == true)
 						yep = false;
 				}
-				
-				//Selects the Stone
-				if(st[i].inPlacement == false && yep == true) {
-				for(int j = 0; j < 2*r; j++)
-				{
-					for(int k = 0; k < 2*r; k++)
-					{
-						if(x == st[i].posX + j)
-						{
-							if(y == st[i].posY + k && st[i].inPlacement == false)
-							{							//else this function is not deterministic
-								st[i].inPlacement = true;
-								st[i].set(5);
+
+				// Selects the Stone
+				if (st[i].inPlacement == false && yep == true) {
+					for (int j = 0; j < 2 * r; j++) {
+						for (int k = 0; k < 2 * r; k++) {
+							if (x == st[i].posX + j) {
+								if (y == st[i].posY + k
+										&& st[i].inPlacement == false) { // else
+																			// this
+																			// function
+																			// is
+																			// not
+																			// deterministic
+									st[i].inPlacement = true;
+									st[i].set(5);
+								}
 							}
 						}
-					}
-				}//forJ
-				}//if
-				
-			}//forI
+					}// forJ
+				}// if
+
+			}// forI
 		}
 	}
-	
-	public void delete(MouseEvent e)
-	{
+
+	public void delete(MouseEvent e) {
 		Stone[] st = new Stone[9];
-		if(nmm.getActivePlayer() == Player.BLACK)
-		{	st = White;	}
-		else st = Black;
-		int r = mFra.getSize().width * mFra.getSize().height / 30000 /2;
-		
-		for(int i = 0; i < 9; i++)
-		{
-			for(int j = 0; j < 2*r; j++)
-			{
-				for(int k = 0; k < 2*r; k++)
-				{
-					if(e.getX() == st[i].posX + j && e.getY() == st[i].posY + k)
-					{
+		if (nmm.getActivePlayer() == Player.BLACK) {
+			st = White;
+		} else
+			st = Black;
+		int r = mFra.getSize().width * mFra.getSize().height / 30000 / 2;
+
+		for (int i = 0; i < 9; i++) {
+			for (int j = 0; j < 2 * r; j++) {
+				for (int k = 0; k < 2 * r; k++) {
+					if (e.getX() == st[i].posX + j
+							&& e.getY() == st[i].posY + k) {
 						boolean m2;
-						if(nmm.getActivePlayer() == Player.BLACK){
+						if (nmm.getActivePlayer() == Player.BLACK) {
 							m2 = nmm.removeStone(i);
+						} else {
+							m2 = nmm.removeStone(i + 9);
 						}
-						else{
-							m2 = nmm.removeStone(i+9);
-						}
-						if(m2) {
-						sF.placed[st[i].placedAt] = false;
-						st[i].placedAt = -2;
-						st[i].set(-50, -50);
-						mill = false;
+						if (m2) {
+							sF.placed[st[i].placedAt] = false;
+							st[i].placedAt = -2;
+							st[i].set(-50, -50);
+							mill = false;
 						}
 					}
 				}
 			}
 		}
-			repaint();
+		repaint();
 	}
 
-	
-	
 	public void mouseClicked(MouseEvent e) {
-		
+
 		System.out.println(mill);
-		
-		if(mill)
-		{	delete(e);}
-		else{
+
+		if (mill) {
+			delete(e);
+		} else {
 			moveS(e);
 		}
 	}
 
 	public void mousePressed(MouseEvent e) {
-//				this.setBackground(new Color((int) (Math.random()*255),(int) (Math.random()*255),(int) (Math.random()*255)));
-//				repaint();
-				
+		// this.setBackground(new Color((int) (Math.random()*255),(int)
+		// (Math.random()*255),(int) (Math.random()*255)));
+		// repaint();
+
 	}
 
 	public void mouseReleased(MouseEvent e) {

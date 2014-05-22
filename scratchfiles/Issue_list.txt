@@ -39,7 +39,7 @@ Head
 checkMills
 
 TODO
-      
+
 moveStone
 	Can at least one stone move
 
@@ -47,3 +47,7 @@ GUI
 	make things more private if possible
 	Stones are set(5) after placed
 	Redundantes rausstreichen
+	
+Network:
+    - Game implementieren
+    - Protokoll definieren

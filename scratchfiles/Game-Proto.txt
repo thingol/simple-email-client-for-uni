@@ -1,0 +1,55 @@
+==========
+=== M2 ===
+==========
+hallo()
+  - -1
+  + 0
+  
+bye()
+  drops connection
+
+movestone(stone, point)
+  wie offline
+
+removestone(stone)
+  wie offline
+
+concede()
+  restart?
+
+==========
+=== M3 ===
+==========
+login(user, pass)
+  - NULL
+  + sessionToken: int 
+
+logout(sessionToken)
+  - 0
+  + 1
+
+newGame(sessionToken,name)
+  - -1
+  + gameId: int (positiv)
+  
+  
+joinGame(sessionToken,num)
+  - -1
+  + 0
+
+leaveGame(sessionToken)
+  - -1
+  + 0
+
+listGames()
+  - NULL
+  + 
+
+movestone(sessionToken, stone, point)
+  wie offline
+removestone(sessionToken, stone)
+  wie offline
+
+concede(sessionToken)
+  - -1
+  + 0 

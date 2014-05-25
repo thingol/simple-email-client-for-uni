@@ -1,3 +1,12 @@
+messages are three bytes long. first byte is operator. second and third are operands (if applicable).
+
+Operator name, value, 1st operand, 2nd operand, return values 
+hello,         0x00,  00,          00,          0xFF, 0x00
+bye  ,         0x01,  00,          00,          null
+moveStone,     0x02,  12,          18,          0x00, 1, 2, 3
+removeStone,   0x03,  12,          00,          0x00, 1
+concede,       0x04,  01,          00,          0x00, 1 
+
 ==========
 === M2 ===
 ==========
@@ -5,16 +14,25 @@ hallo()
   - -1
   + 0
   
-bye()
+  0 ->
+  -> -1
+  +>  0
+  
+1 bye()
   drops connection
+  
+  1 ->
 
-movestone(stone, point)
+2 movestone(stone, point)
+  wie offline
+  
+  2 ->
+  
+
+3 removestone(stone)
   wie offline
 
-removestone(stone)
-  wie offline
-
-concede()
+4 concede()
   restart?
 
 ==========

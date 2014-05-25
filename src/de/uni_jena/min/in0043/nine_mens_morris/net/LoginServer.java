@@ -7,6 +7,7 @@ public class LoginServer {
 	
 	private static final int MAX_GAMES = 32;
 	private static final int DEFAULT_PORT = 6112;
+	private int gameCount = 0;
 
 	ServerSocket server;
 	
@@ -26,12 +27,19 @@ public class LoginServer {
 	
 	
 	
-	public void run() {
+	public void startServer() {
 	
-		while ( true ) { // einzelner Thread bearbeitet eine aufgebaute Verbindung
+		while ( true ) {
+
+			GameServer gameThread;
+			try {
+				gameThread = new GameServer(server.accept());
+				gameThread.start();
+				gameCount++;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			
-			MulServerThread mulThread = new MulServerThread(server.accept());
-				mulThread.start();
 		}
 	}
 	

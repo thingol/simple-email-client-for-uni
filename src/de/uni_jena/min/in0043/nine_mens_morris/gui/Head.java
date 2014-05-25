@@ -287,6 +287,7 @@ public class Head extends Panel implements MouseListener {
 				}// if
 				//Now we have everything done: Stone can be selected and moved
 			}// forI
+<<<<<<< HEAD
 		}//Phase.End	
 					
 		//Every other phase
@@ -306,6 +307,22 @@ public class Head extends Panel implements MouseListener {
 								{
 									int s;
 									if(nmm.getActivePlayer() == Player.WHITE) s = i;
+=======
+		} else {
+
+			for (int i = 0; i < 9; i++) {
+				if (st[i].inPlacement == true) { // Did I choose a piece? Is it
+													// already placed?
+					for (int l = 0; l < 24; l++) {
+						for (int j = 0; j < 2 * r; j++) {
+							for (int k = 0; k < 2 * r; k++) {
+								if (e.getX() == sF.placement[l][0] - r + j
+										&& e.getY() == sF.placement[l][1] - r
+												+ k) {
+									int s;
+									if (nmm.getActivePlayer() == Player.WHITE)
+										s = i;
+>>>>>>> checkpoint
 									else
 										s = i + 9;
 									int z = nmm.moveStone(s, l);
@@ -432,13 +449,17 @@ public class Head extends Panel implements MouseListener {
 	}
 
 	public void mouseClicked(MouseEvent e) {
+<<<<<<< HEAD
 		System.out.println(mill);
+=======
+>>>>>>> checkpoint
 		
 		if(nmm.getBlackLost() == 7 || nmm.getWhiteLost() == 7)
 		{
 			repaint();
 		}
 		
+<<<<<<< HEAD
 		else if (mill) {
 			delete(e);
 		} else {
@@ -450,6 +471,12 @@ public class Head extends Panel implements MouseListener {
 			else{
 				moveS(e);
 			}
+=======
+		if(mill)
+		{	delete(e);}
+		else{
+			moveS(e);
+>>>>>>> checkpoint
 		}
 
 }

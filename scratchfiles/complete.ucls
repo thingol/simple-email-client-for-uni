@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.6" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true">  
+  <interface id="1" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.core.Game" project="nine_mens_morris" 
+    file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/core/Game.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="259" width="205" x="97" y="-14"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </interface>  
+  <class id="2" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.core.Stone" project="nine_mens_morris" 
+    file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/core/Stone.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="205" width="213" x="440" y="1362"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <enumeration id="3" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.core.Phase" 
+    project="nine_mens_morris" file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/core/Phase.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="187" width="205" x="-31" y="890"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </enumeration>  
+  <class id="4" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.core.Board" project="nine_mens_morris" 
+    file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/core/Board.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="187" width="577" x="214" y="890"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="5" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.gui.Head" project="nine_mens_morris" 
+    file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/gui/Head.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="349" width="268" x="469" y="-14"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="6" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.core.Logic" project="nine_mens_morris" 
+    file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/core/Logic.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="475" width="213" x="812" y="375"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.core.Board.Point" 
+    project="nine_mens_morris" file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/core/Board.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="205" width="205" x="214" y="1117"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="8" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.net.GameServer" project="nine_mens_morris" 
+    file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/net/GameServer.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="97" width="200" x="1017" y="-14"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="9" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.core.Exceptions.RulesViolated" 
+    project="nine_mens_morris" file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/core/Exceptions.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="97" width="205" x="1065" y="375"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="10" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.gui.Spielfeld" project="nine_mens_morris" 
+    file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/gui/Spielfeld.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="133" width="199" x="230" y="375"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="11" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.core.Exceptions.GameOver" 
+    project="nine_mens_morris" file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/core/Exceptions.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="97" width="205" x="1310" y="375"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="12" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.net.LoginServer" 
+    project="nine_mens_morris" file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/net/LoginServer.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="187" width="200" x="777" y="-14"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="13" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.gui.Stone" project="nine_mens_morris" 
+    file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/gui/Stone.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="205" width="199" x="469" y="375"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <enumeration id="14" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.core.Player" 
+    project="nine_mens_morris" file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/core/Player.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="115" width="205" x="833" y="1607"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </enumeration>  
+  <class id="15" language="java" name="de.uni_jena.min.in0043.nine_mens_morris.core.Exceptions" 
+    project="nine_mens_morris" file="/nine_mens_morris/src/de/uni_jena/min/in0043/nine_mens_morris/core/Exceptions.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="79" width="205" x="1257" y="-14"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" accessors="true" 
+      visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <association id="16">    
+    <end type="SOURCE" refId="8" navigable="false">      
+      <attribute id="17" name="logic"/>      
+      <multiplicity id="18" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="19">    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="20" name="White"/>      
+      <multiplicity id="21" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="22">    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="23" name="board"/>      
+      <multiplicity id="24" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="25">    
+    <bendpoint x="449" y="1117"/>    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="26" name="board"/>      
+      <multiplicity id="27" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="28">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="29" name="owner"/>      
+      <multiplicity id="30" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="14" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="31">    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="32" name="nmm"/>      
+      <multiplicity id="33" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="6" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="34">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="7"/>  
+  </nesting>  
+  <association id="35">    
+    <end type="SOURCE" refId="7" navigable="false">      
+      <attribute id="36" name="stone"/>      
+      <multiplicity id="37" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="38">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="39" name="points"/>      
+      <multiplicity id="40" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="41">    
+    <bendpoint x="821" y="890"/>    
+    <bendpoint x="821" y="1117"/>    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="42" name="stones"/>      
+      <multiplicity id="43" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="44">    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="45" name="phase"/>      
+      <multiplicity id="46" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="47">    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="9"/>  
+  </nesting>  
+  <association id="48">    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="49" name="sF"/>      
+      <multiplicity id="50" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="10" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="51">    
+    <end type="SOURCE" refId="2" navigable="false">      
+      <attribute id="52" name="point"/>      
+      <multiplicity id="53" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <nesting id="54">    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="11"/>  
+  </nesting>  
+  <association id="55">    
+    <end type="SOURCE" refId="5" navigable="false">      
+      <attribute id="56" name="Black"/>      
+      <multiplicity id="57" minimum="0" maximum="2147483647"/>    
+    </end>    
+    <end type="TARGET" refId="13" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <association id="58">    
+    <bendpoint x="842" y="890"/>    
+    <bendpoint x="842" y="1117"/>    
+    <bendpoint x="842" y="1362"/>    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="59" name="activePlayer"/>      
+      <multiplicity id="60" minimum="0" maximum="1"/>    
+    </end>    
+    <end type="TARGET" refId="14" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
+    accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="true" package="true" protected="true" private="true" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

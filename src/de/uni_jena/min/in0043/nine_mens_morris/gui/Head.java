@@ -134,6 +134,7 @@ public class Head extends Panel implements MouseListener {
 					/ 4 + 2 * addX / 3, middleY + 1);
 			g.drawLine(middleX + middleX / 4, middleY + 2, middleX + middleX
 					/ 4 + 2 * addX / 3, middleY + 2);
+			
 		}
 
 		for (int i = 0; i < 9; i++) {
@@ -144,6 +145,31 @@ public class Head extends Panel implements MouseListener {
 				;
 		}
 		sF.places(mFra);
+		
+		if(nmm.getBlackLost() == 7 || nmm.getWhiteLost() == 7)
+		{
+			String s;
+			if(nmm.getBlackLost() == 7)
+				s = "Black";
+			else s = "White";
+			g.drawString(s + " won! Congratulations!", (mFra.getSize().width/2) - 50 , mFra.getSize().height - 50);
+		}
+		else if(mill)
+		{
+			String s;
+			if(nmm.getActivePlayer() == Player.BLACK)
+				s = "Black";
+			else s = "White";
+			g.drawString(s + " got a mill! Take a stone!", (mFra.getSize().width/2) - 50 , mFra.getSize().height - 50);
+		}
+		else
+		{
+			String s;
+			if(nmm.getActivePlayer() == Player.BLACK)
+				s = "Black";
+			else s = "White";
+			g.drawString(s + "s turn! Make a move.", (mFra.getSize().width/2) - 50 , mFra.getSize().height - 50);
+		}
 	}
 
 	public static void main(String args[]) {
@@ -282,36 +308,27 @@ public class Head extends Panel implements MouseListener {
 								{
 									int s;
 									if(nmm.getActivePlayer() == Player.WHITE) s = i;
-									else s = i+9;
+									else
+										s = i + 9;
 									int z = nmm.moveStone(s, l);
-									if(z > 0)
-									{st[i].inPlacement = false;
-									st[i].posX = sF.placement[l][0] - r;
-									st[i].posY = sF.placement[l][1] - r;
-									st[i].placedAt = l;
-									st[i].placed = true;
-									yep = true;
-									if(z == 2) mill = true;
-									break;}
-//									else
-//										s = i + 9;
-//									int z = nmm.moveStone(s, l);
-//									if (z > 0) {
-//										st[i].inPlacement = false;
-//										st[i].posX = sF.placement[l][0] - r;
-//										st[i].posY = sF.placement[l][1] - r;
-//										sF.placed[l] = true;
-//										st[i].placedAt = l;
-//										st[i].placed = true;
-//										yep = true;
-//										if (z == 2)
-//											mill = true;
-//										break;
-//									} else {
-//										st[i].inPlacement = false;
-//										st[i].set(-5);
-//										log.error("ERROR!");
-//									}
+									if (z > 0) {
+										st[i].inPlacement = false;
+										st[i].posX = sF.placement[l][0] - r;
+										st[i].posY = sF.placement[l][1] - r;
+										sF.placed[l] = true;
+										st[i].placedAt = l;
+										st[i].placed = true;
+										yep = true;
+										log.trace("st[i].inPlacement: " + st[i].inPlacement);
+										if (z == 2)
+											mill = true;
+										break;
+									} else {
+										st[i].inPlacement = false;
+										st[i].set(-5);
+										log.error("ERROR!");
+										log.trace("st["+i+"].inPlacement: " + st[i].inPlacement);
+									}
 								}
 							}
 						}
@@ -380,21 +397,26 @@ public class Head extends Panel implements MouseListener {
 	}
 
 	public void mouseClicked(MouseEvent e) {
-
 		System.out.println(mill);
-
-		if (mill) {
+		
+		if(nmm.getBlackLost() == 7 || nmm.getWhiteLost() == 7)
+		{
+			repaint();
+		}
+		
+		else if (mill) {
 			delete(e);
 		} else {
-		
-		log.trace("mill = " + mill);
-		
-		if(mill)
-		{	delete(e);}
-		else{
-			moveS(e);
+			
+			log.trace("mill = " + mill);
+			
+			if(mill)
+			{	delete(e);}
+			else{
+				moveS(e);
+			}
 		}
-	}
+
 }
 
 	public void mousePressed(MouseEvent e) {

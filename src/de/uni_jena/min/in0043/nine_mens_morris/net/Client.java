@@ -76,17 +76,20 @@ public class Client implements Game {
 	}
 	
 	public static void main(String[] args) {
-		while(true)
 			StartClient();
 	}
 
 	private static void StartClient() {
-		try { //Muss die While-Schleife hier rein?
-			Socket server = new Socket("iaxp16.inf.uni-jena.de", 1234);
+		Socket server = null;
+		try {
+			server = new Socket("iaxp16.inf.uni-jena.de", 1234);
 			InputStream in = server.getInputStream();
 			OutputStream out = server.getOutputStream();
 			
-			DataOutputStream pout = new DataOutputStream(out);
+			DataInputStream din = new DataInputStream(in);
+			DataOutputStream dout = new DataOutputStream(out);
+			
+			
 			
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -97,7 +100,10 @@ public class Client implements Game {
 			e.printStackTrace();
 			System.out.println("Error connecting to host.");
 		}
-		
-	}
+		  finally {
+			  if(server != null)
+				  try{ server.close(); } catch (IOException g) {System.out.println("Error closing server");}
+			  }
+		}
 
 }

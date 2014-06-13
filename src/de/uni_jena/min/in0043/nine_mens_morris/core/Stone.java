@@ -29,6 +29,18 @@ public class Stone {
 	public Player getOwner() { return owner; }
 	public Point getPoint() { return point; }
 	
+	protected boolean canMove() {
+		log.entry();
+		boolean retVal = false;
+		if(board.hasUnoccupiedNeighbour(point)) {
+			retVal = true;
+		}
+		log.exit(retVal);
+		
+		return retVal;
+		
+	}
+	
 	protected boolean move(Point p) {
 		log.entry(p);
 		if(p.isOccupied() || !(board.oneStep(this.point, p))) {

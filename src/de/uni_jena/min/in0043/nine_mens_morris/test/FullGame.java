@@ -5,8 +5,6 @@ package de.uni_jena.min.in0043.nine_mens_morris.test;
 
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +39,7 @@ public class FullGame {
 		assertEquals("nml.moveStone(11,21) => 1",1,nml.moveStone(11,21));
 		
 		assertEquals("nml.moveStone(3,1)   => 2",2,nml.moveStone(3,1));
-		assertTrue("nml.removeStone(11)    => true", nml.removeStone(11));
+		assertEquals("nml.removeStone(11)  => 1",1,nml.removeStone(11));
 		assertEquals("nml.moveStone(12,23) => 1",1,nml.moveStone(12,23));
 		
 		assertEquals("nml.moveStone(4,22)  => 1",1,nml.moveStone(4,22));
@@ -50,7 +48,7 @@ public class FullGame {
 		assertEquals("nml.moveStone(0,3)   => 0",0,nml.moveStone(0,3));
 		assertEquals("nml.moveStone(13,6)  => 0",0,nml.moveStone(13,6));
 		assertEquals("nml.moveStone(5,14)  => 1",1,nml.moveStone(5,14));
-		assertFalse("nml.removeStone(11)    => false", nml.removeStone(13));
+		assertEquals("nml.removeStone(11)  => 0",0,nml.removeStone(13));
 		assertEquals("nml.moveStone(14,9)  => 1",1,nml.moveStone(14,9));
 		
 		assertEquals("nml.moveStone(6,11)  => 1",1,nml.moveStone(6,11));
@@ -61,7 +59,7 @@ public class FullGame {
 		
 		assertEquals("nml.moveStone(8,18)  => 1",1,nml.moveStone(8,18));
 		assertEquals("nml.moveStone(17,17) => 2",2,nml.moveStone(17,17));
-		assertTrue("nml.removeStone(8)    => true", nml.removeStone(8));
+		assertEquals("nml.removeStone(8)   => 1",1, nml.removeStone(8));
 
 		
 	}

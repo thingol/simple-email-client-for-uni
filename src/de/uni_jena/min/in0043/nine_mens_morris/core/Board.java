@@ -5,11 +5,13 @@ package de.uni_jena.min.in0043.nine_mens_morris.core;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.Pseudograph;
+
+import de.uni_jena.min.in0043.nine_mens_morris.utils.LineOnBoard;
 
 /**
  * @author mariushk
@@ -54,8 +56,8 @@ public class Board {
 	
 	private static Logger log = LogManager.getLogger();
 	
-	private Pseudograph<Point, DefaultEdge> boardGraph =
-			new Pseudograph<Board.Point, DefaultEdge>(DefaultEdge.class);
+	private Pseudograph<Point, LineOnBoard> boardGraph =
+			new Pseudograph<Board.Point, LineOnBoard>(LineOnBoard.class);
 	
 	private ArrayList<LinkedList<Point>> mills = new ArrayList<LinkedList<Point>>(16);
 	private Point[] points = new Point[24];
@@ -261,6 +263,22 @@ public class Board {
 				if(gotMill) return true;
 			}		
 		}
+		return false;
+	}
+
+	public boolean hasUnoccupiedNeighbour(Point p) {
+		log.entry(p);
+		Set<LineOnBoard> neighbours = this.boardGraph.edgesOf(p);
+
+		for(LineOnBoard l: neighbours) {
+			log.trace("cheking occupancy status of point at the other end of " + l);
+			if(!((Point)l.getOtherEnd(p)).isOccupied()) {
+				log.exit(true);
+				return true;
+			}
+		}
+
+		log.exit(false);
 		return false;
 	}
 }

@@ -331,13 +331,13 @@ public class Head extends Panel implements MouseListener {
 				for (int k = 0; k < 2 * r; k++) {
 					if (e.getX() == st[i].posX + j
 							&& e.getY() == st[i].posY + k) {
-						boolean m2;
+						int m2;
 						if (nmm.getActivePlayer() == Player.BLACK) {
 							m2 = nmm.removeStone(i);
 						} else {
 							m2 = nmm.removeStone(i + 9);
 						}
-						if (m2) {
+						if (m2 == 1) {
 							sF.placed[st[i].placedAt] = false;
 							st[i].placedAt = -2;
 							st[i].set(-50, -50);
@@ -352,7 +352,7 @@ public class Head extends Panel implements MouseListener {
 
 	public void mouseClicked(MouseEvent e) {
 		
-		log.trace("mill = " + mill);
+		log.trace("did we get a mill:" + mill);
 		
 		if(mill)
 		{	delete(e);}

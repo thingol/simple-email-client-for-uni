@@ -64,7 +64,7 @@ public class Logic {
 		switch (phase) {
 			case PLACING_STONES:
 				log.trace("whiteActivated: " + whiteActivated + ", blackActivated: " + blackActivated);
-				if (whiteActivated == 9) {
+				if (blackActivated == 9) {
 					phase = Phase.NORMAL_PLAY;
 				}
 				break;
@@ -112,16 +112,46 @@ public class Logic {
 		log.exit();
 	}
 	
-	public boolean advanceRound() {
+	private void advanceRound() {
 		log.entry();
 		round++;
 		advancePhase();
 		log.exit();
-		return true;
+	}
+
+	private boolean movingStillPossible() {
+		log.entry();
+		if(phase == Phase.PLACING_STONES) {
+			log.trace("still placing stones, so yes");
+			log.exit(true);
+			return true;
+		}
+		int i;
+		int upperBound;
+
+		if(activePlayer == Player.WHITE) {
+			i = 0;
+			upperBound = 9;
+		} else {
+			i = 9;
+			upperBound = 18;
+		}
+
+		for(; i < upperBound; i++) {
+			log.trace("checking motility of stone " + stones[i]);
+			if(stones[i].canMove()) {
+				log.exit(true);
+				return true;
+			}
+		}
+
+		log.exit(false);
+		return false;
 	}
 
     public int moveStone(int stone, int point) {
     	log.entry();
+    	// -2 = game is over
         // -1 = stone must be removed first 
         //  0 = illegal move
         //  1 = legal move
@@ -164,56 +194,82 @@ public class Logic {
     			retVal++;
     		} else {
     			log.info("Mill not found");
-    			if(activePlayer == Player.WHITE) activePlayer = Player.BLACK;
-        		else {
+    			
+    			if(activePlayer == Player.WHITE) {
+    				activePlayer = Player.BLACK;
+    				advancePhase();
+    			} else {
         			activePlayer = Player.WHITE;
         			advanceRound();
-        		}
-        		log.trace("setting active user to " + activePlayer);
-    		}
-    		
+    			}
+    			log.trace("active player set to " + activePlayer);
     			
+    			// UGLY
+    			log.trace("checking if " + activePlayer + " can still move");
+    			if(!movingStillPossible()) {
+    				// game is over
+    				// jumping directly to phase GAME_OVER
+    				phase = Phase.GAME_OVER;
+    				log.info("Game is over");
+   					retVal = -2;
+    				log.info(activePlayer + " lost");
+    			}
+    			// UGLY
+    		}
     	} else {
-    		log.warn("move was not ok, stone " + stone + " to point " + point);
+    		log.warn("move was not ok: stone " + stone + " to point " + point);
     	}
     	log.exit(retVal);
     	return retVal;
     }
     
-	public boolean removeStone(int stone) {
+	public int removeStone(int stone) {
+		// -2 = game is over
+        //  0 = stone can not be removed
+        //  1 = stone removed
+		int retVal = 0;
     	log.entry(stone);
     	if(!removeStone) {
     		log.error(activePlayer + " attempted to remove stone when no mill created");
-    		log.exit(false);
-    		return false;
+    		log.exit(retVal);
+    		return retVal;
     	}
     	Stone st = stones[stone];
     	
     	if (activePlayer == st.getOwner()) {
     		log.error(activePlayer + " attempted to remove their own stone");
-    		log.exit(false);
-    		return false;
     	} else if(board.checkMills(stones[stone].getPoint())) {
 			log.error("stone is part of a mill");
-			log.exit(false);
-			return false;
 		} else {
 			log.info("removing stone");
 			st.remove();
 			removeStone = false;
+			retVal = 1;
+
 			if(activePlayer == Player.WHITE) {
 				activePlayer = Player.BLACK;
 				blackLost++;
 				advancePhase();
-			}
-    		else {
+			} else {
     			activePlayer = Player.WHITE;
                 whiteLost++;
     			advanceRound();
     		}
-    		log.trace("setting active user to " + activePlayer);
-			log.exit(true);
-			return true;
+			log.trace("active player set to " + activePlayer);
+			
+			// UGLY
+			log.trace("checking if " + activePlayer + " can still move");
+			if(!movingStillPossible()) {
+				// game is over
+				// jumping directly to phase GAME_OVER
+				phase = Phase.GAME_OVER;
+				log.info("Game is over, " + activePlayer + " lost");
+				retVal = -2;
+			}
+			// UGLY
 		}
+
+    	log.exit(retVal);
+    	return retVal;
     }
 }

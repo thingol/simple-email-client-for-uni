@@ -59,7 +59,7 @@ public class FullGame {
 		
 		assertEquals("nml.moveStone(8,18)  => 1",1,nml.moveStone(8,18));
 		assertEquals("nml.moveStone(17,17) => 2",2,nml.moveStone(17,17));
-		assertEquals("nml.removeStone(8)   => 1",1, nml.removeStone(8));
+		assertEquals("nml.removeStone(8)   => 1",1, nml.removeStone(0));
 
 		
 	}

@@ -138,8 +138,11 @@ public class Logic {
 		}
 
 		for(; i < upperBound; i++) {
-			log.trace("checking motility of stone " + stones[i]);
-			if(stones[i].canMove()) {
+			log.trace("checking motility of " + activePlayer + "'s stone nr. "
+		            + (i  + 1 - (upperBound - 9)));
+			if(stones[i].getPoint() == null) {
+				log.trace("nope, that stone has been lost");
+			} else if(stones[i].canMove()) {
 				log.exit(true);
 				return true;
 			}

@@ -29,5 +29,5 @@ public interface Game {
 	
 	public int moveStone(int stone, int point);
 	
-	public boolean removeStone(int stone);
+	public int removeStone(int stone);
 }

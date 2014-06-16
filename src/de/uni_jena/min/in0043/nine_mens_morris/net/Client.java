@@ -10,19 +10,21 @@ import java.io.*;
 
 public class Client implements Game {
 
+	Head head;
 	Socket server;
-	InputStream d;
 	DataInputStream in;
-	ByteArrayOutputStream out;
+	DataOutputStream out;
 	byte get;
 	byte[] send;
-	public static Head head;
+//	public static Head headS;
 	
 	public Client()
 	{
 		try {
 			server = new Socket("gw.kjerkreit.org", 6112);
-			d = server.getInputStream();
+			send = new byte[3];
+			in = new DataInputStream(server.getInputStream());
+			out = new DataOutputStream(server.getOutputStream());
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.out.println("Can't find host.");
@@ -34,9 +36,7 @@ public class Client implements Game {
 			  if(server != null)
 				  try{ server.close(); } catch (IOException g) {System.out.println("Error closing server: " + g.getMessage());}
 			  }
-		send = new byte[3];
-		in = new DataInputStream(d);
-		out = new ByteArrayOutputStream();
+		head = new Head();
 	}
 	@Override
 	public Player getActivePlayer() {
@@ -260,10 +260,9 @@ public class Client implements Game {
 		send[0] = 0x00;
 		send[1] = 0x00;
 		send[2] = 0x00;
-		System.out.println("sending data...");
+		System.out.println("sending data..." + send[0] + " " + send[1] + " " + send[2]);
 		out.write(send);
 		System.out.println("Data sent!");
-		get = 0x0f;
 		get = in.readByte();
 		
 		if(get == 0x00) System.out.println("Connection established!");
@@ -272,16 +271,18 @@ public class Client implements Game {
 			server.close();
 		}
 		
-		send[0] = 0x04;
-		out.write(send);
-		get = in.readByte();
-		if(get == 0x04)
-		{
-			System.out.println("Server closing...");
-			server.close();
-			System.out.println("Server closed.");
-		}
+		head.BuildUp();
 		
+//		send[0] = 0x04;
+//		out.write(send);
+//		get = in.readByte();
+//		if(get == 0x04)
+//		{
+//			System.out.println("Server closing...");
+//			server.close();
+//			System.out.println("Server closed.");
+//		}
+//		
 		while(get != 0x04)
 		{
 			get = in.readByte();
@@ -292,13 +293,17 @@ public class Client implements Game {
 			System.out.println("Can't find host.");
 		} catch (IOException e) {
 			e.printStackTrace();
-			System.out.println("Error connecting to host.");
+			System.out.println("Error connecting to host! " + e);
 		}
+		finally {
+			  if(server != null)
+				  try{ server.close(); } catch (IOException g) {System.out.println("Error closing server: " + g.getMessage());}
+			  }
 		
 	}
 	
 	public static void main(String[] args) {
-			//StartClient();
+//			StartClient();
 			Client c = new Client();
 			c.StartUp();
 	}

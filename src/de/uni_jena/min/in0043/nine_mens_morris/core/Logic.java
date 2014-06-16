@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
  * @author mariushk
  *
  */
-public class Logic {
+public class Logic implements Game {
 	
 	private static Logger log = LogManager.getLogger();
 	private Phase phase;

@@ -1,6 +1,7 @@
 package de.uni_jena.min.in0043.nine_mens_morris.net;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -18,10 +19,13 @@ public class LoginServer {
 	
 	private LoginServer(int port) {
 		try {
-			server = new ServerSocket(DEFAULT_PORT);
+			log.info("binding to :" + port);
+			server = new ServerSocket(port);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if(e instanceof BindException) {
+				log.error("port " + port + " is in use, exiting");
+				System.exit(1);
+			}
 		}
 	}
 	
@@ -35,8 +39,9 @@ public class LoginServer {
 	public void startServer() {
 	
 		log.info("starting server");
+		int i = 10;
 		
-		while ( true ) {
+		while (i > 0) {
 
 			log.trace("top of main loop");
 			GameServer gameThread;
@@ -45,12 +50,14 @@ public class LoginServer {
 				log.info("first player connected from " + player0.getInetAddress().getHostAddress());
 				Socket player1 = server.accept();
 				log.info("second player connected from " + player1.getInetAddress().getHostAddress());
-				gameThread = new GameServer(player0, player1);
+				gameThread = new GameServer(System.currentTimeMillis(), player0, player1);
 				gameThread.start();
 				gameCount++;
 				log.trace("number of games started: " + gameCount);
+				i--;
 			} catch (Exception e) {
 				e.printStackTrace();
+				i--;
 			}
 			
 		}

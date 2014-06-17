@@ -345,6 +345,14 @@ public class TestClient implements Game {
 			head.reset();
 		else
 			System.out.println("Error occured LOL");
+		
+		try {
+			send[0] = 0x7e;
+			dout.write(send);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void StartUp() {
@@ -357,18 +365,22 @@ public class TestClient implements Game {
 			dout.write(send);
 			System.out.println("Data sent!");
 			din.read(get);
+			byte[] check = new byte[3];
 			
 			if(get[0] == 0x00) System.out.println("Connection established!");
 			else {
-				System.out.println("Error! Connecting failed!");
+				System.out.println("Error! Connecting failed! " + get[0]);
 //				servers.close();
 			}
 			head.BuildUp();
 
 			while(get[0] != 0x0e || get[0] != 0x0f || get[0] != -1)
 			{
+				check = get;
 				din.read(get);
-				handlingStuff();
+				if(check != get)
+					handlingStuff();
+				else get[1] = 0x7e;
 			}
 			if(get[0] == -1)
 			{

@@ -13,6 +13,12 @@ public class Spielfeld{
 		placed = new boolean[24];
 	}
 	
+	public void reset()
+	{
+		for(int i = 0; i < 24; i++)
+			placed[i] = false;
+	}
+	
 	public void places(Frame mFra)
 	{
 		int height = mFra.getSize().height;

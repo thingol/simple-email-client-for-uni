@@ -35,154 +35,6 @@ public class TestClient implements Game {
 			e.printStackTrace();
 		}
 	}
-	@Override
-	public Player getActivePlayer() {
-		try {
-			send[0] = 0x06;
-			out.write(send);
-			
-			in.read(get);
-			if(get[0] == 0x00)
-				return Player.WHITE;
-			else if(get[0] == 0x01) return Player.BLACK;
-			else System.out.println("Error happened!");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	@Override
-	public Phase getPhase() {
-		try {
-			send[0] = 0x05;
-			out.write(send);
-			
-			in.read(get);
-			if(get[0] == 0x00)
-				return Phase.PLACING_STONES;
-			else if(get[0] == 0x01)
-				return Phase.NORMAL_PLAY;
-			else if(get[0] == 0x02)
-				return Phase.WHITE_REDUCED;
-			else if(get[0] == 0x03)
-				return Phase.BLACK_REDUCED;
-			else if(get[0] == 0x04)
-				return Phase.BOTH_REDUCED;
-			else if(get[0] == 0x05)
-				return Phase.GAME_OVER;
-			else System.out.println("Error! Couldnt grab phase!");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	@Override
-	public int getRound() {
-		try {
-			send[0] = 0x0D;
-			out.write(send);
-			
-			in.read(get);
-			return (int) get[0];
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return -1;
-	}
-
-	@Override
-	public int getWhiteActivated() {
-		try {
-			send[0] = 0x07;
-			out.write(send);
-			
-			in.read(get);
-			return (int) get[0];
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return 0;
-	}
-
-	@Override
-	public int getWhiteInPlay() {
-		try {
-			send[0] = 0x08;
-			out.write(send);
-			
-			in.read(get);
-			return (int) get[0];
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return 0;
-	}
-
-	@Override
-	public int getWhiteLost() {
-		try {
-			send[0] = 0x09;
-			out.write(send);
-			
-			in.read(get);
-			return (int) get[0];
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return 0;
-	}
-
-	@Override
-	public int getBlackActivated() {
-		try {
-			send[0] = 0x0a;
-			out.write(send);
-			
-			in.read(get);
-			return (int) get[0];
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return 0;
-	}
-
-	@Override
-	public int getBlackInPlay() {
-		try {
-			send[0] = 0x0b;
-			out.write(send);
-			
-			in.read(get);
-			return (int) get[0];
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return 0;
-	}
-
-	@Override
-	public int getBlackLost() {
-		try {
-			send[0] = 0x0c;
-			out.write(send);
-			
-			in.read(get);
-			return (int) get[0];
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return 0;
-	}
 
 	@Override
 	public int moveStone(int stone, int point) {
@@ -235,11 +87,11 @@ public class TestClient implements Game {
 				System.out.println("Everything's fine!");
 				return true;
 			}
-			else if(get[0] == 0xfd)
+			else if(get[0] == -3)
 			{
 				System.out.println("Can't remove your own stone!");
 			}
-			else if(get[0] == 0xff)
+			else if(get[0] == -1)
 			{
 				System.out.println("Part of a Mill!");
 			}
@@ -249,6 +101,311 @@ public class TestClient implements Game {
 				}
 		} catch (IOException e) {}
 		return false;
+	}
+	
+	public void conceed()
+	{
+		try {
+			send[0] = 0x03;
+			out.write(send);
+			in.read(get);
+			if(get[0] == 0x00)
+			{
+				System.out.println("Conceeded!");
+			}
+		} catch (IOException e) {}
+	}
+	
+	@Override
+	public Phase getPhase() {
+		try {
+			send[0] = 0x05;
+			out.write(send);
+			
+			in.read(get);
+			if(get[0] == 0x00)
+				return Phase.PLACING_STONES;
+			else if(get[0] == 0x01)
+				return Phase.NORMAL_PLAY;
+			else if(get[0] == 0x02)
+				return Phase.WHITE_REDUCED;
+			else if(get[0] == 0x03)
+				return Phase.BLACK_REDUCED;
+			else if(get[0] == 0x04)
+				return Phase.BOTH_REDUCED;
+			else if(get[0] == 0x05)
+				return Phase.GAME_OVER;
+			else System.out.println("Error! Couldnt grab phase!");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public Player getActivePlayer() {
+		try {
+			send[0] = 0x06;
+			out.write(send);
+			
+			in.read(get);
+			if(get[0] == 0x00)
+				return Player.WHITE;
+			else if(get[0] == 0x01) return Player.BLACK;
+			else System.out.println("Error happened!");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@Override
+	public int getWhiteActivated() {
+		try {
+			send[0] = 0x07;
+			out.write(send);
+			
+			in.read(get);
+			return (int) get[0];
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	@Override
+	public int getWhiteInPlay() {
+		try {
+			send[0] = 0x08;
+			out.write(send);
+			
+			in.read(get);
+			return (int) get[0];
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	@Override
+	public int getWhiteLost() {
+		try {
+			send[0] = 0x09;
+			out.write(send);
+			
+			in.read(get);
+			return (int) get[0];
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	@Override
+	public int getBlackActivated() {
+		try {
+			send[0] = 0x0a;
+			out.write(send);
+			
+			in.read(get);
+			return (int) get[0];
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	@Override
+	public int getBlackInPlay() {
+		try {
+			send[0] = 0x0b;
+			out.write(send);
+			
+			in.read(get);
+			return (int) get[0];
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	@Override
+	public int getBlackLost() {
+		try {
+			send[0] = 0x0c;
+			out.write(send);
+			
+			in.read(get);
+			return (int) get[0];
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	@Override
+	public int getRound() {
+		try {
+			send[0] = 0x0d;
+			out.write(send);
+			
+			in.read(get);
+			return (int) get[0];
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	
+	public byte YOU_WIN()
+	{
+		try {
+			send[0] = 0x0e;
+			out.write(send);
+			
+			in.read(get);
+			if(get[0] == 0x00)
+				return get[0];
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	
+	public byte YOU_LOSE()
+	{
+		try {
+			send[0] = 0x0f;
+			out.write(send);
+			
+			in.read(get);
+			if(get[0] == 0x00)
+				return get[0];
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return -2;
+	}
+	
+	public boolean NEW_GAME()
+	{
+		try {
+			send[0] = 0x10;
+			out.write(send);
+			
+			in.read(get);
+			if(get[0] == 0x00)
+				return true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public boolean NO_MORE()
+	{
+		try {
+			send[0] = 0x11;
+			out.write(send);
+			
+			in.read(get);
+			if(get[0] == 0x00)
+				return true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	private void handlingStuff() {
+		// TODO Implement moveStone.
+		if(get[0] == 0x01)
+			head.moveStone((int) get[1], (int) get[2]);
+		else if(get[0] == 0x02)
+			head.delete((int) get[1]);
+		else if(get[0] == 0x03)
+			// TODO implement WIN method maybe
+			System.out.println("WIN");
+		else if(get[0] == 0x04)
+			// TODO implement WIN method maybe
+			System.out.println("WIN");
+		else if(get[0] == 0x10)
+			head.reset();
+		else
+			System.out.println("Error occured LOL");
+	}
+	
+	private void StartUp() {
+		try {
+			System.out.println("Connecting...");
+			send[0] = 0x00;
+			send[1] = 0x00;
+			send[2] = 0x00;
+			System.out.println("sending data...");
+			dout.write(send);
+			System.out.println("Data sent!");
+			din.read(get);
+			
+			if(get[0] == 0x00) System.out.println("Connection established!");
+			else {
+				System.out.println("Error! Connecting failed!");
+//				servers.close();
+			}
+			head.BuildUp();
+
+			while(get[0] != 0x0e || get[0] != 0x0f || get[0] != -1)
+			{
+				din.read(get);
+				handlingStuff();
+			}
+			if(get[0] == -1)
+			{
+				if(get[2] == -3)
+					System.out.println("Unknown Operation... Closing Connection");
+				else if(get[2] == -2)
+					System.out.println("Illegal Operation... Closing Connection");
+				else if(get[2] == -1)
+					System.out.println("General Error detected... Closing Connection");
+			}
+			else if(get[0] == 0x0e)
+				System.out.println("YOU WIN, CONGRATULATIONS!");
+			else if(get[0] == 0x0f)
+				System.out.println("YOU LOST, CONGRATULATIONS!");
+			else
+				System.out.println("Something unexpected happened... closing server");
+			
+			
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			System.out.println("Can't find host.");
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("Error connecting to host.");
+		}
+		  finally {
+			  if(server != null)
+				  try{ server.close(); } catch (IOException g) {System.out.println("Error closing server: " + g.getMessage());}
+			  }
+		}
+	
+
+	public static void main(String[] args) {
+//		StartClient();
+		// TODO Main-Methode
+		TestClient c = new TestClient();
+		c.StartUp();
 	}
 	
 	private static void StartClient() {
@@ -279,7 +436,7 @@ public class TestClient implements Game {
 		}
 		headS.BuildUp();
 
-		while(getS[0] != 0x04)
+		while(getS[0] != 0x0e || getS[0] != 0x0f)
 		{
 			dins.read(getS);
 		}
@@ -297,47 +454,5 @@ public class TestClient implements Game {
 			  try{ servers.close(); } catch (IOException g) {System.out.println("Error closing server: " + g.getMessage());}
 		  }
 	}
-	
-	public static void main(String[] args) {
-//		StartClient();
-		TestClient c = new TestClient();
-		c.StartUp();
-}
-	private void StartUp() {
-		try {
-			System.out.println("Connecting...");
-			send[0] = 0x00;
-			send[1] = 0x00;
-			send[2] = 0x00;
-			System.out.println("sending data...");
-			dout.write(send);
-			System.out.println("Data sent!");
-			din.read(get);
-			
-			if(get[0] == 0x00) System.out.println("Connection established!");
-			else {
-				System.out.println("Error! Connecting failed!");
-//				servers.close();
-			}
-			head.BuildUp();
-
-			while(get[0] != 0x04)
-			{
-				din.read(get);
-			}
-			
-			
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			System.out.println("Can't find host.");
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("Error connecting to host.");
-		}
-		  finally {
-			  if(server != null)
-				  try{ server.close(); } catch (IOException g) {System.out.println("Error closing server: " + g.getMessage());}
-			  }
-		}
 
 }

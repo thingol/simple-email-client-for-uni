@@ -16,6 +16,15 @@ public class Stone{
 		inPlacement = false;
 	}
 	
+	public void reset()
+	{
+		posX = 0;
+		posY = 0;
+		placedAt = -1;
+		inPlacement = false;
+		placed = false;
+	}
+	
 	protected void set(int pla)
 	{
 		posY -= pla;

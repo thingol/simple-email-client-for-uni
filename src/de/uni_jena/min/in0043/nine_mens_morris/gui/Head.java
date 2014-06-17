@@ -62,6 +62,24 @@ public class Head extends Panel implements MouseListener {
 			White[i].posY = mFra.getSize().height - 50;
 		}
 	}
+	
+	public void reset()
+	{
+		sF.reset();
+		mill = false;
+		for (int i = 0; i < 9; i++) {
+			Black[i].reset();
+			White[i].reset();
+			int r = mFra.getSize().width * mFra.getSize().height / 30000;
+			Black[i] = new Stone();
+			Black[i].posX = 40 + i * r;
+			Black[i].posY = mFra.getSize().height - 80;
+
+			White[i] = new Stone();
+			White[i].posX = mFra.getSize().width - 80 - i * r;
+			White[i].posY = mFra.getSize().height - 80;
+		}
+	}
 
 	public void paint(Graphics g) {
 		int height = mFra.getSize().height;
@@ -269,27 +287,7 @@ public class Head extends Panel implements MouseListener {
 				}// if
 				//Now we have everything done: Stone can be selected and moved
 			}// forI
-		}//Phase.End
-//		else {
-//
-//			for (int i = 0; i < 9; i++) {
-//				if (st[i].inPlacement == true) { // Did I choose a piece? Is it
-//													// already placed?
-//					for (int l = 0; l < 24; l++) {
-//						for (int j = 0; j < 2 * r; j++) {
-//							for (int k = 0; k < 2 * r; k++) {
-//								if (e.getX() == sF.placement[l][0] - r + j
-//										&& e.getY() == sF.placement[l][1] - r
-//												+ k) {
-//									int s;
-//									if (nmm.getActivePlayer() == Player.WHITE)
-//										s = i;
-//			}//forJ
-//			}//if
-//			
-//		}//forI
-//		}
-					
+		}//Phase.End	
 					
 		//Every other phase
 		else {
@@ -394,6 +392,43 @@ public class Head extends Panel implements MouseListener {
 			}
 		}
 		repaint();
+	}
+	
+	public void moveStone(int stone, int goal)
+	{
+		Stone temp;
+		if (nmm.getActivePlayer() == Player.WHITE)
+			 temp = White[stone];
+		else temp = Black[stone];
+		try {
+			Robot bot = new Robot();
+			bot.mouseMove(temp.posX, temp.posY);
+			bot.mousePress(InputEvent.BUTTON1_MASK);
+			bot.mouseRelease(InputEvent.BUTTON1_MASK);
+			bot.mouseMove(sF.placement[goal][0], sF.placement[goal][1]);
+			bot.mousePress(InputEvent.BUTTON1_MASK);
+			bot.mouseRelease(InputEvent.BUTTON1_MASK);	
+		} catch (AWTException e) {
+			e.printStackTrace();
+			System.out.println("Move, god dammit! " + e);
+		}
+	}
+	
+	public void delete(int stone)
+	{
+		Stone temp;
+		if (nmm.getActivePlayer() == Player.WHITE)
+			 temp = White[stone];
+		else temp = Black[stone];
+		try {
+			Robot bot = new Robot();
+			bot.mouseMove(temp.posX, temp.posY);
+			bot.mousePress(InputEvent.BUTTON1_MASK);
+			bot.mouseRelease(InputEvent.BUTTON1_MASK);
+		} catch (AWTException e) {
+			e.printStackTrace();
+			System.out.println("Delete, god dammit! " + e);
+		}
 	}
 
 	public void mouseClicked(MouseEvent e) {

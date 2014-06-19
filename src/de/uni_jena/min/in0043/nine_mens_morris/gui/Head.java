@@ -1,11 +1,18 @@
 package de.uni_jena.min.in0043.nine_mens_morris.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Panel;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.uni_jena.min.in0043.nine_mens_morris.core.Game;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Logic;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Phase;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
@@ -18,7 +25,7 @@ public class Head extends Panel implements MouseListener {
 	private Stone[] Black;
 	private Stone[] White;
 	private Frame mFra;
-	private Logic nmm;
+	private Game nmm;
 	private boolean mill;
 
 	public Head() {
@@ -432,7 +439,6 @@ public class Head extends Panel implements MouseListener {
 	}
 
 	public void mouseClicked(MouseEvent e) {
-<<<<<<< HEAD
 		System.out.println(mill);
 =======
 >>>>>>> checkpoint
@@ -458,12 +464,16 @@ public class Head extends Panel implements MouseListener {
 			else{
 				moveS(e);
 			}
+<<<<<<< HEAD
 =======
 		if(mill)
 		{	delete(e);}
 		else{
 			moveS(e);
 >>>>>>> checkpoint
+=======
+
+>>>>>>> fixed merge errors in Head
 		}
 
 }

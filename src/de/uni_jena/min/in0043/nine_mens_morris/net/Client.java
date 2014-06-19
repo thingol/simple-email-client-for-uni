@@ -218,7 +218,7 @@ public class Client implements Game {
 	}
 
 	@Override
-	public boolean removeStone(int stone) {
+	public int removeStone(int stone) {
 		try {
 			send[0] = 0x02;
 			send[1] = (byte) stone;
@@ -228,7 +228,7 @@ public class Client implements Game {
 			if(get == 0x00)
 			{
 				System.out.println("Everything's fine!");
-				return true;
+				return 0;
 			}
 			else if(get == 0xfd)
 			{
@@ -249,7 +249,7 @@ public class Client implements Game {
 				out.write(send);
 				}
 		} catch (IOException e) {}
-		return false;
+		return -1;
 	}
 	
 	

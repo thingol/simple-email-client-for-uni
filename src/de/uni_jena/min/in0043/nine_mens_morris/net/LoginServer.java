@@ -50,9 +50,10 @@ public class LoginServer {
 				log.info("first player connected from " + player0.getInetAddress().getHostAddress());
 				Socket player1 = server.accept();
 				log.info("second player connected from " + player1.getInetAddress().getHostAddress());
-				gameThread = new GameServer(System.currentTimeMillis(), player0, player1);
-				gameThread.start();
 				gameCount++;
+				gameThread = new GameServer(gameCount, player0, player1);
+				gameThread.start();
+				
 				log.trace("number of games started: " + gameCount);
 				i--;
 			} catch (Exception e) {

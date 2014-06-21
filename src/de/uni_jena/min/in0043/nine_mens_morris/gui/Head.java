@@ -1,13 +1,12 @@
 package de.uni_jena.min.in0043.nine_mens_morris.gui;
 
+import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Panel;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.Robot;
+import java.awt.event.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -440,19 +439,12 @@ public class Head extends Panel implements MouseListener {
 
 	public void mouseClicked(MouseEvent e) {
 		System.out.println(mill);
-=======
->>>>>>> checkpoint
-		
-<<<<<<< HEAD
+		log.trace("did we get a mill:" + mill);
+//Logic now checks if players can move at all, calls game over if not
 		if(nmm.getBlackLost() == 7 || nmm.getWhiteLost() == 7)
 		{
 			repaint();
 		}
-=======
-		log.trace("did we get a mill:" + mill);
->>>>>>> Logic now checks if players can move at all, calls game over if not
-		
-<<<<<<< HEAD
 		else if (mill) {
 			delete(e);
 		} else {
@@ -464,16 +456,11 @@ public class Head extends Panel implements MouseListener {
 			else{
 				moveS(e);
 			}
-<<<<<<< HEAD
-=======
 		if(mill)
 		{	delete(e);}
 		else{
 			moveS(e);
->>>>>>> checkpoint
-=======
-
->>>>>>> fixed merge errors in Head
+		}
 		}
 
 }

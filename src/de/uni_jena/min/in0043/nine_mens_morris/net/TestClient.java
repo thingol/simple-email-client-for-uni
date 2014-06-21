@@ -75,7 +75,7 @@ public class TestClient implements Game {
 	}
 
 	@Override
-	public boolean removeStone(int stone) {
+	public int removeStone(int stone) {
 		try {
 			send[0] = 0x02;
 			send[1] = (byte) stone;
@@ -85,7 +85,7 @@ public class TestClient implements Game {
 			if(get[0] == 0x00)
 			{
 				System.out.println("Everything's fine!");
-				return true;
+				return 1;
 			}
 			else if(get[0] == -3)
 			{
@@ -100,7 +100,7 @@ public class TestClient implements Game {
 				System.out.println("Strange message sent!");
 				}
 		} catch (IOException e) {}
-		return false;
+		return 0;
 	}
 	
 	public void conceed()
@@ -137,12 +137,10 @@ public class TestClient implements Game {
 				return Phase.GAME_OVER;
 			else System.out.println("Error! Couldnt grab phase!");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
 	}
-
 	@Override
 	public Player getActivePlayer() {
 		try {
@@ -343,8 +341,31 @@ public class TestClient implements Game {
 			System.out.println("WIN");
 		else if(get[0] == 0x10)
 			head.reset();
-		else
-			System.out.println("Error occured LOL");
+		else {
+			try {
+//			System.out.println("Error occurred LOL");
+//			if(get[0] == 0x82)
+//			{ 
+//					din.read(get);
+//				}
+				System.out.println(get[0]);
+				if(get[0] == 69) {
+					din.read(get);
+					if(get[0] == 83) {
+						din.read(get);
+						if(get[0] == 33) {
+							din.read(get);
+							if(get[0] == 10) {
+								System.out.println("Server still on startup!");
+							}
+						}
+					}
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		try {
 			send[0] = 0x7e;
@@ -376,9 +397,12 @@ public class TestClient implements Game {
 
 			while(get[0] != 0x0e || get[0] != 0x0f || get[0] != -1)
 			{
+//				check[0] = get[0];
+//				check[1] = get[1];
+//				check[2] = get[2];
 				check = get;
 				din.read(get);
-				if(check != get)
+				if(check.equals(get))
 					handlingStuff();
 				else get[1] = 0x7e;
 			}
@@ -420,51 +444,51 @@ public class TestClient implements Game {
 		c.StartUp();
 	}
 	
-	private static void StartClient() {
-	Socket servers = null;
-	try {
-		servers = new Socket("gw.kjerkreit.org", 6112);
-		InputStream ins = servers.getInputStream();
-		OutputStream outs = servers.getOutputStream();
-		DataInputStream dins = new DataInputStream(ins);
-		DataOutputStream douts = new DataOutputStream(outs);
-		byte[] getS = new byte[3];
-		byte[] sendS = new byte[3];
-		headS = new Head();
-		
-		System.out.println("Connecting...");
-		sendS[0] = 0x00;
-		sendS[1] = 0x00;
-		sendS[2] = 0x00;
-		System.out.println("sending data...");
-		douts.write(sendS);
-		System.out.println("Data sent!");
-		dins.read(getS);
-		
-		if(getS[0] == 0x00) System.out.println("Connection established!");
-		else {
-			System.out.println("Error! Connecting failed!");
-//			servers.close();
-		}
-		headS.BuildUp();
-
-		while(getS[0] != 0x0e || getS[0] != 0x0f)
-		{
-			dins.read(getS);
-		}
-		
-		
-	} catch (UnknownHostException e) {
-		e.printStackTrace();
-		System.out.println("Can't find host.");
-	} catch (IOException e) {
-		e.printStackTrace();
-		System.out.println("Error connecting to host.");
-	}
-	  finally {
-		  if(servers != null)
-			  try{ servers.close(); } catch (IOException g) {System.out.println("Error closing server: " + g.getMessage());}
-		  }
-	}
+//	private static void StartClient() {
+//	Socket servers = null;
+//	try {
+//		servers = new Socket("gw.kjerkreit.org", 6112);
+//		InputStream ins = servers.getInputStream();
+//		OutputStream outs = servers.getOutputStream();
+//		DataInputStream dins = new DataInputStream(ins);
+//		DataOutputStream douts = new DataOutputStream(outs);
+//		byte[] getS = new byte[3];
+//		byte[] sendS = new byte[3];
+//		headS = new Head();
+//		
+//		System.out.println("Connecting...");
+//		sendS[0] = 0x00;
+//		sendS[1] = 0x00;
+//		sendS[2] = 0x00;
+//		System.out.println("sending data...");
+//		douts.write(sendS);
+//		System.out.println("Data sent!");
+//		dins.read(getS);
+//		
+//		if(getS[0] == 0x00) System.out.println("Connection established!");
+//		else {
+//			System.out.println("Error! Connecting failed!");
+////			servers.close();
+//		}
+//		headS.BuildUp();
+//
+//		while(getS[0] != 0x0e || getS[0] != 0x0f)
+//		{
+//			dins.read(getS);
+//		}
+//		
+//		
+//	} catch (UnknownHostException e) {
+//		e.printStackTrace();
+//		System.out.println("Can't find host.");
+//	} catch (IOException e) {
+//		e.printStackTrace();
+//		System.out.println("Error connecting to host.");
+//	}
+//	  finally {
+//		  if(servers != null)
+//			  try{ servers.close(); } catch (IOException g) {System.out.println("Error closing server: " + g.getMessage());}
+//		  }
+//	}
 
 }

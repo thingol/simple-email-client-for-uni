@@ -8,6 +8,8 @@ import java.awt.Panel;
 import java.awt.Robot;
 import java.awt.event.*;
 
+import javax.swing.JOptionPane;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -48,7 +50,7 @@ public class Head extends Panel implements MouseListener {
 		}
 	}
 
-	public Head(Logic nnn) {
+	public Head(Game nnn) {
 		mFra = new Frame("Nine Men's Morris - Retro Style");
 		mFra.setSize(1024, 720);
 		sF = new Spielfeld();
@@ -212,7 +214,45 @@ public class Head extends Panel implements MouseListener {
 
 		mFra.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
-				System.exit(0);
+				Object[] options = {"Disconnect!",
+	                    "Concede!",
+	                    "Stahp!"};
+	int n = JOptionPane.showOptionDialog(mFra,
+	    "Do you want to disconect or to concede?",
+	    "Exit Dialog",
+	    JOptionPane.YES_NO_CANCEL_OPTION,
+	    JOptionPane.QUESTION_MESSAGE,
+	    null,
+	    options,
+	    options[2]);
+	if(n == 0)
+	{
+		//TODO Client sagt bye
+		System.exit(0);
+	}
+	else if(n == 1)
+	{
+		Object[] opt = {"Yes",
+                "No",
+                "Stahp!"};
+		int n2 = JOptionPane.showOptionDialog(mFra,
+				"Do you want to start a new Game?",
+				"Concede Dialog",
+				JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				opt,
+				opt[2]);
+		if(n2 == 0)
+		{
+			// TODO Client Reset
+		}
+		else if(n2 == 1)
+		{
+			//TODO Client sagt bye
+			System.exit(0);
+		}
+	}
 			}
 		});
 	}

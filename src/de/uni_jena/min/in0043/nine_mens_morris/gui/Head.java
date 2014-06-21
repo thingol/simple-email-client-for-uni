@@ -14,9 +14,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.uni_jena.min.in0043.nine_mens_morris.core.Game;
-import de.uni_jena.min.in0043.nine_mens_morris.core.Logic;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Phase;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
+import de.uni_jena.min.in0043.nine_mens_morris.net.*;
 
 public class Head extends Panel implements MouseListener {
 
@@ -36,7 +36,7 @@ public class Head extends Panel implements MouseListener {
 		Black = new Stone[9];
 		White = new Stone[9];
 		mill = false;
-		nmm = new Logic();
+		nmm = new TestClient();
 
 		for (int i = 0; i < 9; i++) {
 			int r = mFra.getSize().width * mFra.getSize().height / 30000;

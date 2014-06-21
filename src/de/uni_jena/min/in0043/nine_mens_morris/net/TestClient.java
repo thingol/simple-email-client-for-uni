@@ -2,6 +2,7 @@ package de.uni_jena.min.in0043.nine_mens_morris.net;
 
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 
 import de.uni_jena.min.in0043.nine_mens_morris.core.Game;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Phase;
@@ -18,6 +19,7 @@ public class TestClient implements Game {
 	DataOutputStream dout;
 	byte[] get;
 	byte[] send;
+	public boolean white;
 	public Head head;
 	
 	public TestClient()
@@ -30,10 +32,17 @@ public class TestClient implements Game {
 			dout = new DataOutputStream(out);
 			get = new byte[3];
 			send = new byte[3];
-			head = new Head();
+			head = new Head(this);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public boolean ack()
+	{
+		if(Arrays.equals(get, ProtocolOperators.ACK)
+		return true;
+		else return false;
 	}
 
 	@Override
@@ -44,29 +53,12 @@ public class TestClient implements Game {
 			send[2] = (byte) point;
 			out.write(send);
 			in.read(get);
-			if(get[0] == 0x00)
+			if(Arrays.equals(get, ProtocolOperators.ACK)
 			{
 				System.out.println("Everything's fine!");
 				return 1;
 			}
-			else if(get[0] == 0x01)
-			{
-				System.out.println("Mill!");
-				return 2;
-			}
-			else if(get[0] == 0x02)
-			{
-				System.out.println("Can't move enemy stone!");
-			}
-			else if(get[0] == 0x03)
-			{
-				System.out.println("A stone must be removed first!");
-			}
-			else if(get[0] == 0x04)
-			{
-				System.out.println("Illegal Move!");
-			}
-			else if(get[0] == 0x05)
+			else
 			{
 				System.out.println("Game is over!");
 			}
@@ -82,37 +74,32 @@ public class TestClient implements Game {
 			send[2] = 0x00;
 			out.write(send);
 			in.read(get);
-			if(get[0] == 0x00)
+			if(Arrays.equals(get, ProtocolOperators.ACK)
 			{
-				System.out.println("Everything's fine!");
+				System.out.println("Worked");
 				return 1;
-			}
-			else if(get[0] == -3)
-			{
-				System.out.println("Can't remove your own stone!");
-			}
-			else if(get[0] == -1)
-			{
-				System.out.println("Part of a Mill!");
 			}
 			else
 				{
-				System.out.println("Strange message sent!");
+				System.out.println("You can't remove this stone");
 				}
 		} catch (IOException e) {}
 		return 0;
 	}
 	
-	public void conceed()
+	public void conceed(boolean newgame)
 	{
 		try {
 			send[0] = 0x03;
+			if(newgame) send[1] = 0x01;
+			else send[1] = 0x00;
 			out.write(send);
 			in.read(get);
-			if(get[0] == 0x00)
+			if(Arrays.equals(get, ProtocolOperators.ACK)
 			{
 				System.out.println("Conceeded!");
 			}
+			
 		} catch (IOException e) {}
 	}
 	
@@ -376,6 +363,10 @@ public class TestClient implements Game {
 		}
 	}
 	
+	public int getWhiteLost() {
+		
+	}
+	
 	private void StartUp() {
 		try {
 			System.out.println("Connecting...");
@@ -387,6 +378,7 @@ public class TestClient implements Game {
 			System.out.println("Data sent!");
 			din.read(get);
 			byte[] check = new byte[3];
+			if(ack()) {
 			
 			if(get[0] == 0x00) System.out.println("Connection established!");
 			else {
@@ -397,10 +389,7 @@ public class TestClient implements Game {
 
 			while(get[0] != 0x0e || get[0] != 0x0f || get[0] != -1)
 			{
-//				check[0] = get[0];
-//				check[1] = get[1];
-//				check[2] = get[2];
-				check = get;
+				check = get.clone();
 				din.read(get);
 				if(check.equals(get))
 					handlingStuff();
@@ -421,6 +410,8 @@ public class TestClient implements Game {
 				System.out.println("YOU LOST, CONGRATULATIONS!");
 			else
 				System.out.println("Something unexpected happened... closing server");
+			
+			}//ack
 			
 			
 		} catch (UnknownHostException e) {

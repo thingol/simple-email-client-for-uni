@@ -246,10 +246,12 @@ public class Head extends Panel implements MouseListener {
 		if(n2 == 0)
 		{
 			// TODO Client Reset
+			nmm.conceed(true);
 		}
 		else if(n2 == 1)
 		{
 			//TODO Client sagt bye
+			nmm.conceed(false);
 			System.exit(0);
 		}
 	}

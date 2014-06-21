@@ -2,6 +2,7 @@
 <Configuration status="info" name="RoutingTest" packages="de.uni_jena.min.in0043.*">
   <Properties>
     <Property name="filename">nine-mens.log</Property>
+    <Property name="filename_GS">nine-mens_GameServer.log</Property>
   </Properties>
   <ThresholdFilter level="trace"/>
  
@@ -16,11 +17,22 @@
       </PatternLayout>
       <SizeBasedTriggeringPolicy size="500000" />
     </RollingFile>
+    <RollingFile name="Rolling_GameServer" fileName="${filename_GS}"
+                 filePattern="nine-mens_GS.log.%i.gz">
+      <PatternLayout>
+        <pattern>%d %p %M(%F:%L) %X(sID) %m%n</pattern>
+      </PatternLayout>
+      <SizeBasedTriggeringPolicy size="500000" />
+    </RollingFile>
   </Appenders>
  
   <Loggers>
     <Logger name="de.uni_jena.min.in0043.nine_mens_morris" level="trace" additivity="true">
       <AppenderRef ref="Rolling"/>
+    </Logger>
+    
+    <Logger name="de.uni_jena.min.in0043.nine_mens_morris.net.GameServer" level="trace" additivity="false">
+      <AppenderRef ref="Rolling_GameServer"/>
     </Logger>
  
     <Root level="info">

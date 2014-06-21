@@ -287,4 +287,8 @@
     <operations public="true" package="true" protected="true" private="true" static="true"/>  
   </classifier-display>  
   <association-display labels="true" multiplicity="true"/>
+<<<<<<< HEAD
 </class-diagram>
+=======
+</class-diagram>
+>>>>>>> dev-thingol

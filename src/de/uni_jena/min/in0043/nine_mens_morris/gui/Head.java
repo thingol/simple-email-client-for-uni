@@ -315,7 +315,6 @@ public class Head extends Panel implements MouseListener {
 						yep = false;
 				}
 
-
 				// Selects the Stone
 				if (st[i].inPlacement == false && yep == true
 						&& st[i].placed == false) {

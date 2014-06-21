@@ -332,18 +332,20 @@ public class TestClient implements Game {
 
 	private void handlingStuff() {
 		// TODO Implement moveStone.
-		if(get[0] == 0x01)
-			head.moveStone((int) get[1], (int) get[2]);
-		else if(get[0] == 0x02)
-			head.delete((int) get[1]);
+		if(get[0] == 0x01) {}
+			
+			//head.moveStone((int) get[1], (int) get[2]);
+		else if(get[0] == 0x02) {}
+			//head.delete((int) get[1]);
+			
 		else if(get[0] == 0x03)
 			// TODO implement WIN method maybe
 			System.out.println("WIN");
 		else if(get[0] == 0x04)
 			// TODO implement WIN method maybe
 			System.out.println("WIN");
-		else if(get[0] == 0x10)
-			head.reset();
+		else if(get[0] == 0x10) {}
+			//head.reset();
 		else
 			System.out.println("Error occured LOL");
 		

@@ -1,14 +1,12 @@
 package de.uni_jena.min.in0043.nine_mens_morris.net;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,7 +42,7 @@ public class LoginServer {
 		
 		byte[] rcvBuf = new byte[3];
 		DataInputStream in = new DataInputStream(new BufferedInputStream(player.getInputStream()));
-		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(player.getOutputStream()));
+		DataOutputStream out = new DataOutputStream(player.getOutputStream());
 		
 		log.trace("verifying player");
 		in.readFully(rcvBuf);
@@ -92,16 +90,14 @@ public class LoginServer {
 					player1_verified = logIn(player1);
 				} while(!player1_verified);
 				
-				gameThread = new GameServer(UUID.randomUUID(), player0, player1);
+				gameThread = new GameServer(System.currentTimeMillis(), player0, player1);
 				gameThread.start();
 				gameCount++;
 				log.trace("number of games started: " + gameCount);
-				i--;
 			} catch (Exception e) {
 				e.printStackTrace();
-				i--;
 			}
-			
+			i--;
 		}
 	}
 	

@@ -10,6 +10,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -26,14 +27,14 @@ public class ToyClient {
 	private static DataOutputStream out;
 
 	static Frame testFrame;
-    static JLabel retVal;
+    static JLabel retVal, fromSrv;
     static JButton[] buttons;
     private static JTextField operand0,operand1;
     
     private static byte[] rcvBuf = new byte[3];
     
     private static void sendMessage(DataOutputStream out, byte[] msg) {
-    	System.out.println("sending message: " + msg[0] + "," + msg[1] + "," + msg[2]);
+    	System.out.println("sending message: " + Arrays.toString(msg));
     	System.out.println("out: " + out);
     	try {
 			out.write(msg);
@@ -49,7 +50,20 @@ public class ToyClient {
 		} catch (IOException e) {
 			System.err.println("well shit, that didn't work..." + e);
 		}
-    	retVal.setText(String.format("%d,%d,%d", rcvBuf[0], rcvBuf[1], rcvBuf[2]));
+    	retVal.setText(String.format(Arrays.toString(rcvBuf)));
+    	fromSrv.setText("nutn ter see");
+    	
+    }
+    
+    private static void receiveMessage(boolean bla) {
+    	System.out.println("receiving message");
+    	try {
+			in.readFully(rcvBuf);
+		} catch (IOException e) {
+			System.err.println("well shit, that didn't work..." + e);
+		}
+    	fromSrv.setText(String.format(Arrays.toString(rcvBuf)));
+    	retVal.setText("nutn ter see");
     	
     }
     
@@ -57,7 +71,7 @@ public class ToyClient {
     	
     	try {
     		System.out.println("connecting to " + srv + ":" + port);
-			server = new Socket("localhost", 6112);
+			server = new Socket("gw.kjerkreit.org", 6112);
 			in = new DataInputStream(server.getInputStream());
 	    	out = new DataOutputStream(server.getOutputStream());
 		} catch (IOException e) {
@@ -67,6 +81,7 @@ public class ToyClient {
 
     	testFrame = new Frame("ToyClient for nine men's morris");
         retVal = new JLabel();
+        fromSrv = new JLabel();
         operand0 = new JTextField();
         operand1 = new JTextField();
         buttons = new JButton[]
@@ -100,14 +115,25 @@ public class ToyClient {
         	new JButton("UNKNOWN_OP"),
         	new JButton("ILLEGAL_OP"),
         	
-        	new JButton("GENERAL_ERROR")};
+        	new JButton("GENERAL_ERROR"),
+        	new JButton("READ_FROM_SRV")};
         
         buttons[0].addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) { 
             	sendMessage(out, ProtocolOperators.HELLO);
             	receiveMessage();}});
         buttons[1].addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) { sendMessage(out, ProtocolOperators.MOVE_STONE); receiveMessage();}});
+            public void actionPerformed(ActionEvent e) {
+            	byte stone = -1, point = -1;
+            	int lenOpnd0 = operand0.getText().length();
+            	int lenOpnd1 = operand1.getText().length();
+            	
+            	if(lenOpnd0 == 1 || lenOpnd0 == 2 || lenOpnd1 == 1 || lenOpnd1 == 2) {
+            		stone = Byte.parseByte(operand0.getText());
+            		point = Byte.parseByte(operand1.getText());
+            		sendMessage(out, new byte[]{ProtocolOperators.MOVE_STONE[0],stone,point}); receiveMessage();
+            	}}});
+            	
         buttons[2].addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) { sendMessage(out, ProtocolOperators.REMOVE_STONE); receiveMessage();}});
         buttons[3].addActionListener(new ActionListener() {
@@ -239,7 +265,6 @@ public class ToyClient {
             public void actionPerformed(ActionEvent e)
             {
                 sendMessage(out, ProtocolOperators.ACK);
-                receiveMessage();
             }
         });
         buttons[21].addActionListener(new ActionListener() {
@@ -274,6 +299,13 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[25].addActionListener(new ActionListener() {
+          	 
+            public void actionPerformed(ActionEvent e)
+            {
+                receiveMessage(false);
+            }
+        });
         
         testFrame.setLayout(new GridLayout(6,4));
                 
@@ -283,6 +315,8 @@ public class ToyClient {
         
         testFrame.add(new JLabel("retVal: "));
         testFrame.add(retVal);
+        testFrame.add(new JLabel("fromSrv: "));
+        testFrame.add(fromSrv);
         testFrame.add(new JLabel("operands: "));
         testFrame.add(operand0);
         testFrame.add(operand1);

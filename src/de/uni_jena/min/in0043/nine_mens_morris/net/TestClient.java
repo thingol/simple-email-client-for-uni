@@ -25,7 +25,7 @@ public class TestClient implements Game {
 	public TestClient()
 	{
 		try {
-			server = new Socket("gw.kjerkreit.org", 6112);
+			server = new Socket("localhost", 6112);
 			in = server.getInputStream();
 			out = server.getOutputStream();
 			din = new DataInputStream(in);
@@ -44,8 +44,8 @@ public class TestClient implements Game {
 			send = ProtocolOperators.MOVE_STONE;
 			send[1] = (byte) stone;
 			send[2] = (byte) point;
-			out.write(send);
-			in.read(get);
+			dout.write(send);
+			din.read(get);
 			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
 				System.out.println("Everything's fine!");
@@ -68,8 +68,8 @@ public class TestClient implements Game {
 			send = ProtocolOperators.REMOVE_STONE;
 			send[1] = (byte) stone;
 			send[2] = 0x00;
-			out.write(send);
-			in.read(get);
+			dout.write(send);
+			din.read(get);
 			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
 				System.out.println("Worked");
@@ -92,8 +92,8 @@ public class TestClient implements Game {
 			send = ProtocolOperators.CONCEDE;
 			if(newgame) send[1] = 0x01;
 			else send[1] = 0x00;
-			out.write(send);
-			in.read(get);
+			dout.write(send);
+			din.read(get);
 			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
 				System.out.println("Conceeded!");
@@ -109,9 +109,9 @@ public class TestClient implements Game {
 	public Phase getPhase() {
 		try {
 			send[0] = 0x05;
-			out.write(send);
+			dout.write(send);
 			
-			in.read(get);
+			din.read(get);
 			if(get[0] == 0)
 				return Phase.PLACING_STONES;
 			else if(get[0] == 1)
@@ -135,13 +135,14 @@ public class TestClient implements Game {
 	public Player getActivePlayer() {
 		try {
 			send = ProtocolOperators.GET_ACTIVE_PLAYER;
-			out.write(send);
+			dout.write(send);
 			
-			in.read(get);
+			din.read(get);
 			if(get[0] == 0)
 				return Player.WHITE;
 			else if(get[0] == 1) return Player.BLACK;
-			else System.out.println("Error happened!");
+			else System.out.println("Error happened in active player! " + get[0] +
+					" " + get[2]);
 		} catch (IOException e) {
 			// TODO getActivePlayer
 			e.printStackTrace();
@@ -153,9 +154,9 @@ public class TestClient implements Game {
 	public int getWhiteActivated() {
 		try {
 			send = ProtocolOperators.GET_WHITE_ACTIVATED;
-			out.write(send);
+			dout.write(send);
 			
-			in.read(get);
+			din.read(get);
 			return (int) get[0];
 		} catch (IOException e) {
 			// TODO getWhiteActivated
@@ -168,9 +169,9 @@ public class TestClient implements Game {
 	public int getWhiteInPlay() {
 		try {
 			send = ProtocolOperators.WHITE_IN_PLAY;
-			out.write(send);
+			dout.write(send);
 			
-			in.read(get);
+			din.read(get);
 			return (int) get[0];
 		} catch (IOException e) {
 			// TODO getWhiteInPlay
@@ -183,9 +184,9 @@ public class TestClient implements Game {
 	public int getWhiteLost() {
 		try {
 			send = ProtocolOperators.WHITE_LOST;
-			out.write(send);
+			dout.write(send);
 			
-			in.read(get);
+			din.read(get);
 			return (int) get[0];
 		} catch (IOException e) {
 			// TODO getWhiteLost
@@ -198,9 +199,9 @@ public class TestClient implements Game {
 	public int getBlackActivated() {
 		try {
 			send = ProtocolOperators.GET_BLACK_ACTIVATED;
-			out.write(send);
+			dout.write(send);
 			
-			in.read(get);
+			din.read(get);
 			return (int) get[0];
 		} catch (IOException e) {
 			// TODO getBlackActivated
@@ -213,9 +214,9 @@ public class TestClient implements Game {
 	public int getBlackInPlay() {
 		try {
 			send = ProtocolOperators.BLACK_IN_PLAY;
-			out.write(send);
+			dout.write(send);
 			
-			in.read(get);
+			din.read(get);
 			return (int) get[0];
 		} catch (IOException e) {
 			// TODO getBlackInPlay
@@ -228,9 +229,9 @@ public class TestClient implements Game {
 	public int getBlackLost() {
 		try {
 			send = ProtocolOperators.BLACK_LOST;
-			out.write(send);
+			dout.write(send);
 			
-			in.read(get);
+			din.read(get);
 			return (int) get[0];
 		} catch (IOException e) {
 			// TODO getBlackLost
@@ -243,9 +244,9 @@ public class TestClient implements Game {
 	public int getRound() {
 		try {
 			send = ProtocolOperators.GET_PHASE;
-			out.write(send);
+			dout.write(send);
 			
-			in.read(get);
+			din.read(get);
 			return (int) get[0];
 		} catch (IOException e) {
 			// TODO getRound
@@ -258,9 +259,9 @@ public class TestClient implements Game {
 	{
 		try {
 			send = ProtocolOperators.YOU_WIN;
-			out.write(send);
+			dout.write(send);
 			
-			in.read(get);
+			din.read(get);
 			if(Arrays.equals(get, ProtocolOperators.HELLO))
 				return get[0];
 		} catch (IOException e) {
@@ -274,9 +275,9 @@ public class TestClient implements Game {
 	{
 		try {
 			send = ProtocolOperators.YOU_LOSE;
-			out.write(send);
+			dout.write(send);
 			
-			in.read(get);
+			din.read(get);
 			if(Arrays.equals(get, ProtocolOperators.HELLO))
 				return get[0];
 		} catch (IOException e) {
@@ -290,9 +291,9 @@ public class TestClient implements Game {
 	{
 		try {
 			send = ProtocolOperators.NEW_GAME;
-			out.write(send);
+			dout.write(send);
 			
-			in.read(get);
+			din.read(get);
 			if(Arrays.equals(get, ProtocolOperators.HELLO))
 				return true;
 		} catch (IOException e) {
@@ -306,9 +307,9 @@ public class TestClient implements Game {
 	{
 		try {
 			send = ProtocolOperators.NO_MORE;
-			out.write(send);
+			dout.write(send);
 			
-			in.read(get);
+			din.read(get);
 			if(Arrays.equals(get, ProtocolOperators.HELLO))
 				return true;
 		} catch (IOException e) {
@@ -318,12 +319,20 @@ public class TestClient implements Game {
 		return false;
 	}
 
-	private void handlingStuff() {
+	private void handlingStuff() throws IOException {
 		// TODO Implement moveStone.
+		System.out.println(get[0]);
+			dout.write(ProtocolOperators.ACK);
 		if(Arrays.equals(get, ProtocolOperators.MOVE_STONE))
+		{
 			head.moveStone((int) get[1], (int) get[2]);
+			dout.write(ProtocolOperators.ACK);
+		}
 		else if(Arrays.equals(get, ProtocolOperators.REMOVE_STONE))
+		{
 			head.delete((int) get[1]);
+			dout.write(ProtocolOperators.ACK);
+		}
 		else if(Arrays.equals(get, ProtocolOperators.CONCEDE))
 			// TODO implement WIN method maybe
 			System.out.println("WIN");
@@ -331,8 +340,21 @@ public class TestClient implements Game {
 			// TODO implement WIN method maybe
 			System.out.println("User disconnected");
 		else if(Arrays.equals(get, ProtocolOperators.NEW_GAME))
+		{
 			head.reset();
-		else System.out.println(get.toString());
+			dout.write(ProtocolOperators.ACK);
+		}
+		else if(Arrays.equals(get, ProtocolOperators.IS_WHITE))
+		{
+			head.color = Player.WHITE;
+			dout.write(ProtocolOperators.ACK);
+		}
+		else if(Arrays.equals(get, ProtocolOperators.IS_BLACK))
+		{
+			head.color = Player.BLACK;
+			dout.write(ProtocolOperators.ACK);
+		}
+		else System.out.println(get[0] + " " + head.color);
 	}
 	
 	private void StartUp() {
@@ -343,20 +365,16 @@ public class TestClient implements Game {
 			dout.write(send);
 			System.out.println("Data sent!");
 			din.read(get);
+			System.out.println("Data recieved " + get[0]);
 			byte[] check = new byte[3];
 			if(Arrays.equals(get, ProtocolOperators.ACK)) {
 			
-			if(Arrays.equals(get, ProtocolOperators.HELLO)) System.out.println("Connection established!");
-			else {
-				System.out.println("Error! Connecting failed! " + get[0]);
-//				servers.close();
-			}
+//			if(Arrays.equals(get, ProtocolOperators.HELLO)) System.out.println("Connection established!");
+//			else {
+//				System.out.println("Error! Connecting failed! " + get[0]);
+////				servers.close();
+//			}
 			head.BuildUp();
-			din.read(get);
-			if(Arrays.equals(get, ProtocolOperators.IS_WHITE))
-				head.color = Player.WHITE;
-			else if(Arrays.equals(get, ProtocolOperators.IS_BLACK))
-				head.color = Player.BLACK;
 
 			while(!Arrays.equals(get, ProtocolOperators.YOU_WIN) ||
 					!Arrays.equals(get, ProtocolOperators.YOU_LOSE) ||
@@ -365,7 +383,8 @@ public class TestClient implements Game {
 					!Arrays.equals(get, ProtocolOperators.GENERAL_ERROR))
 			{
 				check = get.clone();
-				din.read(get);
+				if(din.available() > 0)
+					din.readFully(get);
 				if(check.equals(get))
 					handlingStuff();
 			}
@@ -405,6 +424,18 @@ public class TestClient implements Game {
 		// TODO Main-Methode
 		TestClient c = new TestClient();
 		c.StartUp();
+	}
+
+	@Override
+	public void disconnect() {
+		try {
+			send = ProtocolOperators.BYE;
+			dout.write(send);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }

@@ -191,10 +191,14 @@ public class Head extends Panel implements MouseListener {
 		}
 		else
 		{
-			String s;
+			String s, z;
 			if(nmm.getActivePlayer() == Player.BLACK)
 				s = "Black";
 			else s = "White";
+			if(color == Player.BLACK)
+				z = "Black";
+			else z = "White";
+			g.drawString("I am " + z + "!", (mFra.getSize().width/2) - 50 , 50);
 			g.drawString(s + "s turn! Make a move.", (mFra.getSize().width/2) - 50 , mFra.getSize().height - 50);
 		}
 	}
@@ -228,7 +232,7 @@ public class Head extends Panel implements MouseListener {
 	    options[2]);
 	if(n == 0)
 	{
-		//TODO Client sagt bye
+		nmm.disconnect();
 		System.exit(0);
 	}
 	else if(n == 1)
@@ -251,7 +255,7 @@ public class Head extends Panel implements MouseListener {
 		}
 		else if(n2 == 1)
 		{
-			//TODO Client sagt bye
+			nmm.disconnect();
 			nmm.conceed(false);
 			System.exit(0);
 		}

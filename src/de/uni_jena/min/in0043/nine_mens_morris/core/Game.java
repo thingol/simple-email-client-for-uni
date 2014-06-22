@@ -32,4 +32,6 @@ public interface Game {
 	public int removeStone(int stone);
 	
 	public void conceed(boolean newgame);
+	
+	public void disconnect();
 }

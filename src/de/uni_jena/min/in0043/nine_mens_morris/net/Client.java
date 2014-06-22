@@ -307,6 +307,11 @@ public class Client implements Game {
 			Client c = new Client();
 			c.StartUp();
 	}
+	@Override
+	public void conceed(boolean newgame) {
+		// TODO Auto-generated method stub
+		
+	}
 
 //	private static void StartClient() {
 //		Socket servers = null;

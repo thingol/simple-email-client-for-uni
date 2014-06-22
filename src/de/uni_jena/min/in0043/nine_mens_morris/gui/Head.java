@@ -28,6 +28,7 @@ public class Head extends Panel implements MouseListener {
 	private Frame mFra;
 	private Game nmm;
 	private boolean mill;
+	public Player color = Player.WHITE;
 
 	public Head() {
 		mFra = new Frame("Nine Men's Morris - Retro Style");
@@ -479,7 +480,6 @@ public class Head extends Panel implements MouseListener {
 	}
 
 	public void mouseClicked(MouseEvent e) {
-		System.out.println(mill);
 		log.trace("did we get a mill:" + mill);
 //Logic now checks if players can move at all, calls game over if not
 		if(nmm.getBlackLost() == 7 || nmm.getWhiteLost() == 7)
@@ -489,19 +489,8 @@ public class Head extends Panel implements MouseListener {
 		else if (mill) {
 			delete(e);
 		} else {
-			
-			log.trace("mill = " + mill);
-			
-			if(mill)
-			{	delete(e);}
-			else{
+			if(color == nmm.getActivePlayer())
 				moveS(e);
-			}
-		if(mill)
-		{	delete(e);}
-		else{
-			moveS(e);
-		}
 		}
 
 }

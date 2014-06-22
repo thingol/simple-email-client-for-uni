@@ -37,23 +37,16 @@ public class TestClient implements Game {
 			e.printStackTrace();
 		}
 	}
-	
-	public boolean ack()
-	{
-		if(Arrays.equals(get, ProtocolOperators.ACK)
-		return true;
-		else return false;
-	}
 
 	@Override
 	public int moveStone(int stone, int point) {
 		try {
-			send[0] = 0x01;
+			send = ProtocolOperators.MOVE_STONE;
 			send[1] = (byte) stone;
 			send[2] = (byte) point;
 			out.write(send);
 			in.read(get);
-			if(Arrays.equals(get, ProtocolOperators.ACK)
+			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
 				System.out.println("Everything's fine!");
 				return 1;
@@ -62,19 +55,22 @@ public class TestClient implements Game {
 			{
 				System.out.println("Game is over!");
 			}
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			// TODO moveStone
+			e.printStackTrace();
+		}
 		return 0;
 	}
 
 	@Override
 	public int removeStone(int stone) {
 		try {
-			send[0] = 0x02;
+			send = ProtocolOperators.REMOVE_STONE;
 			send[1] = (byte) stone;
 			send[2] = 0x00;
 			out.write(send);
 			in.read(get);
-			if(Arrays.equals(get, ProtocolOperators.ACK)
+			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
 				System.out.println("Worked");
 				return 1;
@@ -83,24 +79,30 @@ public class TestClient implements Game {
 				{
 				System.out.println("You can't remove this stone");
 				}
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			// TODO removeStone
+			e.printStackTrace();
+		}
 		return 0;
 	}
 	
 	public void conceed(boolean newgame)
 	{
 		try {
-			send[0] = 0x03;
+			send = ProtocolOperators.CONCEDE;
 			if(newgame) send[1] = 0x01;
 			else send[1] = 0x00;
 			out.write(send);
 			in.read(get);
-			if(Arrays.equals(get, ProtocolOperators.ACK)
+			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
 				System.out.println("Conceeded!");
 			}
 			
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			// TODO conceed
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -110,20 +112,21 @@ public class TestClient implements Game {
 			out.write(send);
 			
 			in.read(get);
-			if(get[0] == 0x00)
+			if(get[0] == 0)
 				return Phase.PLACING_STONES;
-			else if(get[0] == 0x01)
+			else if(get[0] == 1)
 				return Phase.NORMAL_PLAY;
-			else if(get[0] == 0x02)
+			else if(get[0] == 2)
 				return Phase.WHITE_REDUCED;
-			else if(get[0] == 0x03)
+			else if(get[0] == 3)
 				return Phase.BLACK_REDUCED;
-			else if(get[0] == 0x04)
+			else if(get[0] == 4)
 				return Phase.BOTH_REDUCED;
-			else if(get[0] == 0x05)
+			else if(get[0] == 5)
 				return Phase.GAME_OVER;
 			else System.out.println("Error! Couldnt grab phase!");
 		} catch (IOException e) {
+			// TODO getPhase
 			e.printStackTrace();
 		}
 		return null;
@@ -131,15 +134,16 @@ public class TestClient implements Game {
 	@Override
 	public Player getActivePlayer() {
 		try {
-			send[0] = 0x06;
+			send = ProtocolOperators.GET_ACTIVE_PLAYER;
 			out.write(send);
 			
 			in.read(get);
-			if(get[0] == 0x00)
+			if(get[0] == 0)
 				return Player.WHITE;
-			else if(get[0] == 0x01) return Player.BLACK;
+			else if(get[0] == 1) return Player.BLACK;
 			else System.out.println("Error happened!");
 		} catch (IOException e) {
+			// TODO getActivePlayer
 			e.printStackTrace();
 		}
 		return null;
@@ -148,13 +152,13 @@ public class TestClient implements Game {
 	@Override
 	public int getWhiteActivated() {
 		try {
-			send[0] = 0x07;
+			send = ProtocolOperators.GET_WHITE_ACTIVATED;
 			out.write(send);
 			
 			in.read(get);
 			return (int) get[0];
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO getWhiteActivated
 			e.printStackTrace();
 		}
 		return 0;
@@ -163,13 +167,13 @@ public class TestClient implements Game {
 	@Override
 	public int getWhiteInPlay() {
 		try {
-			send[0] = 0x08;
+			send = ProtocolOperators.WHITE_IN_PLAY;
 			out.write(send);
 			
 			in.read(get);
 			return (int) get[0];
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO getWhiteInPlay
 			e.printStackTrace();
 		}
 		return 0;
@@ -178,13 +182,13 @@ public class TestClient implements Game {
 	@Override
 	public int getWhiteLost() {
 		try {
-			send[0] = 0x09;
+			send = ProtocolOperators.WHITE_LOST;
 			out.write(send);
 			
 			in.read(get);
 			return (int) get[0];
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO getWhiteLost
 			e.printStackTrace();
 		}
 		return 0;
@@ -193,13 +197,13 @@ public class TestClient implements Game {
 	@Override
 	public int getBlackActivated() {
 		try {
-			send[0] = 0x0a;
+			send = ProtocolOperators.GET_BLACK_ACTIVATED;
 			out.write(send);
 			
 			in.read(get);
 			return (int) get[0];
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO getBlackActivated
 			e.printStackTrace();
 		}
 		return 0;
@@ -208,13 +212,13 @@ public class TestClient implements Game {
 	@Override
 	public int getBlackInPlay() {
 		try {
-			send[0] = 0x0b;
+			send = ProtocolOperators.BLACK_IN_PLAY;
 			out.write(send);
 			
 			in.read(get);
 			return (int) get[0];
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO getBlackInPlay
 			e.printStackTrace();
 		}
 		return 0;
@@ -223,13 +227,13 @@ public class TestClient implements Game {
 	@Override
 	public int getBlackLost() {
 		try {
-			send[0] = 0x0c;
+			send = ProtocolOperators.BLACK_LOST;
 			out.write(send);
 			
 			in.read(get);
 			return (int) get[0];
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO getBlackLost
 			e.printStackTrace();
 		}
 		return 0;
@@ -238,13 +242,13 @@ public class TestClient implements Game {
 	@Override
 	public int getRound() {
 		try {
-			send[0] = 0x0d;
+			send = ProtocolOperators.GET_PHASE;
 			out.write(send);
 			
 			in.read(get);
 			return (int) get[0];
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO getRound
 			e.printStackTrace();
 		}
 		return -1;
@@ -253,14 +257,14 @@ public class TestClient implements Game {
 	public byte YOU_WIN()
 	{
 		try {
-			send[0] = 0x0e;
+			send = ProtocolOperators.YOU_WIN;
 			out.write(send);
 			
 			in.read(get);
-			if(get[0] == 0x00)
+			if(Arrays.equals(get, ProtocolOperators.HELLO))
 				return get[0];
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO YOU_WIN
 			e.printStackTrace();
 		}
 		return -1;
@@ -269,14 +273,14 @@ public class TestClient implements Game {
 	public byte YOU_LOSE()
 	{
 		try {
-			send[0] = 0x0f;
+			send = ProtocolOperators.YOU_LOSE;
 			out.write(send);
 			
 			in.read(get);
-			if(get[0] == 0x00)
+			if(Arrays.equals(get, ProtocolOperators.HELLO))
 				return get[0];
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO YouLose
 			e.printStackTrace();
 		}
 		return -2;
@@ -285,14 +289,14 @@ public class TestClient implements Game {
 	public boolean NEW_GAME()
 	{
 		try {
-			send[0] = 0x10;
+			send = ProtocolOperators.NEW_GAME;
 			out.write(send);
 			
 			in.read(get);
-			if(get[0] == 0x00)
+			if(Arrays.equals(get, ProtocolOperators.HELLO))
 				return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO NewGame
 			e.printStackTrace();
 		}
 		return false;
@@ -301,14 +305,14 @@ public class TestClient implements Game {
 	public boolean NO_MORE()
 	{
 		try {
-			send[0] = 0x11;
+			send = ProtocolOperators.NO_MORE;
 			out.write(send);
 			
 			in.read(get);
-			if(get[0] == 0x00)
+			if(Arrays.equals(get, ProtocolOperators.HELLO))
 				return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			// TODO NoMore
 			e.printStackTrace();
 		}
 		return false;
@@ -316,97 +320,66 @@ public class TestClient implements Game {
 
 	private void handlingStuff() {
 		// TODO Implement moveStone.
-		if(get[0] == 0x01)
+		if(Arrays.equals(get, ProtocolOperators.MOVE_STONE))
 			head.moveStone((int) get[1], (int) get[2]);
-		else if(get[0] == 0x02)
+		else if(Arrays.equals(get, ProtocolOperators.REMOVE_STONE))
 			head.delete((int) get[1]);
-		else if(get[0] == 0x03)
+		else if(Arrays.equals(get, ProtocolOperators.CONCEDE))
 			// TODO implement WIN method maybe
 			System.out.println("WIN");
-		else if(get[0] == 0x04)
+		else if(Arrays.equals(get, ProtocolOperators.BYE))
 			// TODO implement WIN method maybe
-			System.out.println("WIN");
-		else if(get[0] == 0x10)
+			System.out.println("User disconnected");
+		else if(Arrays.equals(get, ProtocolOperators.NEW_GAME))
 			head.reset();
-		else {
-			try {
-//			System.out.println("Error occurred LOL");
-//			if(get[0] == 0x82)
-//			{ 
-//					din.read(get);
-//				}
-				System.out.println(get[0]);
-				if(get[0] == 69) {
-					din.read(get);
-					if(get[0] == 83) {
-						din.read(get);
-						if(get[0] == 33) {
-							din.read(get);
-							if(get[0] == 10) {
-								System.out.println("Server still on startup!");
-							}
-						}
-					}
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		try {
-			send[0] = 0x7e;
-			dout.write(send);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public int getWhiteLost() {
-		
+		else System.out.println(get.toString());
 	}
 	
 	private void StartUp() {
 		try {
 			System.out.println("Connecting...");
-			send[0] = 0x00;
-			send[1] = 0x00;
-			send[2] = 0x00;
+			send = ProtocolOperators.HELLO;
 			System.out.println("sending data...");
 			dout.write(send);
 			System.out.println("Data sent!");
 			din.read(get);
 			byte[] check = new byte[3];
-			if(ack()) {
+			if(Arrays.equals(get, ProtocolOperators.ACK)) {
 			
-			if(get[0] == 0x00) System.out.println("Connection established!");
+			if(Arrays.equals(get, ProtocolOperators.HELLO)) System.out.println("Connection established!");
 			else {
 				System.out.println("Error! Connecting failed! " + get[0]);
 //				servers.close();
 			}
 			head.BuildUp();
+			din.read(get);
+			if(Arrays.equals(get, ProtocolOperators.IS_WHITE))
+				head.color = Player.WHITE;
+			else if(Arrays.equals(get, ProtocolOperators.IS_BLACK))
+				head.color = Player.BLACK;
 
-			while(get[0] != 0x0e || get[0] != 0x0f || get[0] != -1)
+			while(!Arrays.equals(get, ProtocolOperators.YOU_WIN) ||
+					!Arrays.equals(get, ProtocolOperators.YOU_LOSE) ||
+					!Arrays.equals(get, ProtocolOperators.ILLEGAL_OP) ||
+					!Arrays.equals(get, ProtocolOperators.UNKNOW_OP) ||
+					!Arrays.equals(get, ProtocolOperators.GENERAL_ERROR))
 			{
 				check = get.clone();
 				din.read(get);
 				if(check.equals(get))
 					handlingStuff();
-				else get[1] = 0x7e;
 			}
-			if(get[0] == -1)
-			{
-				if(get[2] == -3)
+			
+			
+			if(Arrays.equals(get, ProtocolOperators.UNKNOW_OP))
 					System.out.println("Unknown Operation... Closing Connection");
-				else if(get[2] == -2)
+			else if(Arrays.equals(get, ProtocolOperators.ILLEGAL_OP))
 					System.out.println("Illegal Operation... Closing Connection");
-				else if(get[2] == -1)
+			else if(Arrays.equals(get, ProtocolOperators.GENERAL_ERROR))
 					System.out.println("General Error detected... Closing Connection");
-			}
-			else if(get[0] == 0x0e)
+			else if(Arrays.equals(get, ProtocolOperators.YOU_WIN))
 				System.out.println("YOU WIN, CONGRATULATIONS!");
-			else if(get[0] == 0x0f)
+			else if(Arrays.equals(get, ProtocolOperators.YOU_LOSE))
 				System.out.println("YOU LOST, CONGRATULATIONS!");
 			else
 				System.out.println("Something unexpected happened... closing server");
@@ -429,57 +402,9 @@ public class TestClient implements Game {
 	
 
 	public static void main(String[] args) {
-//		StartClient();
 		// TODO Main-Methode
 		TestClient c = new TestClient();
 		c.StartUp();
 	}
-	
-//	private static void StartClient() {
-//	Socket servers = null;
-//	try {
-//		servers = new Socket("gw.kjerkreit.org", 6112);
-//		InputStream ins = servers.getInputStream();
-//		OutputStream outs = servers.getOutputStream();
-//		DataInputStream dins = new DataInputStream(ins);
-//		DataOutputStream douts = new DataOutputStream(outs);
-//		byte[] getS = new byte[3];
-//		byte[] sendS = new byte[3];
-//		headS = new Head();
-//		
-//		System.out.println("Connecting...");
-//		sendS[0] = 0x00;
-//		sendS[1] = 0x00;
-//		sendS[2] = 0x00;
-//		System.out.println("sending data...");
-//		douts.write(sendS);
-//		System.out.println("Data sent!");
-//		dins.read(getS);
-//		
-//		if(getS[0] == 0x00) System.out.println("Connection established!");
-//		else {
-//			System.out.println("Error! Connecting failed!");
-////			servers.close();
-//		}
-//		headS.BuildUp();
-//
-//		while(getS[0] != 0x0e || getS[0] != 0x0f)
-//		{
-//			dins.read(getS);
-//		}
-//		
-//		
-//	} catch (UnknownHostException e) {
-//		e.printStackTrace();
-//		System.out.println("Can't find host.");
-//	} catch (IOException e) {
-//		e.printStackTrace();
-//		System.out.println("Error connecting to host.");
-//	}
-//	  finally {
-//		  if(servers != null)
-//			  try{ servers.close(); } catch (IOException g) {System.out.println("Error closing server: " + g.getMessage());}
-//		  }
-//	}
 
 }

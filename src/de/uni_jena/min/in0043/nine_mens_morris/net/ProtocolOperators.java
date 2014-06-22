@@ -23,6 +23,7 @@ public class ProtocolOperators {
     public final static byte[] IS_BLACK            = {19,0,0};
 
     public final static byte[] ACK                 = {-2,0,0};
+    public final static byte[] ACK_W_MILL          = {-2,0,1};
     public final static byte[] NACK                = {-2,1,0};
     
     public final static byte[] UNKNOW_OP           = {-1,-1,-3};

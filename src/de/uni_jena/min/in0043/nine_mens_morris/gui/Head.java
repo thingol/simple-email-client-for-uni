@@ -271,7 +271,7 @@ public class Head extends Panel implements MouseListener {
 		int x = e.getX();
 		int y = e.getY();
 		// Which Stone do we want to move?
-		if (nmm.getActivePlayer() == Player.WHITE) {
+		if (color == Player.WHITE) {
 			st = White;
 		} else {
 			st = Black;
@@ -290,7 +290,7 @@ public class Head extends Panel implements MouseListener {
 										&& e.getY() == sF.placement[l][1] - r
 												+ k && sF.placed[l] == false) {
 									int s;
-									if (nmm.getActivePlayer() == Player.WHITE) {
+									if (color == Player.WHITE) {
 										s = i;
 									}
 									else {
@@ -357,7 +357,7 @@ public class Head extends Panel implements MouseListener {
 								if(e.getX() == sF.placement[l][0] - r + j && e.getY() == sF.placement[l][1] -r + k)
 								{
 									int s;
-									if(nmm.getActivePlayer() == Player.WHITE) s = i;
+									if(color == Player.WHITE) s = i;
 									else
 										s = i + 9;
 									int z = nmm.moveStone(s, l);
@@ -416,7 +416,7 @@ public class Head extends Panel implements MouseListener {
 
 	public void delete(MouseEvent e) {
 		Stone[] st = new Stone[9];
-		if (nmm.getActivePlayer() == Player.BLACK) {
+		if (color == Player.BLACK) {
 			st = White;
 		} else
 			st = Black;
@@ -428,7 +428,7 @@ public class Head extends Panel implements MouseListener {
 					if (e.getX() == st[i].posX + j
 							&& e.getY() == st[i].posY + k) {
 						int m2;
-						if (nmm.getActivePlayer() == Player.BLACK) {
+						if (color == Player.BLACK) {
 							m2 = nmm.removeStone(i);
 						} else {
 							m2 = nmm.removeStone(i + 9);
@@ -449,7 +449,7 @@ public class Head extends Panel implements MouseListener {
 	public void moveStone(int stone, int goal)
 	{
 		Stone temp;
-		if (nmm.getActivePlayer() == Player.WHITE)
+		if (color == Player.WHITE)
 			 temp = White[stone];
 		else temp = Black[stone];
 		try {
@@ -469,7 +469,7 @@ public class Head extends Panel implements MouseListener {
 	public void delete(int stone)
 	{
 		Stone temp;
-		if (nmm.getActivePlayer() == Player.WHITE)
+		if (color == Player.WHITE)
 			 temp = White[stone];
 		else temp = Black[stone];
 		try {
@@ -493,11 +493,13 @@ public class Head extends Panel implements MouseListener {
 		else if (mill) {
 			delete(e);
 		} else {
-			if(color == nmm.getActivePlayer())
 				moveS(e);
+				repaint();
 		}
 
 }
+	
+
 
 	public void mousePressed(MouseEvent e) {
 		// this.setBackground(new Color((int) (Math.random()*255),(int)

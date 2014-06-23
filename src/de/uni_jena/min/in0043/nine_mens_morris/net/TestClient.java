@@ -21,11 +21,12 @@ public class TestClient implements Game {
 	byte[] send;
 	public boolean white;
 	public Head head;
+	public boolean connected;
 	
 	public TestClient()
 	{
 		try {
-			server = new Socket("localhost", 6112);
+			server = new Socket("gw.kjerkreit.org", 6112);
 			in = server.getInputStream();
 			out = server.getOutputStream();
 			din = new DataInputStream(in);
@@ -45,10 +46,12 @@ public class TestClient implements Game {
 			send[1] = (byte) stone;
 			send[2] = (byte) point;
 			dout.write(send);
-			din.read(get);
+			din.readFully(get);
 			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
 				System.out.println("Everything's fine!");
+				din.readFully(get);
+				handlingStuff();
 				return 1;
 			}
 			else
@@ -73,6 +76,8 @@ public class TestClient implements Game {
 			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
 				System.out.println("Worked");
+				din.readFully(get);
+				handlingStuff();
 				return 1;
 			}
 			else
@@ -97,6 +102,8 @@ public class TestClient implements Game {
 			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
 				System.out.println("Conceeded!");
+				din.readFully(get);
+				handlingStuff();
 			}
 			
 		} catch (IOException e) {
@@ -255,38 +262,6 @@ public class TestClient implements Game {
 		return -1;
 	}
 	
-	public byte YOU_WIN()
-	{
-		try {
-			send = ProtocolOperators.YOU_WIN;
-			dout.write(send);
-			
-			din.read(get);
-			if(Arrays.equals(get, ProtocolOperators.HELLO))
-				return get[0];
-		} catch (IOException e) {
-			// TODO YOU_WIN
-			e.printStackTrace();
-		}
-		return -1;
-	}
-	
-	public byte YOU_LOSE()
-	{
-		try {
-			send = ProtocolOperators.YOU_LOSE;
-			dout.write(send);
-			
-			din.read(get);
-			if(Arrays.equals(get, ProtocolOperators.HELLO))
-				return get[0];
-		} catch (IOException e) {
-			// TODO YouLose
-			e.printStackTrace();
-		}
-		return -2;
-	}
-	
 	public boolean NEW_GAME()
 	{
 		try {
@@ -322,39 +297,37 @@ public class TestClient implements Game {
 	private void handlingStuff() throws IOException {
 		// TODO Implement moveStone.
 		System.out.println(get[0]);
-			dout.write(ProtocolOperators.ACK);
-		if(Arrays.equals(get, ProtocolOperators.MOVE_STONE))
-		{
+		dout.write(ProtocolOperators.ACK);
+		if (Arrays.equals(get, ProtocolOperators.MOVE_STONE)) {
 			head.moveStone((int) get[1], (int) get[2]);
 			dout.write(ProtocolOperators.ACK);
-		}
-		else if(Arrays.equals(get, ProtocolOperators.REMOVE_STONE))
-		{
+		} else if (Arrays.equals(get, ProtocolOperators.REMOVE_STONE)) {
 			head.delete((int) get[1]);
 			dout.write(ProtocolOperators.ACK);
-		}
-		else if(Arrays.equals(get, ProtocolOperators.CONCEDE))
+		} else if (Arrays.equals(get, ProtocolOperators.CONCEDE))
 			// TODO implement WIN method maybe
 			System.out.println("WIN");
-		else if(Arrays.equals(get, ProtocolOperators.BYE))
+		else if (Arrays.equals(get, ProtocolOperators.BYE))
 			// TODO implement WIN method maybe
 			System.out.println("User disconnected");
-		else if(Arrays.equals(get, ProtocolOperators.NEW_GAME))
-		{
+		else if (Arrays.equals(get, ProtocolOperators.NEW_GAME)) {
 			head.reset();
 			dout.write(ProtocolOperators.ACK);
+		} else if (Arrays.equals(get, ProtocolOperators.UNKNOW_OP))
+			System.out.println("Unknown Operation... Closing Connection");
+		else if (Arrays.equals(get, ProtocolOperators.ILLEGAL_OP))
+			System.out.println("Illegal Operation... Closing Connection");
+		else if (Arrays.equals(get, ProtocolOperators.GENERAL_ERROR))
+			System.out.println("General Error detected... Closing Connection");
+		else if (Arrays.equals(get, ProtocolOperators.YOU_WIN))
+			System.out.println("YOU WIN, CONGRATULATIONS!");
+		else if (Arrays.equals(get, ProtocolOperators.YOU_LOSE))
+			System.out.println("YOU LOST, CONGRATULATIONS!");
+		else {
+			System.out
+					.println("Something unexpected happened... closing server");
+			System.out.println(get[0] + " " + head.color);
 		}
-		else if(Arrays.equals(get, ProtocolOperators.IS_WHITE))
-		{
-			head.color = Player.WHITE;
-			dout.write(ProtocolOperators.ACK);
-		}
-		else if(Arrays.equals(get, ProtocolOperators.IS_BLACK))
-		{
-			head.color = Player.BLACK;
-			dout.write(ProtocolOperators.ACK);
-		}
-		else System.out.println(get[0] + " " + head.color);
 	}
 	
 	private void StartUp() {
@@ -366,42 +339,32 @@ public class TestClient implements Game {
 			System.out.println("Data sent!");
 			din.read(get);
 			System.out.println("Data recieved " + get[0]);
-			byte[] check = new byte[3];
 			if(Arrays.equals(get, ProtocolOperators.ACK)) {
 			
 //			if(Arrays.equals(get, ProtocolOperators.HELLO)) System.out.println("Connection established!");
 //			else {
 //				System.out.println("Error! Connecting failed! " + get[0]);
-////				servers.close();
+//				servers.close();
 //			}
 			head.BuildUp();
 
-			while(!Arrays.equals(get, ProtocolOperators.YOU_WIN) ||
-					!Arrays.equals(get, ProtocolOperators.YOU_LOSE) ||
-					!Arrays.equals(get, ProtocolOperators.ILLEGAL_OP) ||
-					!Arrays.equals(get, ProtocolOperators.UNKNOW_OP) ||
-					!Arrays.equals(get, ProtocolOperators.GENERAL_ERROR))
+			din.readFully(get);
+			
+			if(Arrays.equals(get, ProtocolOperators.IS_WHITE))
 			{
-				check = get.clone();
-				if(din.available() > 0)
-					din.readFully(get);
-				if(check.equals(get))
-					handlingStuff();
+				head.color = Player.WHITE;
+				dout.write(ProtocolOperators.ACK);
 			}
+			else if(Arrays.equals(get, ProtocolOperators.IS_BLACK))
+			{
+				head.color = Player.BLACK;
+				dout.write(ProtocolOperators.ACK);
+				din.readFully(get);
+			}
+			connected = true;
 			
-			
-			if(Arrays.equals(get, ProtocolOperators.UNKNOW_OP))
-					System.out.println("Unknown Operation... Closing Connection");
-			else if(Arrays.equals(get, ProtocolOperators.ILLEGAL_OP))
-					System.out.println("Illegal Operation... Closing Connection");
-			else if(Arrays.equals(get, ProtocolOperators.GENERAL_ERROR))
-					System.out.println("General Error detected... Closing Connection");
-			else if(Arrays.equals(get, ProtocolOperators.YOU_WIN))
-				System.out.println("YOU WIN, CONGRATULATIONS!");
-			else if(Arrays.equals(get, ProtocolOperators.YOU_LOSE))
-				System.out.println("YOU LOST, CONGRATULATIONS!");
-			else
-				System.out.println("Something unexpected happened... closing server");
+			while(connected)
+			{			}
 			
 			}//ack
 			

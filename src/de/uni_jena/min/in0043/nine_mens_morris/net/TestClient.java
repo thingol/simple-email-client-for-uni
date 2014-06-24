@@ -54,9 +54,14 @@ public class TestClient implements Game {
 				handlingStuff();
 				return 1;
 			}
+			else if(Arrays.equals(get, ProtocolOperators.ACK_w_mill))
+			{
+				System.out.println("Mill found");
+				return 2;
+			}
 			else
 			{
-				System.out.println("Game is over!");
+				System.out.println("Move was not okay!");
 			}
 		} catch (IOException e) {
 			// TODO moveStone

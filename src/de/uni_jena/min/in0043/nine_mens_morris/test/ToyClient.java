@@ -18,6 +18,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import org.apache.logging.log4j.core.net.Protocol;
+
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
 import de.uni_jena.min.in0043.nine_mens_morris.net.ProtocolOperators;
 
@@ -62,7 +64,7 @@ public class ToyClient {
     	
     }
     
-    private static void receiveMessage(boolean bla) {
+    private static void readFromServer() {
     	System.out.println("receiving message");
     	try {
 			in.readFully(rcvBuf);
@@ -74,7 +76,7 @@ public class ToyClient {
     	
     }
     
-    private static void receiveMessage(int bla) {
+    private static void receiveColour() {
     	System.out.println("receiving message");
     	try {
 			in.readFully(rcvBuf);
@@ -154,7 +156,14 @@ public class ToyClient {
             	}}});
             	
         buttons[2].addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) { sendMessage(out, ProtocolOperators.REMOVE_STONE); receiveMessage();}});
+        	public void actionPerformed(ActionEvent e) { 
+        		byte stone = -1;
+            	int lenOpnd0 = operand0.getText().length();
+            	
+            	if(lenOpnd0 == 1 || lenOpnd0 == 2) {
+            		stone = Byte.parseByte(operand0.getText());
+
+            		sendMessage(out, new byte[]{ProtocolOperators.REMOVE_STONE[0],stone,0}); receiveMessage();}}});
         buttons[3].addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) { sendMessage(out, ProtocolOperators.CONCEDE); receiveMessage();}});
         buttons[4].addActionListener(new ActionListener() {
@@ -356,7 +365,7 @@ public class ToyClient {
           	 
             public void actionPerformed(ActionEvent e)
             {
-                receiveMessage(false);
+                readFromServer();
             }
         });
         
@@ -400,11 +409,59 @@ public class ToyClient {
 	    	
 	    	sendMessage(out, ProtocolOperators.HELLO);
 	    	receiveMessage();
-	    	receiveMessage(1);
+	    	receiveColour();
 	    	sendMessage(out, ProtocolOperators.ACK);
 	    	
 	    	if(colour == Player.BLACK) {
-	    		receiveMessage(false);
+	    		System.out.println("waiting for white to move");
+	    		readFromServer();
+	    		System.out.println("sending move to server");
+	    		sendMessage(out, new byte[]{ProtocolOperators.MOVE_STONE[0],9,3});
+	    		System.out.println("waiting for ACK from server");
+	    		receiveMessage();
+	    		
+	    		System.out.println("waiting for white to move");
+	    		readFromServer();
+	    		System.out.println("sending move to server");
+	    		sendMessage(out, new byte[]{ProtocolOperators.MOVE_STONE[0],10,4});
+	    		receiveMessage();
+	    		System.out.println("waiting for ACK from server");
+	    		
+	    		System.out.println("waiting for white to move");
+	    		readFromServer();
+	    		System.out.println("server says white got a mill, waiting for move");
+	    		readFromServer();
+	    		System.out.println("waiting for which stone to remove");
+	    		readFromServer();
+	    		System.out.println("sending move to server");
+	    		sendMessage(out, new byte[]{ProtocolOperators.MOVE_STONE[0],11,5});
+	    		System.out.println("waiting for ACK from server");
+	    		receiveMessage();
+	    		
+	    	} else {
+	    		System.out.println("sending move to server");
+	    		sendMessage(out, new byte[]{ProtocolOperators.MOVE_STONE[0],0,0});
+	    		System.out.println("waiting for ACK from server");
+	    		receiveMessage();
+	    		
+	    		System.out.println("waiting for black to move");
+	    		readFromServer();
+	    		System.out.println("sending move to server");
+	    		sendMessage(out, new byte[]{ProtocolOperators.MOVE_STONE[0],1,1});
+	    		receiveMessage();
+	    		System.out.println("waiting for ACK from server");
+	    		
+	    		
+	    		System.out.println("waiting for black to move");
+	    		readFromServer();
+	    		System.out.println("sending move to server");
+	    		sendMessage(out, new byte[]{ProtocolOperators.MOVE_STONE[0],2,2});
+	    		System.out.println("waiting for ACK from server");
+	    		receiveMessage();
+	    		System.out.println("sending *RE*move to server");
+	    		sendMessage(out, new byte[]{ProtocolOperators.REMOVE_STONE[0],9,0});
+	    		System.out.println("waiting for ACK from server");
+	    		receiveMessage();
 	    	}
 	    	
 	    	

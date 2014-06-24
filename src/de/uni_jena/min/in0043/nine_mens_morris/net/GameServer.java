@@ -47,11 +47,9 @@ public class GameServer extends Thread {
 		log.trace("state is " + state);
 		log.info("starting game");
 		if(startGame()) {
-			twoPlayers = true;
-			state = GameServerState.RUNNING;
-			log.info("game has started");
 			while(twoPlayers == true) {
-				if (logic.getActivePlayer() == Player.WHITE) {
+				log.trace("state is " + state);
+			    if (logic.getActivePlayer() == Player.WHITE) {
 					log.trace("white's move");
 					curr_in = w_in;
 					curr_out = w_out;
@@ -62,7 +60,10 @@ public class GameServer extends Thread {
 				}
 				
 				try {
+					log.trace("reading from current player");
 					curr_in.readFully(rcvBuf);
+					log.trace("received " + Arrays.toString(rcvBuf));
+					log.trace("parsing message");
 					parseThatShit();
 				} catch (Exception e) {
 					log.error("caught exception: " + e);
@@ -93,10 +94,20 @@ public class GameServer extends Thread {
 		}
 	}
 	
+	private void readFromOtherPlayer() throws IOException {
+		log.trace("reading from other player");
+		if(curr_in == w_in) {
+			b_in.readFully(rcvBuf);
+		} else {
+			w_in.readFully(rcvBuf);
+		}
+	}
+
 	private boolean hasDisconnected() throws Exception {
+		log.trace("checking if active player has disconnected");
 		if(Arrays.equals(rcvBuf,ProtocolOperators.BYE)) {
 			curr_out.write(ProtocolOperators.ACK);
-			log.info("player has left, declaring other player winner");
+			log.info("active player has left, declaring other player the winner");
 			notifyOtherPlayer(ProtocolOperators.YOU_WIN);
 			state = GameServerState.GAME_OVER;
 			twoPlayers = false;
@@ -106,14 +117,18 @@ public class GameServer extends Thread {
 	}
 	
 	private boolean hasConceded() throws IOException {
+		log.trace("checking if active player has conceded the game");
 		if(Arrays.equals(rcvBuf,ProtocolOperators.CONCEDE)) {
 			state = GameServerState.GAME_OVER;
 			log.info("state is now " + state);
 			curr_out.write(ProtocolOperators.ACK);
+			log.info("active player has left, declaring other player the winner");
 			notifyOtherPlayer(ProtocolOperators.YOU_WIN);
+			notifyOtherPlayer(ProtocolOperators.NO_MORE);
 			state = GameServerState.GAME_OVER;
 			return true;
 		}
+		log.trace("nope");
 		return false;
 	}
 	
@@ -134,10 +149,11 @@ public class GameServer extends Thread {
 				notifyOtherPlayer(rcvBuf);
 				break;
 			case 2:
-				byte[] orgMove = Arrays.copyOf(rcvBuf, 3);
 				log.trace("logic says ok, and we have a mill");
 				curr_out.write(ProtocolOperators.ACK_W_MILL);
-				parseInMillCreated(orgMove);
+				notifyOtherPlayer(ProtocolOperators.MILL_CREATED);
+				notifyOtherPlayer(rcvBuf);
+				state = GameServerState.MILL_CREATED;
 				break;
 			default:
 				curr_out.write(ProtocolOperators.NACK);
@@ -148,23 +164,24 @@ public class GameServer extends Thread {
 		}
 	}
 	
-	private void parseInMillCreated(byte[] orgMove) throws IOException {
-		curr_in.readFully(rcvBuf);
+	private void parseInMillCreated() throws IOException {
+		log.entry();
 		
 		if (rcvBuf[0] == ProtocolOperators.REMOVE_STONE[0]) {
 		    //  0 = stone can not be removed
 	        //  1 = stone removed
-            int r = logic.removeStone(rcvBuf[1]);;
+            int r = logic.removeStone(rcvBuf[1]);
 			
 			switch(r) {
 			case 0:
 				curr_out.write(ProtocolOperators.NACK);
 				break;
 			case 1:
+				log.trace("notifying player");
 				curr_out.write(ProtocolOperators.ACK);
-				notifyOtherPlayer(ProtocolOperators.MILL_CREATED);
-				notifyOtherPlayer(orgMove);
+				log.trace("relaying message to other player");
 				notifyOtherPlayer(rcvBuf);
+				state = GameServerState.RUNNING;
 				break;
 			default:
 				curr_out.write(ProtocolOperators.NACK);
@@ -177,8 +194,19 @@ public class GameServer extends Thread {
 	
     private void parseInGameOver() throws IOException {
     	if (Arrays.equals(rcvBuf,ProtocolOperators.NEW_GAME)) {
-    		log.trace("player wants a new game");
+    		log.trace("loser wants a new game");
     		notifyOtherPlayer(ProtocolOperators.NEW_GAME);
+			readFromOtherPlayer();
+			if(Arrays.equals(rcvBuf,ProtocolOperators.NEW_GAME)) {
+				log.info("winner accepts");
+				curr_out.write(ProtocolOperators.ACK);
+				log.info("Starting new game");
+				startGame();
+			} else if(Arrays.equals(rcvBuf, ProtocolOperators.NO_MORE)) {
+				log.info("winner declines");
+				curr_out.write(ProtocolOperators.NO_MORE);
+				twoPlayers = false;
+			}
 		} else if (Arrays.equals(rcvBuf,ProtocolOperators.NO_MORE)) {
 			log.trace("player does not want a new game");
 			notifyOtherPlayer(ProtocolOperators.NO_MORE);
@@ -191,14 +219,18 @@ public class GameServer extends Thread {
     private void parseThatShit() throws Exception {
     	log.entry();
 
+    	
     	if(hasDisconnected()) {
-    		log.trace("player has left");
+    		// nutn ter see
     	} else if(state == GameServerState.GAME_OVER) {
     		parseInGameOver();
     	} else if(!hasConceded()) {
     		switch(state) {
     		case RUNNING:
     			parseInRunning();
+    			break;
+    		case MILL_CREATED:
+    			parseInMillCreated();
     			break;
     		default:
     			log.warn("how the hell did this happen?!?");
@@ -245,6 +277,11 @@ public class GameServer extends Thread {
     		log.error("caught exception while attempting to start game: " + e);
     		return didItWork;
     	}
+
+    	twoPlayers = true;
+		state = GameServerState.RUNNING;
+		log.info("game has started");
+		
     	logic = new Logic();
     	didItWork = true;
     	log.exit(didItWork);

@@ -134,9 +134,10 @@ public class GameServer extends Thread {
 				notifyOtherPlayer(rcvBuf);
 				break;
 			case 2:
+				byte[] orgMove = Arrays.copyOf(rcvBuf, 3);
 				log.trace("logic says ok, and we have a mill");
 				curr_out.write(ProtocolOperators.ACK_W_MILL);
-				notifyOtherPlayer(rcvBuf);
+				parseInMillCreated(orgMove);
 				break;
 			default:
 				curr_out.write(ProtocolOperators.NACK);
@@ -147,7 +148,9 @@ public class GameServer extends Thread {
 		}
 	}
 	
-	private void parseInMillCreated() throws IOException {
+	private void parseInMillCreated(byte[] orgMove) throws IOException {
+		curr_in.readFully(rcvBuf);
+		
 		if (rcvBuf[0] == ProtocolOperators.REMOVE_STONE[0]) {
 		    //  0 = stone can not be removed
 	        //  1 = stone removed
@@ -159,6 +162,8 @@ public class GameServer extends Thread {
 				break;
 			case 1:
 				curr_out.write(ProtocolOperators.ACK);
+				notifyOtherPlayer(ProtocolOperators.MILL_CREATED);
+				notifyOtherPlayer(orgMove);
 				notifyOtherPlayer(rcvBuf);
 				break;
 			default:
@@ -192,9 +197,6 @@ public class GameServer extends Thread {
     		parseInGameOver();
     	} else if(!hasConceded()) {
     		switch(state) {
-    		case MILL_CREATED:
-    			parseInMillCreated();
-    			break;
     		case RUNNING:
     			parseInRunning();
     			break;

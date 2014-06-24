@@ -1,6 +1,7 @@
 package de.uni_jena.min.in0043.nine_mens_morris.test;
 
 import java.awt.Frame;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,6 +15,7 @@ import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
@@ -28,11 +30,15 @@ public class ToyClient {
 	private static DataOutputStream out;
 
 	static Frame testFrame;
-    static JLabel retVal, fromSrv, colour;
+    static JLabel retVal, fromSrv, colour_label;
     static JButton[] buttons;
     private static JTextField operand0,operand1;
     
     private static byte[] rcvBuf = new byte[3];
+    
+    private static Player colour;
+    
+    private static JPanel board;
     
     private static void sendMessage(DataOutputStream out, byte[] msg) {
     	System.out.println("sending message: " + Arrays.toString(msg));
@@ -76,19 +82,22 @@ public class ToyClient {
 			System.err.println("well shit, that didn't work..." + e);
 		}
     	if(rcvBuf[0] == 18) {
-    		colour.setText(Player.WHITE.name());
+    		colour_label.setText(Player.WHITE.name());
+    		colour = Player.WHITE;
     	} else {
-    		colour.setText(Player.BLACK.name());
+    		colour_label.setText(Player.BLACK.name());
+    		colour = Player.BLACK;
     	}
     }
     
     private static void setUp() {
         retVal = new JLabel();
         fromSrv = new JLabel();
-        colour = new JLabel();
+        colour_label = new JLabel();
     	
+    	board = new JPanel();
+    	board.setLayout(new GridBagLayout());
     	
-
     	testFrame = new Frame("ToyClient for nine men's morris");
 
         operand0 = new JTextField();
@@ -357,7 +366,7 @@ public class ToyClient {
         	testFrame.add(b);
         }
         
-        testFrame.add(colour);
+        testFrame.add(colour_label);
         testFrame.add(new JLabel("retVal: "));
         testFrame.add(retVal);
         testFrame.add(new JLabel("fromSrv: "));
@@ -379,15 +388,24 @@ public class ToyClient {
 			server = new Socket(srv, 6112);
 			in = new DataInputStream(server.getInputStream());
 	    	out = new DataOutputStream(server.getOutputStream());
-	    	//s hello
-	    	//m ack
-	    	//m farge
-	    	//s ack
+	    	/* s hello
+	    	 * m ack
+	    	 * m farge
+	    	 * s ack
+	    	 * if farge b
+	    	 *     m trekk
+	    	 * else
+	    	 *     s trekk 
+	    	 */
 	    	
 	    	sendMessage(out, ProtocolOperators.HELLO);
 	    	receiveMessage();
 	    	receiveMessage(1);
 	    	sendMessage(out, ProtocolOperators.ACK);
+	    	
+	    	if(colour == Player.BLACK) {
+	    		receiveMessage(false);
+	    	}
 	    	
 	    	
 		} catch (IOException e) {

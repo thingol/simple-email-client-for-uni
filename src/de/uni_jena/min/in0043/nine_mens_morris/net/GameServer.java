@@ -43,7 +43,6 @@ public class GameServer extends Thread {
 	public void run() {
 		ThreadContext.put("sID", "" + sid);
 		log.entry();
-		int i = 0;
 		
 		log.trace("state is " + state);
 		log.info("starting game");
@@ -51,7 +50,7 @@ public class GameServer extends Thread {
 			twoPlayers = true;
 			state = GameServerState.RUNNING;
 			log.info("game has started");
-			while(twoPlayers == true && i < 10) {
+			while(twoPlayers == true) {
 				if (logic.getActivePlayer() == Player.WHITE) {
 					log.trace("white's move");
 					curr_in = w_in;
@@ -68,8 +67,8 @@ public class GameServer extends Thread {
 				} catch (Exception e) {
 					log.error("caught exception: " + e);
 					log.info("game is over due an untimely exception");
+					twoPlayers = false;
 				}
-				i++;
 			}
 		} else {
 			log.info("we have lost a player, and thus have no game");
@@ -80,28 +79,25 @@ public class GameServer extends Thread {
 				log.error("caught an exception while shutting down");
 			}
 		}
-		try {
-			if(rg.nextBoolean()) {
-				w_out.write(ProtocolOperators.YOU_WIN);
-				b_out.write(ProtocolOperators.YOU_LOSE);
-			} else {
-				w_out.write(ProtocolOperators.YOU_LOSE);
-				b_out.write(ProtocolOperators.YOU_WIN);
-			}
-		} catch (IOException e) {
-			
-		}
-		log.info("we no longer have two players connected, thread terminating");
+
+		log.info("thread terminating");
 		log.exit();
+	}
+	
+	private void notifyOtherPlayer(byte[] msg) throws IOException {
+		log.trace("notifying other player");
+		if(curr_out == w_out) {
+			b_out.write(msg);
+		} else {
+			w_out.write(msg);
+		}
 	}
 	
 	private boolean hasDisconnected() throws Exception {
 		if(Arrays.equals(rcvBuf,ProtocolOperators.BYE)) {
-			if(curr_out == w_out) {
-				b_out.write(ProtocolOperators.YOU_WIN);
-			} else {
-				w_out.write(ProtocolOperators.YOU_WIN);
-			}
+			curr_out.write(ProtocolOperators.ACK);
+			log.info("player has left, declaring other player winner");
+			notifyOtherPlayer(ProtocolOperators.YOU_WIN);
 			state = GameServerState.GAME_OVER;
 			twoPlayers = false;
 			return true;
@@ -113,11 +109,8 @@ public class GameServer extends Thread {
 		if(Arrays.equals(rcvBuf,ProtocolOperators.CONCEDE)) {
 			state = GameServerState.GAME_OVER;
 			log.info("state is now " + state);
-			if(curr_out == w_out) {
-				b_out.write(ProtocolOperators.YOU_WIN);
-			} else {
-				w_out.write(ProtocolOperators.YOU_WIN);
-			}
+			curr_out.write(ProtocolOperators.ACK);
+			notifyOtherPlayer(ProtocolOperators.YOU_WIN);
 			state = GameServerState.GAME_OVER;
 			return true;
 		}
@@ -125,10 +118,30 @@ public class GameServer extends Thread {
 	}
 	
 	private void parseInRunning() throws IOException {
-		/*
-		 * moveStone         0x01{00 .. 11}{00 .. 17}*/
+
 		if (rcvBuf[0] == ProtocolOperators.MOVE_STONE[0]) {
-			logic.moveStone(rcvBuf[1], rcvBuf[2]);
+			log.trace("player requests moving stone " + rcvBuf[1] + " to point " + rcvBuf[2]);
+			int r = logic.moveStone(rcvBuf[1], rcvBuf[2]);
+			
+			switch(r) {
+			case 0:
+				log.trace("logic says no can do");
+				curr_out.write(ProtocolOperators.NACK);
+				break;
+			case 1:
+				log.trace("logic says ok");
+				curr_out.write(ProtocolOperators.ACK);
+				notifyOtherPlayer(rcvBuf);
+				break;
+			case 2:
+				log.trace("logic says ok, and we have a mill");
+				curr_out.write(ProtocolOperators.ACK_W_MILL);
+				notifyOtherPlayer(rcvBuf);
+				break;
+			default:
+				curr_out.write(ProtocolOperators.NACK);
+			}
+			
 		} else {
 			curr_out.write(ProtocolOperators.ILLEGAL_OP);
 		}
@@ -136,7 +149,22 @@ public class GameServer extends Thread {
 	
 	private void parseInMillCreated() throws IOException {
 		if (rcvBuf[0] == ProtocolOperators.REMOVE_STONE[0]) {
-			logic.removeStone(rcvBuf[1]);
+		    //  0 = stone can not be removed
+	        //  1 = stone removed
+            int r = logic.removeStone(rcvBuf[1]);;
+			
+			switch(r) {
+			case 0:
+				curr_out.write(ProtocolOperators.NACK);
+				break;
+			case 1:
+				curr_out.write(ProtocolOperators.ACK);
+				notifyOtherPlayer(rcvBuf);
+				break;
+			default:
+				curr_out.write(ProtocolOperators.NACK);
+			}
+			
 		} else {
 			curr_out.write(ProtocolOperators.ILLEGAL_OP);
 		}
@@ -144,9 +172,11 @@ public class GameServer extends Thread {
 	
     private void parseInGameOver() throws IOException {
     	if (Arrays.equals(rcvBuf,ProtocolOperators.NEW_GAME)) {
-    		log.trace("player wants anew game");
+    		log.trace("player wants a new game");
+    		notifyOtherPlayer(ProtocolOperators.NEW_GAME);
 		} else if (Arrays.equals(rcvBuf,ProtocolOperators.NO_MORE)) {
 			log.trace("player does not want a new game");
+			notifyOtherPlayer(ProtocolOperators.NO_MORE);
 		} else {
 			log.trace("illegal operator received");
 			curr_out.write(ProtocolOperators.ILLEGAL_OP);

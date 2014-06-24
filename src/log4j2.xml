@@ -13,14 +13,14 @@
     <RollingFile name="Rolling" fileName="${filename}"
                  filePattern="nine-mens.log.%i.gz">
       <PatternLayout>
-        <pattern>%d %p %c{2} %M(%F:%L) %m%n</pattern>
+        <pattern>%d %p %c{2} %M(%F:%L) %X(sID) %m%n</pattern>
       </PatternLayout>
       <SizeBasedTriggeringPolicy size="500000" />
     </RollingFile>
     <RollingFile name="Rolling_GameServer" fileName="${filename_GS}"
                  filePattern="nine-mens_GS.log.%i.gz">
       <PatternLayout>
-        <pattern>%d %p %M(%F:%L) %X(sID) %m%n</pattern>
+        <pattern>%d %p %M(%F:%L) %m%n</pattern>
       </PatternLayout>
       <SizeBasedTriggeringPolicy size="500000" />
     </RollingFile>
@@ -31,7 +31,7 @@
       <AppenderRef ref="Rolling"/>
     </Logger>
     
-    <Logger name="de.uni_jena.min.in0043.nine_mens_morris.net.GameServer" level="trace" additivity="false">
+    <Logger name="de.uni_jena.min.in0043.nine_mens_morris.net.GameServer" level="trace" additivity="true">
       <AppenderRef ref="Rolling_GameServer"/>
     </Logger>
  

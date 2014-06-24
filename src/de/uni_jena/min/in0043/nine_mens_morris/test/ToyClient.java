@@ -16,6 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
 import de.uni_jena.min.in0043.nine_mens_morris.net.ProtocolOperators;
 
 public class ToyClient {
@@ -27,7 +28,7 @@ public class ToyClient {
 	private static DataOutputStream out;
 
 	static Frame testFrame;
-    static JLabel retVal, fromSrv;
+    static JLabel retVal, fromSrv, colour;
     static JButton[] buttons;
     private static JTextField operand0,operand1;
     
@@ -51,7 +52,7 @@ public class ToyClient {
 			System.err.println("well shit, that didn't work..." + e);
 		}
     	retVal.setText(String.format(Arrays.toString(rcvBuf)));
-    	fromSrv.setText("nutn ter see");
+    	fromSrv.setText("");
     	
     }
     
@@ -63,25 +64,33 @@ public class ToyClient {
 			System.err.println("well shit, that didn't work..." + e);
 		}
     	fromSrv.setText(String.format(Arrays.toString(rcvBuf)));
-    	retVal.setText("nutn ter see");
+    	retVal.setText("");
     	
     }
     
-    private static void setUp() {
-    	
+    private static void receiveMessage(int bla) {
+    	System.out.println("receiving message");
     	try {
-    		System.out.println("connecting to " + srv + ":" + port);
-			server = new Socket("gw.kjerkreit.org", 6112);
-			in = new DataInputStream(server.getInputStream());
-	    	out = new DataOutputStream(server.getOutputStream());
+			in.readFully(rcvBuf);
 		} catch (IOException e) {
-			System.err.println("we oops'ed during setup");
-			System.exit(-1);
+			System.err.println("well shit, that didn't work..." + e);
 		}
-
-    	testFrame = new Frame("ToyClient for nine men's morris");
+    	if(rcvBuf[0] == 18) {
+    		colour.setText(Player.WHITE.name());
+    	} else {
+    		colour.setText(Player.BLACK.name());
+    	}
+    }
+    
+    private static void setUp() {
         retVal = new JLabel();
         fromSrv = new JLabel();
+        colour = new JLabel();
+    	
+    	
+
+    	testFrame = new Frame("ToyClient for nine men's morris");
+
         operand0 = new JTextField();
         operand1 = new JTextField();
         buttons = new JButton[]
@@ -122,6 +131,7 @@ public class ToyClient {
             public void actionPerformed(ActionEvent e) { 
             	sendMessage(out, ProtocolOperators.HELLO);
             	receiveMessage();}});
+        buttons[0].setEnabled(false);
         buttons[1].addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
             	byte stone = -1, point = -1;
@@ -148,6 +158,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[5].setEnabled(false);
+        
         buttons[6].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -156,6 +168,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[6].setEnabled(false);
+        
         buttons[7].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -164,6 +178,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[7].setEnabled(false);
+        
         buttons[8].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -172,6 +188,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[8].setEnabled(false);
+        
         buttons[9].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -180,6 +198,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[9].setEnabled(false);
+        
         buttons[10].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -188,6 +208,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[10].setEnabled(false);
+        
         buttons[11].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -196,6 +218,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[11].setEnabled(false);
+        
         buttons[12].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -204,6 +228,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[12].setEnabled(false);
+        
         buttons[13].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -212,6 +238,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[13].setEnabled(false);
+        
         buttons[14].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -220,6 +248,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[14].setEnabled(false);
+        
         buttons[15].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -228,6 +258,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[15].setEnabled(false);
+        
         buttons[16].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -252,6 +284,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[18].setEnabled(false);
+        
         buttons[19].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -260,6 +294,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[19].setEnabled(false);
+        
         buttons[20].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -275,6 +311,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[21].setEnabled(false);
+        
         buttons[22].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -283,6 +321,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[22].setEnabled(false);
+        
         buttons[23].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -291,6 +331,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[23].setEnabled(false);
+        
         buttons[24].addActionListener(new ActionListener() {
        	 
             public void actionPerformed(ActionEvent e)
@@ -299,6 +341,8 @@ public class ToyClient {
                 receiveMessage();
             }
         });
+        buttons[24].setEnabled(false);
+        
         buttons[25].addActionListener(new ActionListener() {
           	 
             public void actionPerformed(ActionEvent e)
@@ -313,6 +357,7 @@ public class ToyClient {
         	testFrame.add(b);
         }
         
+        testFrame.add(colour);
         testFrame.add(new JLabel("retVal: "));
         testFrame.add(retVal);
         testFrame.add(new JLabel("fromSrv: "));
@@ -328,6 +373,28 @@ public class ToyClient {
 		});
         testFrame.pack();
         testFrame.setVisible(true);
+        
+        try {
+    		System.out.println("connecting to " + srv + ":" + port);
+			server = new Socket(srv, 6112);
+			in = new DataInputStream(server.getInputStream());
+	    	out = new DataOutputStream(server.getOutputStream());
+	    	//s hello
+	    	//m ack
+	    	//m farge
+	    	//s ack
+	    	
+	    	sendMessage(out, ProtocolOperators.HELLO);
+	    	receiveMessage();
+	    	receiveMessage(1);
+	    	sendMessage(out, ProtocolOperators.ACK);
+	    	
+	    	
+		} catch (IOException e) {
+			System.err.println("we oops'ed during setup");
+			System.exit(-1);
+		}
+        
     }
 
     public static void main(String args[]) {   

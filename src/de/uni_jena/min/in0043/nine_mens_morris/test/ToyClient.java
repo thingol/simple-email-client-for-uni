@@ -1,6 +1,7 @@
 package de.uni_jena.min.in0043.nine_mens_morris.test;
 
 import java.awt.Frame;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,7 +15,10 @@ import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import org.apache.logging.log4j.core.net.Protocol;
 
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
 import de.uni_jena.min.in0043.nine_mens_morris.net.ProtocolOperators;
@@ -28,11 +32,15 @@ public class ToyClient {
 	private static DataOutputStream out;
 
 	static Frame testFrame;
-    static JLabel retVal, fromSrv, colour;
+    static JLabel retVal, fromSrv, colour_label;
     static JButton[] buttons;
     private static JTextField operand0,operand1;
     
     private static byte[] rcvBuf = new byte[3];
+    
+    private static Player colour;
+    
+    private static JPanel board;
     
     private static void sendMessage(DataOutputStream out, byte[] msg) {
     	System.out.println("sending message: " + Arrays.toString(msg));
@@ -56,7 +64,7 @@ public class ToyClient {
     	
     }
     
-    private static void receiveMessage(boolean bla) {
+    private static void readFromServer() {
     	System.out.println("receiving message");
     	try {
 			in.readFully(rcvBuf);
@@ -68,7 +76,7 @@ public class ToyClient {
     	
     }
     
-    private static void receiveMessage(int bla) {
+    private static void receiveColour() {
     	System.out.println("receiving message");
     	try {
 			in.readFully(rcvBuf);
@@ -76,19 +84,22 @@ public class ToyClient {
 			System.err.println("well shit, that didn't work..." + e);
 		}
     	if(rcvBuf[0] == 18) {
-    		colour.setText(Player.WHITE.name());
+    		colour_label.setText(Player.WHITE.name());
+    		colour = Player.WHITE;
     	} else {
-    		colour.setText(Player.BLACK.name());
+    		colour_label.setText(Player.BLACK.name());
+    		colour = Player.BLACK;
     	}
     }
     
     private static void setUp() {
         retVal = new JLabel();
         fromSrv = new JLabel();
-        colour = new JLabel();
+        colour_label = new JLabel();
     	
+    	board = new JPanel();
+    	board.setLayout(new GridBagLayout());
     	
-
     	testFrame = new Frame("ToyClient for nine men's morris");
 
         operand0 = new JTextField();
@@ -145,7 +156,14 @@ public class ToyClient {
             	}}});
             	
         buttons[2].addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) { sendMessage(out, ProtocolOperators.REMOVE_STONE); receiveMessage();}});
+        	public void actionPerformed(ActionEvent e) { 
+        		byte stone = -1;
+            	int lenOpnd0 = operand0.getText().length();
+            	
+            	if(lenOpnd0 == 1 || lenOpnd0 == 2) {
+            		stone = Byte.parseByte(operand0.getText());
+
+            		sendMessage(out, new byte[]{ProtocolOperators.REMOVE_STONE[0],stone,0}); receiveMessage();}}});
         buttons[3].addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) { sendMessage(out, ProtocolOperators.CONCEDE); receiveMessage();}});
         buttons[4].addActionListener(new ActionListener() {
@@ -347,7 +365,7 @@ public class ToyClient {
           	 
             public void actionPerformed(ActionEvent e)
             {
-                receiveMessage(false);
+                readFromServer();
             }
         });
         
@@ -357,7 +375,7 @@ public class ToyClient {
         	testFrame.add(b);
         }
         
-        testFrame.add(colour);
+        testFrame.add(colour_label);
         testFrame.add(new JLabel("retVal: "));
         testFrame.add(retVal);
         testFrame.add(new JLabel("fromSrv: "));
@@ -379,15 +397,72 @@ public class ToyClient {
 			server = new Socket(srv, 6112);
 			in = new DataInputStream(server.getInputStream());
 	    	out = new DataOutputStream(server.getOutputStream());
-	    	//s hello
-	    	//m ack
-	    	//m farge
-	    	//s ack
+	    	/* s hello
+	    	 * m ack
+	    	 * m farge
+	    	 * s ack
+	    	 * if farge b
+	    	 *     m trekk
+	    	 * else
+	    	 *     s trekk 
+	    	 */
 	    	
 	    	sendMessage(out, ProtocolOperators.HELLO);
 	    	receiveMessage();
-	    	receiveMessage(1);
+	    	receiveColour();
 	    	sendMessage(out, ProtocolOperators.ACK);
+	    	
+	    	if(colour == Player.BLACK) {
+	    		System.out.println("waiting for white to move");
+	    		readFromServer();
+	    		System.out.println("sending move to server");
+	    		sendMessage(out, new byte[]{ProtocolOperators.MOVE_STONE[0],9,3});
+	    		System.out.println("waiting for ACK from server");
+	    		receiveMessage();
+	    		
+	    		System.out.println("waiting for white to move");
+	    		readFromServer();
+	    		System.out.println("sending move to server");
+	    		sendMessage(out, new byte[]{ProtocolOperators.MOVE_STONE[0],10,4});
+	    		receiveMessage();
+	    		System.out.println("waiting for ACK from server");
+	    		
+	    		System.out.println("waiting for white to move");
+	    		readFromServer();
+	    		System.out.println("server says white got a mill, waiting for move");
+	    		readFromServer();
+	    		System.out.println("waiting for which stone to remove");
+	    		readFromServer();
+	    		System.out.println("sending move to server");
+	    		sendMessage(out, new byte[]{ProtocolOperators.MOVE_STONE[0],11,5});
+	    		System.out.println("waiting for ACK from server");
+	    		receiveMessage();
+	    		
+	    	} else {
+	    		System.out.println("sending move to server");
+	    		sendMessage(out, new byte[]{ProtocolOperators.MOVE_STONE[0],0,0});
+	    		System.out.println("waiting for ACK from server");
+	    		receiveMessage();
+	    		
+	    		System.out.println("waiting for black to move");
+	    		readFromServer();
+	    		System.out.println("sending move to server");
+	    		sendMessage(out, new byte[]{ProtocolOperators.MOVE_STONE[0],1,1});
+	    		receiveMessage();
+	    		System.out.println("waiting for ACK from server");
+	    		
+	    		
+	    		System.out.println("waiting for black to move");
+	    		readFromServer();
+	    		System.out.println("sending move to server");
+	    		sendMessage(out, new byte[]{ProtocolOperators.MOVE_STONE[0],2,2});
+	    		System.out.println("waiting for ACK from server");
+	    		receiveMessage();
+	    		System.out.println("sending *RE*move to server");
+	    		sendMessage(out, new byte[]{ProtocolOperators.REMOVE_STONE[0],9,0});
+	    		System.out.println("waiting for ACK from server");
+	    		receiveMessage();
+	    	}
 	    	
 	    	
 		} catch (IOException e) {

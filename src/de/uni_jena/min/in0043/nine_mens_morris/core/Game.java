@@ -34,4 +34,6 @@ public interface Game {
 	public void conceed(boolean newgame);
 	
 	public void disconnect();
+	
+	public void iNeedtoRead();
 }

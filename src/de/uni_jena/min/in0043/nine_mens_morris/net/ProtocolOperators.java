@@ -68,6 +68,7 @@ public class ProtocolOperators {
     
     // sent by server to indicate an illegal or impossible move
     public final static byte[] NACK                = {-2,1,0};
+    public final static byte[] ACK_w_mill          = {-2,-1,0};
     
     // should not be needed
     public final static byte[] UNKNOW_OP           = {-1,-1,-3};

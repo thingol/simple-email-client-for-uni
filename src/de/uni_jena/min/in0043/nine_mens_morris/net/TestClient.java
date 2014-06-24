@@ -50,11 +50,11 @@ public class TestClient implements Game {
 			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
 				System.out.println("Everything's fine!");
-				din.readFully(get);
-				handlingStuff();
+//				din.readFully(get);
+//				handlingStuff();
 				return 1;
 			}
-			else if(Arrays.equals(get, ProtocolOperators.ACK_W_MILL))
+			else if(Arrays.equals(get, ProtocolOperators.ACK_w_mill))
 			{
 				System.out.println("Mill found");
 				return 2;
@@ -332,7 +332,7 @@ public class TestClient implements Game {
 			System.out.println("YOU WIN, CONGRATULATIONS!");
 		else if (Arrays.equals(get, ProtocolOperators.YOU_LOSE))
 			System.out.println("YOU LOST, CONGRATULATIONS!");
-		else if(Arrays.equals(get, ProtocolOperators.ACK_W_MILL))
+		else if(Arrays.equals(get, ProtocolOperators.ACK_w_mill))
 		{
 			System.out.println("Mill found");
 			din.readFully(get);
@@ -341,6 +341,18 @@ public class TestClient implements Game {
 			System.out
 					.println("Something unexpected happened... closing server");
 			System.out.println(get[0] + " " + head.color);
+		}
+	}
+	
+	public void iNeedtoRead()
+	{
+		try {
+			din.readFully(get);
+			handlingStuff();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Couldn't read ;_;");
+			e.printStackTrace();
 		}
 	}
 	
@@ -367,11 +379,13 @@ public class TestClient implements Game {
 			if(Arrays.equals(get, ProtocolOperators.IS_WHITE))
 			{
 				head.color = Player.WHITE;
+				System.out.println("I am less pigmented");
 				dout.write(ProtocolOperators.ACK);
 			}
 			else if(Arrays.equals(get, ProtocolOperators.IS_BLACK))
 			{
 				head.color = Player.BLACK;
+				System.out.println("The black one always dies first, GG");
 				dout.write(ProtocolOperators.ACK);
 				din.readFully(get);
 			}

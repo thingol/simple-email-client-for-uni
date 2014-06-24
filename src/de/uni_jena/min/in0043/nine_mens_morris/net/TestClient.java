@@ -54,7 +54,7 @@ public class TestClient implements Game {
 				handlingStuff();
 				return 1;
 			}
-			else if(Arrays.equals(get, ProtocolOperators.ACK_w_mill))
+			else if(Arrays.equals(get, ProtocolOperators.ACK_W_MILL))
 			{
 				System.out.println("Mill found");
 				return 2;
@@ -77,7 +77,7 @@ public class TestClient implements Game {
 			send[1] = (byte) stone;
 			send[2] = 0x00;
 			dout.write(send);
-			din.read(get);
+			din.readFully(get);
 			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
 				System.out.println("Worked");
@@ -103,7 +103,7 @@ public class TestClient implements Game {
 			if(newgame) send[1] = 0x01;
 			else send[1] = 0x00;
 			dout.write(send);
-			din.read(get);
+			din.readFully(get);
 			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
 				System.out.println("Conceeded!");
@@ -123,7 +123,7 @@ public class TestClient implements Game {
 			send[0] = 0x05;
 			dout.write(send);
 			
-			din.read(get);
+			din.readFully(get);
 			if(get[0] == 0)
 				return Phase.PLACING_STONES;
 			else if(get[0] == 1)
@@ -149,7 +149,7 @@ public class TestClient implements Game {
 			send = ProtocolOperators.GET_ACTIVE_PLAYER;
 			dout.write(send);
 			
-			din.read(get);
+			din.readFully(get);
 			if(get[0] == 0)
 				return Player.WHITE;
 			else if(get[0] == 1) return Player.BLACK;
@@ -168,7 +168,7 @@ public class TestClient implements Game {
 			send = ProtocolOperators.GET_WHITE_ACTIVATED;
 			dout.write(send);
 			
-			din.read(get);
+			din.readFully(get);
 			return (int) get[0];
 		} catch (IOException e) {
 			// TODO getWhiteActivated
@@ -183,7 +183,7 @@ public class TestClient implements Game {
 			send = ProtocolOperators.WHITE_IN_PLAY;
 			dout.write(send);
 			
-			din.read(get);
+			din.readFully(get);
 			return (int) get[0];
 		} catch (IOException e) {
 			// TODO getWhiteInPlay
@@ -198,7 +198,7 @@ public class TestClient implements Game {
 			send = ProtocolOperators.WHITE_LOST;
 			dout.write(send);
 			
-			din.read(get);
+			din.readFully(get);
 			return (int) get[0];
 		} catch (IOException e) {
 			// TODO getWhiteLost
@@ -213,7 +213,7 @@ public class TestClient implements Game {
 			send = ProtocolOperators.GET_BLACK_ACTIVATED;
 			dout.write(send);
 			
-			din.read(get);
+			din.readFully(get);
 			return (int) get[0];
 		} catch (IOException e) {
 			// TODO getBlackActivated
@@ -228,7 +228,7 @@ public class TestClient implements Game {
 			send = ProtocolOperators.BLACK_IN_PLAY;
 			dout.write(send);
 			
-			din.read(get);
+			din.readFully(get);
 			return (int) get[0];
 		} catch (IOException e) {
 			// TODO getBlackInPlay
@@ -243,7 +243,7 @@ public class TestClient implements Game {
 			send = ProtocolOperators.BLACK_LOST;
 			dout.write(send);
 			
-			din.read(get);
+			din.readFully(get);
 			return (int) get[0];
 		} catch (IOException e) {
 			// TODO getBlackLost
@@ -258,7 +258,7 @@ public class TestClient implements Game {
 			send = ProtocolOperators.GET_PHASE;
 			dout.write(send);
 			
-			din.read(get);
+			din.readFully(get);
 			return (int) get[0];
 		} catch (IOException e) {
 			// TODO getRound
@@ -273,7 +273,7 @@ public class TestClient implements Game {
 			send = ProtocolOperators.NEW_GAME;
 			dout.write(send);
 			
-			din.read(get);
+			din.readFully(get);
 			if(Arrays.equals(get, ProtocolOperators.HELLO))
 				return true;
 		} catch (IOException e) {
@@ -289,7 +289,7 @@ public class TestClient implements Game {
 			send = ProtocolOperators.NO_MORE;
 			dout.write(send);
 			
-			din.read(get);
+			din.readFully(get);
 			if(Arrays.equals(get, ProtocolOperators.HELLO))
 				return true;
 		} catch (IOException e) {
@@ -309,12 +309,16 @@ public class TestClient implements Game {
 		} else if (Arrays.equals(get, ProtocolOperators.REMOVE_STONE)) {
 			head.delete((int) get[1]);
 			dout.write(ProtocolOperators.ACK);
-		} else if (Arrays.equals(get, ProtocolOperators.CONCEDE))
+		} else if (Arrays.equals(get, ProtocolOperators.CONCEDE)) {
 			// TODO implement WIN method maybe
 			System.out.println("WIN");
-		else if (Arrays.equals(get, ProtocolOperators.BYE))
+			head.winner = 1;
+		}
+		else if (Arrays.equals(get, ProtocolOperators.BYE)) {
 			// TODO implement WIN method maybe
-			System.out.println("User disconnected");
+			System.out.println("User disconnected, you won.");
+			head.winner = 1;
+		}
 		else if (Arrays.equals(get, ProtocolOperators.NEW_GAME)) {
 			head.reset();
 			dout.write(ProtocolOperators.ACK);
@@ -328,6 +332,11 @@ public class TestClient implements Game {
 			System.out.println("YOU WIN, CONGRATULATIONS!");
 		else if (Arrays.equals(get, ProtocolOperators.YOU_LOSE))
 			System.out.println("YOU LOST, CONGRATULATIONS!");
+		else if(Arrays.equals(get, ProtocolOperators.ACK_W_MILL))
+		{
+			System.out.println("Mill found");
+			din.readFully(get);
+		}
 		else {
 			System.out
 					.println("Something unexpected happened... closing server");
@@ -342,7 +351,7 @@ public class TestClient implements Game {
 			System.out.println("sending data...");
 			dout.write(send);
 			System.out.println("Data sent!");
-			din.read(get);
+			din.readFully(get);
 			System.out.println("Data recieved " + get[0]);
 			if(Arrays.equals(get, ProtocolOperators.ACK)) {
 			

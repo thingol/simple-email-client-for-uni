@@ -14,7 +14,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.uni_jena.min.in0043.nine_mens_morris.core.Game;
-import de.uni_jena.min.in0043.nine_mens_morris.core.Phase;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
 import de.uni_jena.min.in0043.nine_mens_morris.net.*;
 
@@ -464,10 +463,19 @@ public class Head extends Panel implements MouseListener {
 	public void moveStone(int stone, int goal)
 	{
 		Stone temp;
-		if (color == Player.WHITE)
-			 temp = White[stone];
-		else temp = Black[stone];
+		if (color == Player.WHITE) {
+//			 Black[stone].posX = sF.placement[goal][0];
+//			 Black[stone].posY = sF.placement[goal][1];
+			temp = Black[stone-9];
+		}
+		else
+			temp = White[stone];
+//		{ White[stone].posX = sF.placement[goal][0];
+//		 White[stone].posY = sF.placement[goal][1]; repaint();}
 		try {
+			temp.posX = sF.placement[goal][0];
+			temp.posY = sF.placement[goal][1];
+			
 			Robot bot = new Robot();
 			botplayer = true;
 			bot.mouseMove(temp.posX, temp.posY);
@@ -475,7 +483,7 @@ public class Head extends Panel implements MouseListener {
 			bot.mouseRelease(InputEvent.BUTTON1_MASK);
 			bot.mouseMove(sF.placement[goal][0], sF.placement[goal][1]);
 			bot.mousePress(InputEvent.BUTTON1_MASK);
-			bot.mouseRelease(InputEvent.BUTTON1_MASK);	
+			bot.mouseRelease(InputEvent.BUTTON1_MASK);
 		} catch (AWTException e) {
 			e.printStackTrace();
 			System.out.println("Move, god dammit! " + e);

@@ -54,7 +54,7 @@ public class TestClient implements Game {
 //				handlingStuff();
 				return 1;
 			}
-			else if(Arrays.equals(get, ProtocolOperators.ACK_w_mill))
+			else if(Arrays.equals(get, ProtocolOperators.ACK_W_MILL))
 			{
 				System.out.println("Mill found");
 				return 2;
@@ -332,7 +332,7 @@ public class TestClient implements Game {
 			System.out.println("YOU WIN, CONGRATULATIONS!");
 		else if (Arrays.equals(get, ProtocolOperators.YOU_LOSE))
 			System.out.println("YOU LOST, CONGRATULATIONS!");
-		else if(Arrays.equals(get, ProtocolOperators.ACK_w_mill))
+		else if(Arrays.equals(get, ProtocolOperators.ACK_W_MILL))
 		{
 			System.out.println("Mill found");
 			din.readFully(get);

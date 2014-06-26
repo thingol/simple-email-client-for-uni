@@ -11,7 +11,6 @@ import de.uni_jena.min.in0043.nine_mens_morris.gui.Head;
 
 public class TestClient implements Game {
 
-	public static Head headS;
 	Socket server;
 	InputStream in;
 	OutputStream out;
@@ -47,12 +46,13 @@ public class TestClient implements Game {
 			send[1] = (byte) stone;
 			send[2] = (byte) point;
 			dout.write(send);
+			System.out.println("Reading...");
 			din.readFully(get);
+			System.out.println("Writing...");
 			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
 				System.out.println("Moving was k!");
-//				din.readFully(get);
-//				handlingStuff();
+//				head.moveStone((int) send[1], (int) send[2], 0);
 				return 1;
 			}
 			else if(Arrays.equals(get, ProtocolOperators.ACK_W_MILL))
@@ -336,12 +336,18 @@ public class TestClient implements Game {
 			System.out.println("Illegal Operation... Closing Connection");
 		else if (Arrays.equals(get, ProtocolOperators.GENERAL_ERROR))
 			System.out.println("General Error detected... Closing Connection");
-		else if (Arrays.equals(get, ProtocolOperators.YOU_WIN))
+		else if (Arrays.equals(get, ProtocolOperators.YOU_WIN)) {
 			System.out.println("YOU WIN, CONGRATULATIONS!");
-		else if (Arrays.equals(get, ProtocolOperators.YOU_LOSE))
+			head.winner = 1;
+		}
+		else if (Arrays.equals(get, ProtocolOperators.YOU_LOSE)) {
 			System.out.println("YOU LOST, CONGRATULATIONS!");
+			head.winner = 1;
+		}
 		else if (Arrays.equals(get, ProtocolOperators.MILL_CREATED)) {
 			System.out.println("Other player has a mill...");
+			din.readFully(get);
+			handlingStuff();
 			din.readFully(get);
 			handlingStuff();
 		}

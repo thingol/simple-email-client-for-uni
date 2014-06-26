@@ -1,11 +1,9 @@
 package de.uni_jena.min.in0043.nine_mens_morris.gui;
 
-import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Panel;
-import java.awt.Robot;
 import java.awt.event.*;
 
 import javax.swing.JOptionPane;
@@ -224,7 +222,7 @@ public class Head extends Panel implements MouseListener {
 	                    "Concede!",
 	                    "Stahp!"};
 	int n = JOptionPane.showOptionDialog(mFra,
-	    "Do you want to disconect or to concede?",
+	    "Do you want to disconnect or to concede?",
 	    "Exit Dialog",
 	    JOptionPane.YES_NO_CANCEL_OPTION,
 	    JOptionPane.QUESTION_MESSAGE,
@@ -490,6 +488,43 @@ public class Head extends Panel implements MouseListener {
 		repaint();
 	}
 	
+//	public void moveStone(int stone, int goal, int z)
+//	{
+//		int r = mFra.getSize().width * mFra.getSize().height / 30000 / 2;
+////		Stone temp;
+//		if (color == Player.BLACK) {
+//			 Black[stone-9].posX = sF.placement[goal][0]-r;
+//			 Black[stone-9].posY = sF.placement[goal][1]-r;
+//			 Black[stone-9].placed = true;
+//			 Black[stone-9].placedAt = goal;
+////			temp = Black[stone-9];
+//		}
+//		else
+////			temp = White[stone];
+//		{ White[stone].posX = sF.placement[goal][0] -r;
+//		 White[stone].posY = sF.placement[goal][1] -r;
+//		 White[stone].placed = true;
+//		 White[stone].placedAt = goal;}
+//		sF.placed[goal] = true;
+////		try {
+////			temp.posX = sF.placement[goal][0];
+////			temp.posY = sF.placement[goal][1];
+////			
+////			Robot bot = new Robot();
+////			botplayer = true;
+////			bot.mouseMove(temp.posX, temp.posY);
+////			bot.mousePress(InputEvent.BUTTON1_MASK);
+////			bot.mouseRelease(InputEvent.BUTTON1_MASK);
+////			bot.mouseMove(sF.placement[goal][0], sF.placement[goal][1]);
+////			bot.mousePress(InputEvent.BUTTON1_MASK);
+////			bot.mouseRelease(InputEvent.BUTTON1_MASK);
+////		} catch (AWTException e) {
+////			e.printStackTrace();
+////			System.out.println("Move, god dammit! " + e);
+////		}
+//		repaint();
+//	}
+	
 	public void delete(int stone)
 	{
 		if (color == Player.WHITE) {
@@ -514,6 +549,7 @@ public class Head extends Panel implements MouseListener {
 		} else {
 				moveS(e);
 				repaint();
+				this.paint(mFra.getGraphics());
 				if( z == 1 && !mill) { z = 0; nmm.iNeedtoRead(); }
 		}
 

@@ -82,13 +82,14 @@ public class TestClient implements Game {
 			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
 				System.out.println("Worked");
-				din.readFully(get);
-				handlingStuff();
+//				din.readFully(get);
+//				handlingStuff();
 				return 1;
 			}
 			else
 				{
 				System.out.println("You can't remove this stone");
+				return 0;
 				}
 		} catch (IOException e) {
 			// TODO removeStone
@@ -302,14 +303,14 @@ public class TestClient implements Game {
 
 	private void handlingStuff() throws IOException {
 		// TODO Implement moveStone.
-		System.out.println("Handling stuff: " + get[0] + " " + get[1] +
-				" " + get[2] + " in " + head.color);
-//		dout.write(ProtocolOperators.ACK);
-		din.readFully(send);
+		System.out.println("Handling stuff: " + get[0] + " " + get[1] + " "
+				+ get[2] + " in " + head.color);
+		// dout.write(ProtocolOperators.ACK);
 		if (get[0] == 1) {
 			head.moveStone((int) get[1], (int) get[2]);
 			System.out.println("Moved stone");
 			System.out.println((int) get[1] + " " + (int) get[2]);
+			head.repaint();
 			dout.write(ProtocolOperators.ACK);
 		} else if (get[0] == 2) {
 			head.delete((int) get[1]);
@@ -319,21 +320,15 @@ public class TestClient implements Game {
 			// TODO implement WIN method maybe
 			System.out.println("WIN");
 			head.winner = 1;
-		}
-		else if (Arrays.equals(get, ProtocolOperators.NACK))
-		{
+		} else if (Arrays.equals(get, ProtocolOperators.NACK)) {
 			System.out.println("Not acknowledged");
-		}
-		else if (Arrays.equals(get, ProtocolOperators.ACK))
-		{
+		} else if (Arrays.equals(get, ProtocolOperators.ACK)) {
 			System.out.println("Acknowledged");
-		}
-		else if (Arrays.equals(get, ProtocolOperators.BYE)) {
+		} else if (Arrays.equals(get, ProtocolOperators.BYE)) {
 			// TODO implement WIN method maybe
 			System.out.println("User disconnected, you won.");
 			head.winner = 1;
-		}
-		else if (Arrays.equals(get, ProtocolOperators.NEW_GAME)) {
+		} else if (Arrays.equals(get, ProtocolOperators.NEW_GAME)) {
 			head.reset();
 			dout.write(ProtocolOperators.ACK);
 		} else if (Arrays.equals(get, ProtocolOperators.UNKNOW_OP))
@@ -346,15 +341,20 @@ public class TestClient implements Game {
 			System.out.println("YOU WIN, CONGRATULATIONS!");
 		else if (Arrays.equals(get, ProtocolOperators.YOU_LOSE))
 			System.out.println("YOU LOST, CONGRATULATIONS!");
-		else if(Arrays.equals(get, ProtocolOperators.ACK_W_MILL))
-		{
-			System.out.println("Mill found");
+		else if (Arrays.equals(get, ProtocolOperators.MILL_CREATED)) {
+			System.out.println("Other player has a mill...");
 			din.readFully(get);
 			handlingStuff();
 		}
-		else {
-			System.out.println("Something unexpected happened... closing server");
-			System.out.println(get[0] + " " + get[1] + " " + get[2] + " in " + head.color);
+		else if (Arrays.equals(get, ProtocolOperators.ACK_W_MILL)) {
+			System.out.println("Mill found");
+//			din.readFully(get);
+//			handlingStuff();
+		} else {
+			System.out
+					.println("Something unexpected happened... closing server");
+			System.out.println(get[0] + " " + get[1] + " " + get[2] + " in "
+					+ head.color);
 		}
 	}
 	

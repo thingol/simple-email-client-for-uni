@@ -435,10 +435,10 @@ public class Head extends Panel implements MouseListener {
 				for (int k = 0; k < 2 * r; k++) {
 					if (e.getX() == st[i].posX + j
 							&& e.getY() == st[i].posY + k) {
-						int m2 = 0;
+						int m2;
 						if(color == Player.WHITE)
-							m2 = nmm.removeStone(i);
-						else m2 = nmm.removeStone(i+9);
+							m2 = nmm.removeStone(i+9);
+						else m2 = nmm.removeStone(i);
 						if (m2 == 1) {
 							sF.placed[st[i].placedAt] = false;
 							st[i].placedAt = -2;
@@ -456,10 +456,10 @@ public class Head extends Panel implements MouseListener {
 	{
 //		Stone temp;
 		if (color == Player.WHITE) {
-			 Black[stone].posX = sF.placement[goal][0] -20;
-			 Black[stone].posY = sF.placement[goal][1] -20;
-			 Black[stone].placed = true;
-			 Black[stone].placedAt = goal;
+			 Black[stone-9].posX = sF.placement[goal][0];
+			 Black[stone-9].posY = sF.placement[goal][1];
+			 Black[stone-9].placed = true;
+			 Black[stone-9].placedAt = goal;
 //			temp = Black[stone-9];
 		}
 		else
@@ -468,6 +468,7 @@ public class Head extends Panel implements MouseListener {
 		 White[stone].posY = sF.placement[goal][1] -20;
 		 White[stone].placed = true;
 		 White[stone].placedAt = goal;}
+		sF.placed[goal] = true;
 //		try {
 //			temp.posX = sF.placement[goal][0];
 //			temp.posY = sF.placement[goal][1];

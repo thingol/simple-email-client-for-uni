@@ -42,6 +42,7 @@ public class TestClient implements Game {
 	@Override
 	public int moveStone(int stone, int point) {
 		try {
+			System.out.println("Moving stone...");
 			send = ProtocolOperators.MOVE_STONE;
 			send[1] = (byte) stone;
 			send[2] = (byte) point;
@@ -49,7 +50,7 @@ public class TestClient implements Game {
 			din.readFully(get);
 			if(Arrays.equals(get, ProtocolOperators.ACK))
 			{
-				System.out.println("Everything's fine!");
+				System.out.println("Moving was k!");
 //				din.readFully(get);
 //				handlingStuff();
 				return 1;
@@ -301,18 +302,31 @@ public class TestClient implements Game {
 
 	private void handlingStuff() throws IOException {
 		// TODO Implement moveStone.
-		System.out.println(get[0]);
-		dout.write(ProtocolOperators.ACK);
-		if (Arrays.equals(get, ProtocolOperators.MOVE_STONE)) {
+		System.out.println("Handling stuff: " + get[0] + " " + get[1] +
+				" " + get[2] + " in " + head.color);
+//		dout.write(ProtocolOperators.ACK);
+		din.readFully(send);
+		if (get[0] == 1) {
 			head.moveStone((int) get[1], (int) get[2]);
+			System.out.println("Moved stone");
+			System.out.println((int) get[1] + " " + (int) get[2]);
 			dout.write(ProtocolOperators.ACK);
-		} else if (Arrays.equals(get, ProtocolOperators.REMOVE_STONE)) {
+		} else if (get[0] == 2) {
 			head.delete((int) get[1]);
+			System.out.println("Removed stone");
 			dout.write(ProtocolOperators.ACK);
 		} else if (Arrays.equals(get, ProtocolOperators.CONCEDE)) {
 			// TODO implement WIN method maybe
 			System.out.println("WIN");
 			head.winner = 1;
+		}
+		else if (Arrays.equals(get, ProtocolOperators.NACK))
+		{
+			System.out.println("Not acknowledged");
+		}
+		else if (Arrays.equals(get, ProtocolOperators.ACK))
+		{
+			System.out.println("Acknowledged");
 		}
 		else if (Arrays.equals(get, ProtocolOperators.BYE)) {
 			// TODO implement WIN method maybe
@@ -336,17 +350,18 @@ public class TestClient implements Game {
 		{
 			System.out.println("Mill found");
 			din.readFully(get);
+			handlingStuff();
 		}
 		else {
-			System.out
-					.println("Something unexpected happened... closing server");
-			System.out.println(get[0] + " " + head.color);
+			System.out.println("Something unexpected happened... closing server");
+			System.out.println(get[0] + " " + get[1] + " " + get[2] + " in " + head.color);
 		}
 	}
 	
 	public void iNeedtoRead()
 	{
 		try {
+			System.out.println("I'm reading");
 			din.readFully(get);
 			handlingStuff();
 		} catch (IOException e) {
@@ -388,6 +403,7 @@ public class TestClient implements Game {
 				System.out.println("The black one always dies first, GG");
 				dout.write(ProtocolOperators.ACK);
 				din.readFully(get);
+				handlingStuff();
 			}
 			connected = true;
 			

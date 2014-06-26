@@ -29,7 +29,7 @@ public class Head extends Panel implements MouseListener {
 	private boolean mill;
 	public Player color = Player.WHITE;
 	public byte winner = -1;
-	public boolean botplayer;
+	int z = 0;
 
 	public Head() {
 		mFra = new Frame("Nine Men's Morris - Retro Style");
@@ -271,13 +271,13 @@ public class Head extends Panel implements MouseListener {
 		int r = mFra.getSize().width * mFra.getSize().height / 30000 / 2;
 		int x = e.getX();
 		int y = e.getY();
-		int first_or_other_phase = 0;
-		// Which Stone do we want to move?
 		if (color == Player.WHITE) {
 			st = White;
 		} else {
 			st = Black;
 		}
+		int first_or_other_phase = 0;
+		 //Which Stone do we want to move?
 		for(int iter = 0; iter < Black.length; iter++)
 		{
 			if(Black[iter].placed)
@@ -303,9 +303,7 @@ public class Head extends Panel implements MouseListener {
 									else {
 										s = i + 9;
 									}
-									int z = 1;
-									if(!botplayer)
-										z = nmm.moveStone(s, l);
+									z = nmm.moveStone(s, l);
 									if (z > 0) {
 										st[i].inPlacement = false;
 										st[i].posX = sF.placement[l][0] - r;
@@ -316,6 +314,7 @@ public class Head extends Panel implements MouseListener {
 										yep = true;
 										if (z == 2)
 											mill = true;
+										repaint();
 										break;
 									}
 								}
@@ -369,9 +368,7 @@ public class Head extends Panel implements MouseListener {
 									if(color == Player.WHITE) s = i;
 									else
 										s = i + 9;
-										int z = 1;
-										if(!botplayer)
-											z = nmm.moveStone(s, l);
+									z = nmm.moveStone(s, l);
 									if (z > 0) {
 										st[i].inPlacement = false;
 										st[i].posX = sF.placement[l][0] - r;
@@ -383,14 +380,13 @@ public class Head extends Panel implements MouseListener {
 										log.trace("st[i].inPlacement: " + st[i].inPlacement);
 										if (z == 2)
 											mill = true;
-										break;
+										repaint();
 									} else {
 										st[i].inPlacement = false;
 										st[i].set(-5);
 										log.error("ERROR!");
 										log.trace("st["+i+"].inPlacement: " + st[i].inPlacement);
 									}
-									nmm.iNeedtoRead();
 								}
 							}
 						}
@@ -439,14 +435,10 @@ public class Head extends Panel implements MouseListener {
 				for (int k = 0; k < 2 * r; k++) {
 					if (e.getX() == st[i].posX + j
 							&& e.getY() == st[i].posY + k) {
-						int m2 = 1;
-						if(!botplayer) {
-							if (color == Player.BLACK) {
-								m2 = nmm.removeStone(i);
-							} else {
-								m2 = nmm.removeStone(i + 9);
-							}
-						}
+						int m2 = 0;
+						if(color == Player.WHITE)
+							m2 = nmm.removeStone(i);
+						else m2 = nmm.removeStone(i+9);
 						if (m2 == 1) {
 							sF.placed[st[i].placedAt] = false;
 							st[i].placedAt = -2;
@@ -462,50 +454,48 @@ public class Head extends Panel implements MouseListener {
 	
 	public void moveStone(int stone, int goal)
 	{
-		Stone temp;
+//		Stone temp;
 		if (color == Player.WHITE) {
-//			 Black[stone].posX = sF.placement[goal][0];
-//			 Black[stone].posY = sF.placement[goal][1];
-			temp = Black[stone-9];
+			 Black[stone].posX = sF.placement[goal][0] -20;
+			 Black[stone].posY = sF.placement[goal][1] -20;
+			 Black[stone].placed = true;
+			 Black[stone].placedAt = goal;
+//			temp = Black[stone-9];
 		}
 		else
-			temp = White[stone];
-//		{ White[stone].posX = sF.placement[goal][0];
-//		 White[stone].posY = sF.placement[goal][1]; repaint();}
-		try {
-			temp.posX = sF.placement[goal][0];
-			temp.posY = sF.placement[goal][1];
-			
-			Robot bot = new Robot();
-			botplayer = true;
-			bot.mouseMove(temp.posX, temp.posY);
-			bot.mousePress(InputEvent.BUTTON1_MASK);
-			bot.mouseRelease(InputEvent.BUTTON1_MASK);
-			bot.mouseMove(sF.placement[goal][0], sF.placement[goal][1]);
-			bot.mousePress(InputEvent.BUTTON1_MASK);
-			bot.mouseRelease(InputEvent.BUTTON1_MASK);
-		} catch (AWTException e) {
-			e.printStackTrace();
-			System.out.println("Move, god dammit! " + e);
-		}
+//			temp = White[stone];
+		{ White[stone].posX = sF.placement[goal][0] -20;
+		 White[stone].posY = sF.placement[goal][1] -20;
+		 White[stone].placed = true;
+		 White[stone].placedAt = goal;}
+//		try {
+//			temp.posX = sF.placement[goal][0];
+//			temp.posY = sF.placement[goal][1];
+//			
+//			Robot bot = new Robot();
+//			botplayer = true;
+//			bot.mouseMove(temp.posX, temp.posY);
+//			bot.mousePress(InputEvent.BUTTON1_MASK);
+//			bot.mouseRelease(InputEvent.BUTTON1_MASK);
+//			bot.mouseMove(sF.placement[goal][0], sF.placement[goal][1]);
+//			bot.mousePress(InputEvent.BUTTON1_MASK);
+//			bot.mouseRelease(InputEvent.BUTTON1_MASK);
+//		} catch (AWTException e) {
+//			e.printStackTrace();
+//			System.out.println("Move, god dammit! " + e);
+//		}
+		repaint();
 	}
 	
 	public void delete(int stone)
 	{
-		Stone temp;
-		if (color == Player.WHITE)
-			 temp = White[stone];
-		else temp = Black[stone];
-		try {
-			Robot bot = new Robot();
-			botplayer = true;
-			bot.mouseMove(temp.posX, temp.posY);
-			bot.mousePress(InputEvent.BUTTON1_MASK);
-			bot.mouseRelease(InputEvent.BUTTON1_MASK);
-		} catch (AWTException e) {
-			e.printStackTrace();
-			System.out.println("Delete, god dammit! " + e);
-		}
+		if (color == Player.WHITE) {
+		White[stone].posX = -50;
+		White[stone].posY = -50; }
+		else {
+			Black[stone].posX = -50;
+			Black[stone].posY = -50; }
+		repaint();
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -517,9 +507,11 @@ public class Head extends Panel implements MouseListener {
 		}
 		else if (mill) {
 			delete(e);
+			if(!mill) nmm.iNeedtoRead();
 		} else {
 				moveS(e);
 				repaint();
+				if( z == 1 && !mill) { z = 0; nmm.iNeedtoRead(); }
 		}
 
 }
@@ -535,6 +527,7 @@ public class Head extends Panel implements MouseListener {
 
 	public void mouseReleased(MouseEvent e) {
 		repaint();
+//		nmm.iNeedtoRead();
 	}
 
 	public void mouseEntered(MouseEvent e) {

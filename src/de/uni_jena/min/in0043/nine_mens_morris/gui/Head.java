@@ -420,6 +420,7 @@ public class Head extends Panel implements MouseListener {
 
 			}// forI
 		} //else
+		repaint();
 	}
 
 	public void delete(MouseEvent e) {
@@ -454,18 +455,19 @@ public class Head extends Panel implements MouseListener {
 	
 	public void moveStone(int stone, int goal)
 	{
+		int r = mFra.getSize().width * mFra.getSize().height / 30000 / 2;
 //		Stone temp;
 		if (color == Player.WHITE) {
-			 Black[stone-9].posX = sF.placement[goal][0];
-			 Black[stone-9].posY = sF.placement[goal][1];
+			 Black[stone-9].posX = sF.placement[goal][0]-r;
+			 Black[stone-9].posY = sF.placement[goal][1]-r;
 			 Black[stone-9].placed = true;
 			 Black[stone-9].placedAt = goal;
 //			temp = Black[stone-9];
 		}
 		else
 //			temp = White[stone];
-		{ White[stone].posX = sF.placement[goal][0] -20;
-		 White[stone].posY = sF.placement[goal][1] -20;
+		{ White[stone].posX = sF.placement[goal][0] -r;
+		 White[stone].posY = sF.placement[goal][1] -r;
 		 White[stone].placed = true;
 		 White[stone].placedAt = goal;}
 		sF.placed[goal] = true;

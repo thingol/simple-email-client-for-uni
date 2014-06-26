@@ -305,7 +305,6 @@ public class TestClient implements Game {
 		// TODO Implement moveStone.
 		System.out.println("Handling stuff: " + get[0] + " " + get[1] + " "
 				+ get[2] + " in " + head.color);
-		// dout.write(ProtocolOperators.ACK);
 		if (get[0] == 1) {
 			head.moveStone((int) get[1], (int) get[2]);
 			System.out.println("Moved stone");

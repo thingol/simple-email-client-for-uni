@@ -263,7 +263,7 @@ public class Head extends Panel implements MouseListener {
 		});
 	}
 
-	public void moveS(MouseEvent e) {
+	public synchronized void moveS(MouseEvent e) {
 		Stone[] st = new Stone[9];
 		boolean yep = true;
 		int r = mFra.getSize().width * mFra.getSize().height / 30000 / 2;
@@ -312,7 +312,6 @@ public class Head extends Panel implements MouseListener {
 										yep = true;
 										if (z == 2)
 											mill = true;
-										repaint();
 										break;
 									}
 								}
@@ -421,7 +420,7 @@ public class Head extends Panel implements MouseListener {
 		repaint();
 	}
 
-	public void delete(MouseEvent e) {
+	public synchronized void delete(MouseEvent e) {
 		Stone[] st = new Stone[9];
 		if (color == Player.BLACK) {
 			st = White;
@@ -451,7 +450,7 @@ public class Head extends Panel implements MouseListener {
 		repaint();
 	}
 	
-	public void moveStone(int stone, int goal)
+	public synchronized void moveStone(int stone, int goal)
 	{
 		int r = mFra.getSize().width * mFra.getSize().height / 30000 / 2;
 //		Stone temp;
@@ -525,14 +524,14 @@ public class Head extends Panel implements MouseListener {
 //		repaint();
 //	}
 	
-	public void delete(int stone)
+	public synchronized void delete(int stone)
 	{
 		if (color == Player.WHITE) {
 		White[stone].posX = -50;
 		White[stone].posY = -50; }
 		else {
-			Black[stone].posX = -50;
-			Black[stone].posY = -50; }
+			Black[stone-9].posX = -50;
+			Black[stone-9].posY = -50; }
 		repaint();
 	}
 
@@ -548,6 +547,12 @@ public class Head extends Panel implements MouseListener {
 			if(!mill) nmm.iNeedtoRead();
 		} else {
 				moveS(e);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				repaint();
 				this.paint(mFra.getGraphics());
 				if( z == 1 && !mill) { z = 0; nmm.iNeedtoRead(); }

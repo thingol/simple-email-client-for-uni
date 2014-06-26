@@ -9,7 +9,7 @@ import de.uni_jena.min.in0043.nine_mens_morris.core.Phase;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
 import de.uni_jena.min.in0043.nine_mens_morris.gui.Head;
 
-public class TestClient implements Game {
+public class TestClient extends Thread implements Game{
 
 	Socket server;
 	InputStream in;
@@ -37,9 +37,22 @@ public class TestClient implements Game {
 			e.printStackTrace();
 		}
 	}
+	
+	public void run() {
+		while(connected)
+		{
+			try {
+				din.read(get);
+				handlingStuff();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 
 	@Override
-	public int moveStone(int stone, int point) {
+	public synchronized int moveStone(int stone, int point) {
 		try {
 			System.out.println("Moving stone...");
 			send = ProtocolOperators.MOVE_STONE;
@@ -72,7 +85,7 @@ public class TestClient implements Game {
 	}
 
 	@Override
-	public int removeStone(int stone) {
+	public synchronized int removeStone(int stone) {
 		try {
 			send = ProtocolOperators.REMOVE_STONE;
 			send[1] = (byte) stone;
@@ -150,7 +163,6 @@ public class TestClient implements Game {
 		try {
 			send = ProtocolOperators.GET_ACTIVE_PLAYER;
 			dout.write(send);
-			
 			din.readFully(get);
 			if(get[0] == 0)
 				return Player.WHITE;

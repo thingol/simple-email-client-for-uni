@@ -122,9 +122,8 @@ public class GameServer extends Thread {
 			state = GameServerState.GAME_OVER;
 			log.info("state is now " + state);
 			curr_out.write(ProtocolOperators.ACK);
-			log.info("active player has left, declaring other player the winner");
+			log.info("active player has conceded defeat, declaring other player the winner");
 			notifyOtherPlayer(ProtocolOperators.YOU_WIN);
-			notifyOtherPlayer(ProtocolOperators.NO_MORE);
 			state = GameServerState.GAME_OVER;
 			return true;
 		}

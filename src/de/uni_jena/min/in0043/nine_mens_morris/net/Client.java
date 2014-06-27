@@ -24,6 +24,11 @@ public class Client extends Thread implements Game {
 	private Socket srv;
 	private DataInputStream input;
 	private DataOutputStream output;
+	private byte[] cmdBuf = new byte[3];
+	private byte[] rcvBuf = new byte[3];
+	private Object lock = new Object();
+	private boolean cmdSent = false;
+	private boolean playing = false;
 	
 	public Client(String srv) {
 		this(srv, DEFAULT_PORT);
@@ -74,12 +79,72 @@ public class Client extends Thread implements Game {
 		
 	}
 	
+	private void pokeMe() {
+		synchronized (lock) {
+			cmdSent = true;
+			lock.notify();
+		}
+	}
+
+	private void msgExchange(int op, int opnd0) {
+		cmdBuf[0] = (byte) op;
+    	cmdBuf[1] = (byte) opnd0;
+    	cmdBuf[2] = 0;
+    	
+    	sendMsg();
+    	receiveMsg();
+	}
+	
+	private void msgExchange(int op, int opnd0, int opnd1) {
+		cmdBuf[0] = (byte) op;
+    	cmdBuf[1] = (byte) opnd0;
+    	cmdBuf[2] = (byte) opnd1;
+    	
+    	sendMsg();
+    	receiveMsg();
+	}
+	
+	private int parseResponse() {
+		int i = cmdBuf[0];
+		
+		switch(i) {
+		case 1:
+			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
+				return 1;
+			} else if (Arrays.equals(rcvBuf, ProtocolOperators.ACK_W_MILL)) {
+				return 2;
+			} else {
+				return 0;
+			}
+		case 2:
+			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
+				return 1;
+			}
+			return 0;
+		default:
+			// shouldn't happen, but hey
+			return -128;
+		}
+	}
+	
+	private void receiveMsg() {
+		try {
+			input.readFully(rcvBuf);
+		} catch (IOException e) {
+			log.error("caught IOException while reading from server");
+		}
+	}
+	
+    private void sendMsg() {
+    	try {
+			output.write(cmdBuf);
+		} catch (IOException e) {
+			log.error("caught IOException while writing to server");
+		}
+	}
+	
 	public void run() {
-		
-		boolean playing = false;
-		byte[] rcvBuf = new byte[3];
 		Player colour = logIn(rcvBuf);
-		
 		
 		if(colour == Player.BLACK) {
 			log.trace("reading white's first move");
@@ -94,67 +159,26 @@ public class Client extends Thread implements Game {
 		}
 		
 		while(!playing) {
-			int i = 0;
 			
-			try {
-				Thread.sleep(10000);
-				log.trace("I wasn't intrerrupted: " + i); 
-			} catch (InterruptedException e) {
-				log.trace("you got me!");
+			synchronized (lock) {
 				
-			} finally {
-				i++;
-				if(i > 9) {
-					playing = true;
-					log.trace("I'm done playing");
+				while(!cmdSent) {
+					try {
+						log.trace("waiting for something to do");
+						lock.wait();
+					} catch (InterruptedException e) {
+						log.error("was interrupted while waiting for something to do, this is not normal");
+					}
 				}
+				
 			}
 			
-			/*
-			 * wait for command
-			 * 
-			 * wake up
-			 * 
-			 * read command
-			 * 
-			 * execute command
-			 * 
-			 * read response
-			 * 
-			 * wait for command/read 
-			 */
-			
-			
-			/*
-			 * > hello
-			 * < ack
-			 * < colour
-			 * if white
-			 *   > movestone
-			 *   .
-			 *   .
-			 *   .
-			 * else
-			 *   < movestone
-			 *   .
-			 *   .
-			 *   .
-			 * .
-			 * .
-			 * .
-			 * > movestone
-			 * < retVal
-			 * if ack
-			 *   < movestone/mill_created
-			 * else
-			 *   > movestone
-			 *   .
-			 *   .
-			 *   .
-			 * 
-			 *   
-			 */
-			
+			log.trace("the message sent was supposed to be: " + Arrays.toString(cmdBuf));
+			cmdSent = false;
+			cmdBuf[0] = -128;
+			cmdBuf[1] = -128;
+			cmdBuf[2] = -128;
+		
 		}
 		
 		log.trace("logging off");
@@ -223,24 +247,38 @@ public class Client extends Thread implements Game {
 
 	@Override
 	public int moveStone(int stone, int point) {
-		// TODO Auto-generated method stub
-		return 0;
+		msgExchange(ProtocolOperators.MOVE_STONE[0], (byte) stone, (byte) point);
+		
+		pokeMe();
+		return parseResponse();
 	}
 
 	@Override
 	public int removeStone(int stone) {
-		// TODO Auto-generated method stub
-		return 0;
+		msgExchange(ProtocolOperators.REMOVE_STONE[0], (byte) stone);
+		
+		pokeMe();
+		return parseResponse();
 	}
 
-	public void conceed(boolean b) {
-		// TODO Auto-generated method stub
+	public void conceed(boolean newGame) {
+		cmdBuf = ProtocolOperators.CONCEDE;
+		receiveMsg();
+		if(newGame) {
+			cmdBuf = ProtocolOperators.NEW_GAME;
+			sendMsg();
+			receiveMsg();
+		} else {
+			cmdBuf = ProtocolOperators.NO_MORE;
+			sendMsg();
+			playing = false;
+		}
 		
 	}
 
 	public void disconnect() {
-		// TODO Auto-generated method stub
-		
+		cmdBuf = ProtocolOperators.BYE;
+		sendMsg();
 	}
 
 	public void iNeedtoRead() {

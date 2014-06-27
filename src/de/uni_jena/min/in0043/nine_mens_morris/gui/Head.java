@@ -231,7 +231,7 @@ public class Head extends Panel implements MouseListener {
 	    options[2]);
 	if(n == 0)
 	{
-		nmm.disconnect();
+		((Client)nmm).disconnect();
 		System.exit(0);
 	}
 	else if(n == 1)
@@ -250,12 +250,12 @@ public class Head extends Panel implements MouseListener {
 		if(n2 == 0)
 		{
 			// TODO Client Reset
-			nmm.conceed(true);
+			((Client)nmm).conceed(true);
 		}
 		else if(n2 == 1)
 		{
-			nmm.disconnect();
-			nmm.conceed(false);
+			((Client)nmm).disconnect();
+			((Client)nmm).conceed(false);
 			System.exit(0);
 		}
 	}
@@ -544,7 +544,7 @@ public class Head extends Panel implements MouseListener {
 		}
 		else if (mill) {
 			delete(e);
-			if(!mill) nmm.iNeedtoRead();
+			if(!mill) ((Client)nmm).iNeedtoRead();
 		} else {
 				moveS(e);
 				try {
@@ -555,7 +555,7 @@ public class Head extends Panel implements MouseListener {
 				}
 				repaint();
 				this.paint(mFra.getGraphics());
-				if( z == 1 && !mill) { z = 0; nmm.iNeedtoRead(); }
+				if( z == 1 && !mill) { z = 0; ((Client)nmm).iNeedtoRead(); }
 		}
 
 }

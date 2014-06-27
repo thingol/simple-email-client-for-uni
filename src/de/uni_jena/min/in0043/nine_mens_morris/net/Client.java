@@ -24,6 +24,7 @@ public class Client extends Thread implements Game {
 	private Socket srv;
 	private DataInputStream input;
 	private DataOutputStream output;
+	private Player colour = null;
 	private byte[] cmdBuf = new byte[3];
 	private byte[] rcvBuf = new byte[3];
 	private Object lock = new Object();
@@ -46,7 +47,7 @@ public class Client extends Thread implements Game {
 		}
 	}
 	
-	private Player logIn(byte[] rcvBuf) {
+	private void logIn() {
 		try {
 			output.write(ProtocolOperators.HELLO);
 			input.readFully(rcvBuf);
@@ -62,19 +63,19 @@ public class Client extends Thread implements Game {
 			if(Arrays.equals(rcvBuf, ProtocolOperators.IS_WHITE)) {
 				log.info("colour is white");
 				output.write(ProtocolOperators.ACK);
-				return Player.WHITE;
+				colour =  Player.WHITE;
+				playing = true;
 		    } else if(Arrays.equals(rcvBuf, ProtocolOperators.IS_BLACK)) {
 				log.info("colour is black");
 				output.write(ProtocolOperators.ACK);
-				return Player.BLACK;
+				colour =  Player.BLACK;
+				playing = true;
 			} else {
 				log.error("Protocol error!");
-				return null;
 			}
 			
 		} catch (IOException e) {
 			log.error("caught IOException while logging in");
-			return null;
 		}
 		
 	}
@@ -102,6 +103,10 @@ public class Client extends Thread implements Game {
     	
     	sendMsg();
     	receiveMsg();
+	}
+	
+	private void parseMsg() {
+		
 	}
 	
 	private int parseResponse() {
@@ -144,22 +149,24 @@ public class Client extends Thread implements Game {
 	}
 	
 	public void run() {
-		Player colour = logIn(rcvBuf);
+		logIn();
 		
 		if(colour == Player.BLACK) {
 			log.trace("reading white's first move");
+			receiveMsg();
+			parseResponse();
+			
 			try {
 				input.readFully(rcvBuf);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("the game has not really started and already we have an error");
 			}
 		} else if(colour == null) {
-			log.trace("teh fuck?!?");
+			log.trace("teh fuck?!? how could we not get a colour?");
 		}
 		
-		while(!playing) {
-			
+		while(playing) {
+						
 			synchronized (lock) {
 				
 				while(!cmdSent) {
@@ -169,9 +176,23 @@ public class Client extends Thread implements Game {
 					} catch (InterruptedException e) {
 						log.error("was interrupted while waiting for something to do, this is not normal");
 					}
+					
+					receiveMsg();
+					parseMsg();
 				}
-				
 			}
+			
+			
+			
+			/*
+			 * 
+			 *   1.movestone
+			 *   
+			 *   1.mill_created
+			 *   2.movestone
+			 *   3.removestone
+			 *   
+			 */
 			
 			log.trace("the message sent was supposed to be: " + Arrays.toString(cmdBuf));
 			cmdSent = false;
@@ -182,13 +203,13 @@ public class Client extends Thread implements Game {
 		}
 		
 		log.trace("logging off");
+		disconnect();
 		try {
-			output.write(ProtocolOperators.BYE);
+			srv.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("an error was encountered while attempting to " +
+		              "close the connection to the server");
 		}
-		
 	}
 	
 	@Override
@@ -248,9 +269,13 @@ public class Client extends Thread implements Game {
 	@Override
 	public int moveStone(int stone, int point) {
 		msgExchange(ProtocolOperators.MOVE_STONE[0], (byte) stone, (byte) point);
+		int retVal = parseResponse(); 
 		
-		pokeMe();
-		return parseResponse();
+		// we don't want to start working if the request fails
+		if(retVal == 1 || retVal == 2) {
+			pokeMe();
+		}
+		return retVal;
 	}
 
 	@Override
@@ -279,6 +304,7 @@ public class Client extends Thread implements Game {
 	public void disconnect() {
 		cmdBuf = ProtocolOperators.BYE;
 		sendMsg();
+		playing = false;
 	}
 
 	public void iNeedtoRead() {

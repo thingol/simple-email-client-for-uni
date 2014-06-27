@@ -30,6 +30,7 @@ public class Client extends Thread implements Game {
 	private Object lock = new Object();
 	private boolean cmdSent = false;
 	private boolean playing = false;
+	private ClientState state = ClientState.WAITING;
 	
 	public Client(String srv) {
 		this(srv, DEFAULT_PORT);
@@ -105,8 +106,28 @@ public class Client extends Thread implements Game {
     	receiveMsg();
 	}
 	
-	private void parseMsg() {
+	private void receiveFromOtherPlayer() {
+		receiveMsg();
 		
+		if(rcvBuf[0] == ProtocolOperators.MOVE_STONE[0]) {
+			log.trace("I'd call Head.moveStone(" + rcvBuf[1] + "," + rcvBuf[2] + ")");
+			state = ClientState.SINGLE_MOVE;
+		} else if(Arrays.equals(rcvBuf, ProtocolOperators.MILL_CREATED)) {
+			log.trace("Seems there's more than one message on the way");
+			state = ClientState.MILL_CREATED;
+		} else if(rcvBuf[0] == ProtocolOperators.REMOVE_STONE[0]) {
+			log.trace("I'd call Head.moveStone(" + rcvBuf[1] + ")");
+			state = ClientState.SINGLE_MOVE;
+		} else if(Arrays.equals(rcvBuf, ProtocolOperators.YOU_WIN)) {
+			state = ClientState.GAME_WON;
+		} else if(Arrays.equals(rcvBuf, ProtocolOperators.YOU_LOSE)) {
+			state = ClientState.GAME_LOST;
+			log.trace("I'd call Head.newGame() or so");
+		} else if(Arrays.equals(rcvBuf, ProtocolOperators.NEW_GAME)) {
+			log.trace("I'd call Head.reset()");
+		} else if(Arrays.equals(rcvBuf, ProtocolOperators.NO_MORE))  {
+			log.trace("guess there's not to be another round...");
+		}		
 	}
 	
 	private int parseResponse() {
@@ -178,21 +199,20 @@ public class Client extends Thread implements Game {
 					}
 					
 					receiveMsg();
-					parseMsg();
+					receiveFromOtherPlayer();
+					
+					switch (state) {
+					case SINGLE_MOVE:
+						break;
+					case MILL_CREATED:
+						receiveFromOtherPlayer();
+						receiveFromOtherPlayer();
+						break;
+					case GAME_WON:
+						receiveFromOtherPlayer();
+					}
 				}
 			}
-			
-			
-			
-			/*
-			 * 
-			 *   1.movestone
-			 *   
-			 *   1.mill_created
-			 *   2.movestone
-			 *   3.removestone
-			 *   
-			 */
 			
 			log.trace("the message sent was supposed to be: " + Arrays.toString(cmdBuf));
 			cmdSent = false;

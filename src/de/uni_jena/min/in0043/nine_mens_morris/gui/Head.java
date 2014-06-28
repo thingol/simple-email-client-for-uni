@@ -11,11 +11,11 @@ import javax.swing.JOptionPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.uni_jena.min.in0043.nine_mens_morris.core.Game;
+import de.uni_jena.min.in0043.nine_mens_morris.core.*;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
 import de.uni_jena.min.in0043.nine_mens_morris.net.*;
 
-public class Head extends Panel implements MouseListener {
+public class Head extends Panel implements MouseListener, GameClient {
 
 	private static final long serialVersionUID = -5704850734397028920L;
 	private static Logger log = LogManager.getLogger();
@@ -71,7 +71,7 @@ public class Head extends Panel implements MouseListener {
 		}
 	}
 	
-	public void reset()
+	public synchronized void reset()
 	{
 		sF.reset();
 		mill = false;
@@ -263,7 +263,7 @@ public class Head extends Panel implements MouseListener {
 		});
 	}
 
-	public synchronized void moveS(MouseEvent e) {
+	public void moveS(MouseEvent e) {
 		Stone[] st = new Stone[9];
 		boolean yep = true;
 		int r = mFra.getSize().width * mFra.getSize().height / 30000 / 2;
@@ -401,12 +401,8 @@ public class Head extends Panel implements MouseListener {
 						for (int k = 0; k < 2 * r; k++) {
 							if (x == st[i].posX + j) {
 								if (y == st[i].posY + k
-										&& st[i].inPlacement == false) { // else
-																			// this
-																			// function
-																			// is
-																			// not
-																			// deterministic
+										&& st[i].inPlacement == false) {
+									//else this function would trigger set(5) more often
 									st[i].inPlacement = true;
 									st[i].set(5);
 								}
@@ -420,7 +416,7 @@ public class Head extends Panel implements MouseListener {
 		repaint();
 	}
 
-	public synchronized void delete(MouseEvent e) {
+	public void removeStone(MouseEvent e) {
 		Stone[] st = new Stone[9];
 		if (color == Player.BLACK) {
 			st = White;
@@ -524,7 +520,7 @@ public class Head extends Panel implements MouseListener {
 //		repaint();
 //	}
 	
-	public synchronized void delete(int stone)
+	public synchronized void removeStone(int stone)
 	{
 		if (color == Player.WHITE) {
 		White[stone].posX = -50;
@@ -533,6 +529,33 @@ public class Head extends Panel implements MouseListener {
 			Black[stone-9].posX = -50;
 			Black[stone-9].posY = -50; }
 		repaint();
+	}
+	
+	public synchronized boolean newGame(boolean win){
+		if(win = false) winner = 0;
+		else winner = 1;
+		repaint();
+		Object[] options = {"Yes, please",
+                "No",};
+	int n = JOptionPane.showOptionDialog(mFra,
+	    "Do you to start a new Game?",
+	    "New Game Dialog",
+	    JOptionPane.YES_NO_CANCEL_OPTION,
+	    JOptionPane.QUESTION_MESSAGE,
+	    null,
+	    options,
+	    options[1]);
+	if(n == 0)
+		return true;
+	else return false;
+	}
+	
+	public synchronized void noMore() {
+		JOptionPane.showMessageDialog(mFra,
+			    "User denied. Disconnecting...",
+			    "No more!",
+			    JOptionPane.PLAIN_MESSAGE);
+		System.exit(0);
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -543,8 +566,9 @@ public class Head extends Panel implements MouseListener {
 			repaint();
 		}
 		else if (mill) {
-			delete(e);
-			if(!mill) ((Client)nmm).iNeedtoRead();
+			removeStone(e);
+			repaint();
+			if(!mill) nmm.iNeedtoRead();
 		} else {
 				moveS(e);
 				try {
@@ -555,7 +579,7 @@ public class Head extends Panel implements MouseListener {
 				}
 				repaint();
 				this.paint(mFra.getGraphics());
-				if( z == 1 && !mill) { z = 0; ((Client)nmm).iNeedtoRead(); }
+				if( z == 1 && !mill) { z = 0; nmm.iNeedtoRead(); }
 		}
 
 }

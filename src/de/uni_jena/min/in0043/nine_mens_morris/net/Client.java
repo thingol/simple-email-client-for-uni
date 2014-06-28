@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.uni_jena.min.in0043.nine_mens_morris.core.Game;
+import de.uni_jena.min.in0043.nine_mens_morris.core.GameClient;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Phase;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
 
@@ -31,9 +32,11 @@ public class Client extends Thread implements Game {
 	private boolean cmdSent = false;
 	private boolean playing = false;
 	private ClientState state = ClientState.WAITING;
+	private GameClient display; 
 	
-	public Client(String srv) {
-		this(srv, DEFAULT_PORT);
+
+	public Client(String hostName) {
+		this(hostName, DEFAULT_PORT);
 	}
 	
 	public Client(String hostName, int port) {
@@ -46,6 +49,23 @@ public class Client extends Thread implements Game {
 		} catch (IOException e) {
 			log.error("caught IOException while setting up");
 		}
+	}
+	
+	public void addDisplay(GameClient display) {
+		this.display = display;
+	}
+	
+	private void handleGameOver() {
+		if(display.newGame(state == ClientState.GAME_WON)) {
+			cmdBuf[0] = ProtocolOperators.NEW_GAME[0];
+			cmdBuf[1] = ProtocolOperators.NEW_GAME[1];
+			cmdBuf[2] = ProtocolOperators.NEW_GAME[2];
+		} else {
+			cmdBuf[0] = ProtocolOperators.NO_MORE[0];
+			cmdBuf[1] = ProtocolOperators.NO_MORE[1];
+			cmdBuf[2] = ProtocolOperators.NO_MORE[2];
+		}
+		sendMsg();
 	}
 	
 	private void logIn() {
@@ -110,23 +130,34 @@ public class Client extends Thread implements Game {
 		receiveMsg();
 		
 		if(rcvBuf[0] == ProtocolOperators.MOVE_STONE[0]) {
+			state = ClientState.SINGLE_MOVE;
 			log.trace("I'd call Head.moveStone(" + rcvBuf[1] + "," + rcvBuf[2] + ")");
-			state = ClientState.SINGLE_MOVE;
+			display.moveStone(rcvBuf[1], rcvBuf[2]);
+			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.MILL_CREATED)) {
-			log.trace("Seems there's more than one message on the way");
 			state = ClientState.MILL_CREATED;
+			log.trace("Seems there's more than one message on the way");
+			
 		} else if(rcvBuf[0] == ProtocolOperators.REMOVE_STONE[0]) {
-			log.trace("I'd call Head.moveStone(" + rcvBuf[1] + ")");
 			state = ClientState.SINGLE_MOVE;
+			log.trace("I'd call Head.removeStone(" + rcvBuf[1] + ")");
+			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.YOU_WIN)) {
 			state = ClientState.GAME_WON;
+			log.trace("I'd call handleGameOver()");
+			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.YOU_LOSE)) {
 			state = ClientState.GAME_LOST;
-			log.trace("I'd call Head.newGame() or so");
+			log.trace("I'd call handleGameOver()");
+			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.NEW_GAME)) {
+			// if both say NEW_GAME
 			log.trace("I'd call Head.reset()");
+			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.NO_MORE))  {
+			//if the other says NO_MORE
 			log.trace("guess there's not to be another round...");
+			playing = false;
 		}		
 	}
 	
@@ -174,22 +205,13 @@ public class Client extends Thread implements Game {
 		
 		if(colour == Player.BLACK) {
 			log.trace("reading white's first move");
-			receiveMsg();
-			parseResponse();
-			
-			try {
-				input.readFully(rcvBuf);
-			} catch (IOException e) {
-				log.error("the game has not really started and already we have an error");
-			}
+			receiveFromOtherPlayer();
 		} else if(colour == null) {
 			log.trace("teh fuck?!? how could we not get a colour?");
 		}
 		
 		while(playing) {
-						
 			synchronized (lock) {
-				
 				while(!cmdSent) {
 					try {
 						log.trace("waiting for something to do");
@@ -197,29 +219,26 @@ public class Client extends Thread implements Game {
 					} catch (InterruptedException e) {
 						log.error("was interrupted while waiting for something to do, this is not normal");
 					}
-					
-					receiveMsg();
-					receiveFromOtherPlayer();
-					
-					switch (state) {
-					case SINGLE_MOVE:
-						break;
-					case MILL_CREATED:
-						receiveFromOtherPlayer();
-						receiveFromOtherPlayer();
-						break;
-					case GAME_WON:
-						receiveFromOtherPlayer();
-					}
 				}
 			}
+					
+			receiveFromOtherPlayer();
+
+			switch (state) {
+			case MILL_CREATED:
+				// we get a moveStone followed by a removeStone
+				receiveFromOtherPlayer();
+				receiveFromOtherPlayer();
+				break;
+			case GAME_WON:
+			case GAME_LOST:
+				handleGameOver();
+				break;
+			default:
+				break;
+			}
 			
-			log.trace("the message sent was supposed to be: " + Arrays.toString(cmdBuf));
 			cmdSent = false;
-			cmdBuf[0] = -128;
-			cmdBuf[1] = -128;
-			cmdBuf[2] = -128;
-		
 		}
 		
 		log.trace("logging off");
@@ -318,7 +337,6 @@ public class Client extends Thread implements Game {
 			sendMsg();
 			playing = false;
 		}
-		
 	}
 
 	public void disconnect() {

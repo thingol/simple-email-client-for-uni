@@ -27,7 +27,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 	private boolean donePlacing = true;
 	private Player color;
 	private Player winner;
-	int z = 0;
+	private int globalRetVal = 0;
 	
 	private int width = 1024;
 	private int height = 720;
@@ -35,6 +35,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 
 	public Head() {
 		this(new Logic());
+		this.color = Player.WHITE;
 	}
 
 	public Head(Game game) {
@@ -225,6 +226,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 		
 		log.trace(xMin + " <= posX <= " + xMax);
 		log.trace(yMin + " <= posY <= " + yMax);
+		log.trace("you clicked at (" + x + "," + y + ")");
 		if (color == Player.WHITE) {
 			st = white;
 		} else {
@@ -240,9 +242,9 @@ public class Head extends Panel implements MouseListener, GameClient {
 		}
 
 		if (!donePlacing) {
-			for (int i = 0; i < 9; i++) {
+			for (Stone stone : st) {
 				// This sets the stone to a corner
-				if (st[i].inPlacement() == true && st[i].placed() == false) { // Did I choose a piece?
+				if (stone.inPlacement() == true && stone.placed() == false) { // Did I choose a piece?
 					//Is it already placed?
 					for (int l = 0; l < 24; l++) {
 						for (int j = 0; j < radius; j++) {
@@ -250,21 +252,17 @@ public class Head extends Panel implements MouseListener, GameClient {
 								if (x == sF.placement[l][0] - radius + j
 										&& y == sF.placement[l][1] - radius
 										+ k && sF.placed[l] == false) {
-									if (color == Player.WHITE) {
-										z = game.moveStone(i, l);
-									} else {
-										z = game.moveStone(i+9, l);
-									}
 									
-									if (z > 0) {
-										st[i].inPlacement(false);
-										st[i].setX(sF.placement[l][0] - radius);
-										st[i].setY(sF.placement[l][1] - radius);
+									globalRetVal = game.moveStone(stone.getID(), l);
+									
+									if (globalRetVal > 0) {
+										stone.inPlacement(false);
+										stone.setX(sF.placement[l][0] - (radius/2));
+										stone.setY(sF.placement[l][1] - (radius/2));
 										sF.placed[l] = true;
-										st[i].placedAt(l);
-										st[i].placed(true);
+										stone.placedAt(l);
 										stoneSelected = true;
-										if (z == 2)
+										if (globalRetVal == 2)
 											mill = true;
 										break;
 									}
@@ -272,6 +270,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 							}
 						}
 					}//for l
+					log.trace("stone is at (" + stone.getX() + "," + stone.getY() + ")");
 				} //Stone is placed
 				//Still in placing Stones for i loop
 
@@ -284,19 +283,15 @@ public class Head extends Panel implements MouseListener, GameClient {
 				}
 
 				// Selects the Stone
-				if (st[i].inPlacement() == false && stoneSelected == true
-						&& st[i].placed() == false) {
-					for (int j = 0; j < 2 * radius; j++) {
-						for (int k = 0; k < 2 * radius; k++) {
-							if (x == st[i].getX() + j) {
-								if (y == st[i].getY() + k
-										&& st[i].inPlacement() == false) { // else this function is not deterministic
-									st[i].inPlacement(true);
-									st[i].mark();
-								}
-							}
+				if (!stone.inPlacement() && stoneSelected == true && !stone.placed()) {
+					int stoneX = stone.getX();
+					int stoneY = stone.getY();
+					if (stoneX > xMin && stoneX < xMax) {
+						if (stoneY >= yMin && stoneY <= yMax && !stone.inPlacement()) { // else this function is not deterministic
+							stone.inPlacement(true);
+							stone.mark();
 						}
-					}// forJ
+					}
 				}// if
 				//Now we have everything done: Stone can be selected and moved
 			}// forI
@@ -316,21 +311,20 @@ public class Head extends Panel implements MouseListener, GameClient {
 								{
 
 									if(color == Player.WHITE) {
-										z = game.moveStone(i, l);
+										globalRetVal = game.moveStone(i, l);
 									} else {
-										z = game.moveStone(i+9, l);
+										globalRetVal = game.moveStone(i+9, l);
 									}
 
-									if (z > 0) {
+									if (globalRetVal > 0) {
 										st[i].inPlacement(false);
 										st[i].setX(sF.placement[l][0] - radius);
 										st[i].setY(sF.placement[l][1] - radius);
 										sF.placed[l] = true;
 										st[i].placedAt(l);
-										st[i].placed(true);
 										stoneSelected = true;
 										log.trace("st[i].inPlacement: " + st[i].inPlacement());
-										if (z == 2)
+										if (globalRetVal == 2)
 											mill = true;
 										repaint();
 									} else {
@@ -411,12 +405,10 @@ public class Head extends Panel implements MouseListener, GameClient {
 		if (stone - 9 < 0) {
 			white[stone-9].setX(sF.placement[goal][0]-radius);
 			white[stone-9].setY(sF.placement[goal][1]-radius);
-			white[stone-9].placed(true);
 			white[stone-9].placedAt(goal);
 		} else {
 			black[stone-9].setX(sF.placement[goal][0] - radius);
 			black[stone].setY(sF.placement[goal][1] - radius);
-			black[stone].placed(true);
 			black[stone].placedAt(goal);
 		}
 		sF.placed[goal] = true;
@@ -482,7 +474,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 			moveS(e);
 			repaint();
 			this.paint(mFra.getGraphics());
-			if( z == 1 && !mill) { z = 0; }
+			if( globalRetVal == 1 && !mill) { globalRetVal = 0; }
 		}
 	}
 

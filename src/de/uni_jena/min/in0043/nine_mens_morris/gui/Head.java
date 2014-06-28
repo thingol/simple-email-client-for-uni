@@ -401,12 +401,8 @@ public class Head extends Panel implements MouseListener {
 						for (int k = 0; k < 2 * r; k++) {
 							if (x == st[i].posX + j) {
 								if (y == st[i].posY + k
-										&& st[i].inPlacement == false) { // else
-																			// this
-																			// function
-																			// is
-																			// not
-																			// deterministic
+										&& st[i].inPlacement == false) {
+									//else this function would trigger set(5) more often
 									st[i].inPlacement = true;
 									st[i].set(5);
 								}
@@ -417,7 +413,6 @@ public class Head extends Panel implements MouseListener {
 
 			}// forI
 		} //else
-		repaint();
 	}
 
 	public synchronized void delete(MouseEvent e) {
@@ -447,82 +442,25 @@ public class Head extends Panel implements MouseListener {
 				}
 			}
 		}
-		repaint();
 	}
 	
 	public synchronized void moveStone(int stone, int goal)
 	{
 		int r = mFra.getSize().width * mFra.getSize().height / 30000 / 2;
-//		Stone temp;
 		if (color == Player.WHITE) {
 			 Black[stone-9].posX = sF.placement[goal][0]-r;
 			 Black[stone-9].posY = sF.placement[goal][1]-r;
 			 Black[stone-9].placed = true;
 			 Black[stone-9].placedAt = goal;
-//			temp = Black[stone-9];
 		}
 		else
-//			temp = White[stone];
 		{ White[stone].posX = sF.placement[goal][0] -r;
 		 White[stone].posY = sF.placement[goal][1] -r;
 		 White[stone].placed = true;
 		 White[stone].placedAt = goal;}
 		sF.placed[goal] = true;
-//		try {
-//			temp.posX = sF.placement[goal][0];
-//			temp.posY = sF.placement[goal][1];
-//			
-//			Robot bot = new Robot();
-//			botplayer = true;
-//			bot.mouseMove(temp.posX, temp.posY);
-//			bot.mousePress(InputEvent.BUTTON1_MASK);
-//			bot.mouseRelease(InputEvent.BUTTON1_MASK);
-//			bot.mouseMove(sF.placement[goal][0], sF.placement[goal][1]);
-//			bot.mousePress(InputEvent.BUTTON1_MASK);
-//			bot.mouseRelease(InputEvent.BUTTON1_MASK);
-//		} catch (AWTException e) {
-//			e.printStackTrace();
-//			System.out.println("Move, god dammit! " + e);
-//		}
 		repaint();
 	}
-	
-//	public void moveStone(int stone, int goal, int z)
-//	{
-//		int r = mFra.getSize().width * mFra.getSize().height / 30000 / 2;
-////		Stone temp;
-//		if (color == Player.BLACK) {
-//			 Black[stone-9].posX = sF.placement[goal][0]-r;
-//			 Black[stone-9].posY = sF.placement[goal][1]-r;
-//			 Black[stone-9].placed = true;
-//			 Black[stone-9].placedAt = goal;
-////			temp = Black[stone-9];
-//		}
-//		else
-////			temp = White[stone];
-//		{ White[stone].posX = sF.placement[goal][0] -r;
-//		 White[stone].posY = sF.placement[goal][1] -r;
-//		 White[stone].placed = true;
-//		 White[stone].placedAt = goal;}
-//		sF.placed[goal] = true;
-////		try {
-////			temp.posX = sF.placement[goal][0];
-////			temp.posY = sF.placement[goal][1];
-////			
-////			Robot bot = new Robot();
-////			botplayer = true;
-////			bot.mouseMove(temp.posX, temp.posY);
-////			bot.mousePress(InputEvent.BUTTON1_MASK);
-////			bot.mouseRelease(InputEvent.BUTTON1_MASK);
-////			bot.mouseMove(sF.placement[goal][0], sF.placement[goal][1]);
-////			bot.mousePress(InputEvent.BUTTON1_MASK);
-////			bot.mouseRelease(InputEvent.BUTTON1_MASK);
-////		} catch (AWTException e) {
-////			e.printStackTrace();
-////			System.out.println("Move, god dammit! " + e);
-////		}
-//		repaint();
-//	}
 	
 	public synchronized void delete(int stone)
 	{
@@ -534,6 +472,30 @@ public class Head extends Panel implements MouseListener {
 			Black[stone-9].posY = -50; }
 		repaint();
 	}
+	
+	public boolean newGame(){
+		Object[] options = {"Yes, please",
+                "No",};
+	int n = JOptionPane.showOptionDialog(mFra,
+	    "Do you to start a new Game?",
+	    "New Game Dialog",
+	    JOptionPane.YES_NO_CANCEL_OPTION,
+	    JOptionPane.QUESTION_MESSAGE,
+	    null,
+	    options,
+	    options[1]);
+	if(n == 0)
+		return true;
+	else return false;
+	}
+	
+	public void noMore() {
+		JOptionPane.showMessageDialog(mFra,
+			    "User denied. Disconnecting...",
+			    "No more!",
+			    JOptionPane.PLAIN_MESSAGE);
+		System.exit(0);
+	}
 
 	public void mouseClicked(MouseEvent e) {
 		log.trace("did we get a mill:" + mill);
@@ -544,6 +506,7 @@ public class Head extends Panel implements MouseListener {
 		}
 		else if (mill) {
 			delete(e);
+			repaint();
 			if(!mill) nmm.iNeedtoRead();
 		} else {
 				moveS(e);
@@ -563,15 +526,9 @@ public class Head extends Panel implements MouseListener {
 
 
 	public void mousePressed(MouseEvent e) {
-		// this.setBackground(new Color((int) (Math.random()*255),(int)
-		// (Math.random()*255),(int) (Math.random()*255)));
-		// repaint();
-
 	}
 
 	public void mouseReleased(MouseEvent e) {
-		repaint();
-//		nmm.iNeedtoRead();
 	}
 
 	public void mouseEntered(MouseEvent e) {

@@ -70,7 +70,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 		}
 	}
 	
-	public void reset()
+	public synchronized void reset()
 	{
 		sF.reset();
 		mill = false;
@@ -262,7 +262,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 		});
 	}
 
-	public synchronized void moveS(MouseEvent e) {
+	public void moveS(MouseEvent e) {
 		Stone[] st = new Stone[9];
 		boolean yep = true;
 		int r = mFra.getSize().width * mFra.getSize().height / 30000 / 2;
@@ -414,7 +414,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 		} //else
 	}
 
-	public synchronized void removeStone(MouseEvent e) {
+	public void removeStone(MouseEvent e) {
 		Stone[] st = new Stone[9];
 		if (color == Player.BLACK) {
 			st = White;
@@ -472,7 +472,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 		repaint();
 	}
 	
-	public boolean newGame(boolean win){
+	public synchronized boolean newGame(boolean win){
 		if(win = false) winner = 0;
 		else winner = 1;
 		repaint();
@@ -491,7 +491,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 	else return false;
 	}
 	
-	public void noMore() {
+	public synchronized void noMore() {
 		JOptionPane.showMessageDialog(mFra,
 			    "User denied. Disconnecting...",
 			    "No more!",

@@ -450,7 +450,6 @@ public class TestClient extends Thread implements Game{
 		c.StartUp();
 	}
 
-	@Override
 	public void disconnect() {
 		try {
 			send = ProtocolOperators.BYE;

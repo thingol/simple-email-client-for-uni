@@ -11,11 +11,10 @@ import javax.swing.JOptionPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.uni_jena.min.in0043.nine_mens_morris.core.Game;
-import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
+import de.uni_jena.min.in0043.nine_mens_morris.core.*;
 import de.uni_jena.min.in0043.nine_mens_morris.net.*;
 
-public class Head extends Panel implements MouseListener {
+public class Head extends Panel implements MouseListener, GameClient {
 
 	private static final long serialVersionUID = -5704850734397028920L;
 	private static Logger log = LogManager.getLogger();
@@ -415,7 +414,7 @@ public class Head extends Panel implements MouseListener {
 		} //else
 	}
 
-	public synchronized void delete(MouseEvent e) {
+	public synchronized void removeStone(MouseEvent e) {
 		Stone[] st = new Stone[9];
 		if (color == Player.BLACK) {
 			st = White;
@@ -462,7 +461,7 @@ public class Head extends Panel implements MouseListener {
 		repaint();
 	}
 	
-	public synchronized void delete(int stone)
+	public synchronized void removeStone(int stone)
 	{
 		if (color == Player.WHITE) {
 		White[stone].posX = -50;
@@ -473,7 +472,10 @@ public class Head extends Panel implements MouseListener {
 		repaint();
 	}
 	
-	public boolean newGame(){
+	public boolean newGame(boolean win){
+		if(win = false) winner = 0;
+		else winner = 1;
+		repaint();
 		Object[] options = {"Yes, please",
                 "No",};
 	int n = JOptionPane.showOptionDialog(mFra,
@@ -505,7 +507,7 @@ public class Head extends Panel implements MouseListener {
 			repaint();
 		}
 		else if (mill) {
-			delete(e);
+			removeStone(e);
 			repaint();
 			if(!mill) nmm.iNeedtoRead();
 		} else {
@@ -523,8 +525,6 @@ public class Head extends Panel implements MouseListener {
 
 }
 	
-
-
 	public void mousePressed(MouseEvent e) {
 	}
 

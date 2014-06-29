@@ -12,5 +12,7 @@ public interface GameClient {
 	
 	public void noMore();
 	
+	public void setColour(Player colour);
+	
 
 }

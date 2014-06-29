@@ -404,7 +404,7 @@ public class TestClient extends Thread implements Game{
 //				System.out.println("Error! Connecting failed! " + get[0]);
 //				servers.close();
 //			}
-			head.BuildUp();
+			head.init();
 
 			din.readFully(get);
 			

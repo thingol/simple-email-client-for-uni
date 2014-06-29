@@ -13,6 +13,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,6 +23,7 @@ import de.uni_jena.min.in0043.nine_mens_morris.core.GameClient;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Logic;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
 import de.uni_jena.min.in0043.nine_mens_morris.net.Client;
+import de.uni_jena.min.in0043.nine_mens_morris.test.ToyBoard;
 
 public class Head extends Panel implements MouseListener, GameClient {
 
@@ -31,15 +33,19 @@ public class Head extends Panel implements MouseListener, GameClient {
 	private Stone[] black;
 	private Stone[] white;
 	private Frame mFra;
-	private JFrame debugFrame;
-	private JLabel mouseClick, offsetMouseClick;
+	
 	private Game game;
 	private boolean mill;
-	private boolean donePlacing = true;
+	private boolean donePlacing = false;
 	private Player color;
 	private Player winner;
 	private int globalRetVal = 0;
+	
 	private boolean debug = true;
+	private JFrame debugFrame;
+	private JPanel mousePanel,mainPanel;
+	private JLabel mouseClick, offsetMouseClick;
+	private ToyBoard board;
 	
 	private int width = 1024;
 	private int height = 720;
@@ -65,15 +71,25 @@ public class Head extends Panel implements MouseListener, GameClient {
 			mouseClick = new JLabel();
 			offsetMouseClick = new JLabel();
 			
+			mainPanel = new JPanel();
+			mousePanel = new JPanel();
+			board = new ToyBoard();
+			
+			
+			mousePanel.setLayout(new GridLayout(3,2));
+			mousePanel.add(new JLabel("ID:"));
+			mousePanel.add(new JLabel(""+ts));
+			mousePanel.add(new JLabel("mouse clicked at:"));
+			mousePanel.add(mouseClick);
+			mousePanel.add(new JLabel("offset click:"));
+			mousePanel.add(offsetMouseClick);
+			
+			mainPanel.add(mousePanel);
+			mainPanel.add(board);
+			
 			debugFrame = new JFrame("Debug frame, " + ts);
-			debugFrame.setSize(200, 200);
-			debugFrame.setLayout(new GridLayout(3,2));
-			debugFrame.add(new JLabel("ID:"));
-			debugFrame.add(new JLabel(""+ts));
-			debugFrame.add(new JLabel("mouse clicked at:"));
-			debugFrame.add(mouseClick);
-			debugFrame.add(new JLabel("offset click:"));
-			debugFrame.add(offsetMouseClick);
+			debugFrame.setSize(300, 200);
+			debugFrame.add(mainPanel);
 			debugFrame.setVisible(true);
 		}
 
@@ -183,15 +199,21 @@ public class Head extends Panel implements MouseListener, GameClient {
 	}
 
 	public static void main(String args[]) {
-		new Head().BuildUp();
+		new Head().init();
 	}
 
-	public void BuildUp() {
+	public void init() {
 
 		mFra.add(this);
 		mFra.setForeground(new Color(255, 134, 13));
 		mFra.setBackground(new Color(94, 47, 0));
 		sF.places(mFra);
+		
+		if(debug) {
+			for(int i = 0; i < 24; i++) {
+				board.p[i].setText("(" + sF.placement[i][0] + "," + sF.placement[i][1] + ")");
+			}
+		}
 
 		this.addMouseListener(this);
 		mFra.setVisible(true);
@@ -259,24 +281,28 @@ public class Head extends Panel implements MouseListener, GameClient {
 			offsetMouseClick.setText(String.format("(%d,%d)", x, y));
 		}
 		
-		log.trace(xMin + " <= posX <= " + xMax);
-		log.trace(yMin + " <= posY <= " + yMax);
-		log.trace("you clicked at (" + x + "," + y + ")");
 		if (color == Player.WHITE) {
 			st = white;
 		} else {
 			st = black;
 		}
-		
-		for(Stone s : black) {
-			if(!s.placed()) {
-				donePlacing = false;
-				log.trace("we're not done placing stones");
-				break;
-			}
-		}
 
 		if (!donePlacing) {
+			boolean gotNone = true;
+			for(Stone s : black) {
+				if(!s.placed()) {
+					donePlacing = false;
+					log.trace("we're not done placing stones");
+					gotNone = false;
+					break;
+				}
+			}
+			
+			if(gotNone) {
+				log.trace("done placing stones");
+				donePlacing = true;
+			}
+			
 			for (Stone stone : st) {
 				// This sets the stone to a corner
 				if (stone.inPlacement() == true && stone.placed() == false) { // Did I choose a piece?
@@ -321,10 +347,11 @@ public class Head extends Panel implements MouseListener, GameClient {
 				if (!stone.inPlacement() && stoneSelected == true && !stone.placed()) {
 					int stoneX = stone.getX();
 					int stoneY = stone.getY();
-					if (stoneX > xMin && stoneX < xMax) {
+					if (stoneX >= xMin && stoneX <= xMax) {
 						if (stoneY >= yMin && stoneY <= yMax && !stone.inPlacement()) { // else this function is not deterministic
 							stone.inPlacement(true);
 							stone.mark();
+							log.trace("stone " + stone.getID() + " selected");
 						}
 					}
 				}// if
@@ -333,44 +360,41 @@ public class Head extends Panel implements MouseListener, GameClient {
 		} else {
 
 			for(Stone stone : st) {
+				log.trace("looking up stones");
 				if(stone.inPlacement() == true)
 				{  //Did I choose a piece?            Is it already placed?
+					log.trace(stone.getID() + " might be suitable"); 
 					for(int l = 0; l < 24; l++)
 					{
-						for(int j = 0; j < radius; j++)
-						{
-							for(int k = 0; k < radius; k++)
-							{
-								if(x == sF.placement[l][0] - radius + j && y == sF.placement[l][1] -radius + k)
-								{
-
-									if(color == Player.WHITE) {
-										globalRetVal = game.moveStone(stone.getID(), l);
-									} else {
-										globalRetVal = game.moveStone(stone.getID()+9, l);
-									}
-
-									if (globalRetVal > 0) {
-										stone.setX(sF.placement[l][0] - radius);
-										stone.setY(sF.placement[l][1] - radius);
-										sF.placed[l] = true;
-										stone.placedAt(l);
-										stoneSelected = true;
-										if (globalRetVal == 2)
-											mill = true;
-										repaint();
-									} else {
-										stone.inPlacement(false);
-										stone.unMark();
-										log.error("ERROR!");
-									}
-									stone.inPlacement(false);
-									log.trace("stone.inPlacement() => " + stone.inPlacement());
-								}
+						int placeX = sF.placement[l][0];
+						int placeY = sF.placement[l][1];
+						if(placeX >= xMin  && placeX <= xMax && placeY >= yMin  && placeY <= yMax) {
+							log.trace("calling game.moveStone(stone, place)");
+							if(color == Player.WHITE) {
+								globalRetVal = game.moveStone(stone.getID(), l);
+							} else {
+								globalRetVal = game.moveStone(stone.getID()+9, l);
 							}
+
+							if (globalRetVal > 0) {
+								stone.setX(sF.placement[l][0] - (radius/2));
+								stone.setY(sF.placement[l][1] - (radius/2));
+								sF.placed[l] = true;
+								stone.placedAt(l);
+								stoneSelected = true;
+								if (globalRetVal == 2)
+									mill = true;
+								repaint();
+							} else {
+								stone.inPlacement(false);
+								stone.unMark();
+								log.error("ERROR!");
+							}
+							stone.inPlacement(false);
+							log.trace("stone.inPlacement() => " + stone.inPlacement());
 						}
 					}
-					break;
+
 				}
 				// This just wants to know if one stone has been selected yet
 				for (Stone s : st) {
@@ -381,21 +405,17 @@ public class Head extends Panel implements MouseListener, GameClient {
 				}
 
 				// Selects the Stone
-				if (stone.inPlacement() == false && stoneSelected == true) {
-					for (int j = 0; j < radius; j++) {
-						for (int k = 0; k < radius; k++) {
-							if (x == stone.getX() + j) {
-								if (y == stone.getY() + k
-										&& stone.inPlacement() == false) {
-									//else this function would trigger set(5) more often
-									stone.inPlacement(true);
-									stone.mark();
-								}
-							}
+				if (!stone.inPlacement() && stoneSelected == true && !stone.placed()) {
+					int stoneX = stone.getX();
+					int stoneY = stone.getY();
+					if (stoneX >= xMin && stoneX <= xMax) {
+						if (stoneY >= yMin && stoneY <= yMax && !stone.inPlacement()) { // else this function is not deterministic
+							stone.inPlacement(true);
+							stone.mark();
+							log.trace("stone " + stone.getID() + " selected");
 						}
-					}// forJ
-				}// if
-
+					}
+				}
 			}// forI
 		} //else
 		repaint();

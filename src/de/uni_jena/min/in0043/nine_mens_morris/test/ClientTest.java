@@ -13,7 +13,7 @@ public class ClientTest {
 		System.out.println("firing up Client");
 		client.start();
 		client.addDisplay(display);
-		((Head)display).BuildUp();
+		((Head)display).init();
 		
 	}
 }

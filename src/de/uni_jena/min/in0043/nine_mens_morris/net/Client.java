@@ -52,7 +52,10 @@ public class Client extends Thread implements Game {
 	}
 	
 	public void addDisplay(GameClient display) {
-		this.display = display;
+		synchronized (lock) {
+			this.display = display;
+			lock.notify();
+		}
 	}
 	
 	private void handleGameOver() {
@@ -95,6 +98,7 @@ public class Client extends Thread implements Game {
 				log.error("Protocol error!");
 			}
 			
+			
 		} catch (IOException e) {
 			log.error("caught IOException while logging in");
 		}
@@ -131,7 +135,7 @@ public class Client extends Thread implements Game {
 		
 		if(rcvBuf[0] == ProtocolOperators.MOVE_STONE[0]) {
 			state = ClientState.SINGLE_MOVE;
-			log.trace("I'd call Head.moveStone(" + rcvBuf[1] + "," + rcvBuf[2] + ")");
+			log.trace("calling display.moveStone(" + rcvBuf[1] + "," + rcvBuf[2] + ")");
 			display.moveStone(rcvBuf[1], rcvBuf[2]);
 			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.MILL_CREATED)) {
@@ -140,19 +144,23 @@ public class Client extends Thread implements Game {
 			
 		} else if(rcvBuf[0] == ProtocolOperators.REMOVE_STONE[0]) {
 			state = ClientState.SINGLE_MOVE;
-			log.trace("I'd call Head.removeStone(" + rcvBuf[1] + ")");
+			log.trace("calling display.removeStone(" + rcvBuf[1] + ")");
+			display.removeStone(rcvBuf[1]);
 			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.YOU_WIN)) {
 			state = ClientState.GAME_WON;
-			log.trace("I'd call handleGameOver()");
+			log.trace("calling handleGameOver()");
+			handleGameOver();
 			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.YOU_LOSE)) {
 			state = ClientState.GAME_LOST;
-			log.trace("I'd call handleGameOver()");
+			log.trace("calling handleGameOver()");
+			handleGameOver();
 			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.NEW_GAME)) {
 			// if both say NEW_GAME
-			log.trace("I'd call Head.reset()");
+			log.trace("calling display.reset()");
+			display.reset();;
 			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.NO_MORE))  {
 			//if the other says NO_MORE
@@ -203,7 +211,20 @@ public class Client extends Thread implements Game {
 	public void run() {
 		logIn();
 		
-		if(colour == Player.BLACK) {
+		synchronized (lock) {
+			while(display == null) {
+				log.trace("waiting for display");
+				try {
+					lock.wait();
+				} catch (InterruptedException e) {
+					log.error("was interrupted while waiting for a display");
+				}
+			}
+		}
+		
+		display.setColour(colour);
+		
+        if(colour == Player.BLACK) {
 			log.trace("reading white's first move");
 			receiveFromOtherPlayer();
 		} else if(colour == null) {

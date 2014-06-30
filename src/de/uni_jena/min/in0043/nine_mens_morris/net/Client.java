@@ -106,28 +106,34 @@ public class Client extends Thread implements Game {
 	}
 	
 	private void pokeMe() {
+		log.entry();
 		synchronized (lock) {
 			cmdSent = true;
 			lock.notify();
 		}
+		log.exit();
 	}
 
 	private void msgExchange(int op, int opnd0) {
+		log.entry(op, opnd0);
 		cmdBuf[0] = (byte) op;
     	cmdBuf[1] = (byte) opnd0;
     	cmdBuf[2] = 0;
     	
     	sendMsg();
     	receiveMsg();
+    	log.exit();
 	}
 	
 	private void msgExchange(int op, int opnd0, int opnd1) {
+		log.entry(op, opnd0, opnd1);
 		cmdBuf[0] = (byte) op;
     	cmdBuf[1] = (byte) opnd0;
     	cmdBuf[2] = (byte) opnd1;
     	
     	sendMsg();
     	receiveMsg();
+    	log.exit();
 	}
 	
 	private void receiveFromOtherPlayer() {
@@ -193,19 +199,23 @@ public class Client extends Thread implements Game {
 	}
 	
 	private void receiveMsg() {
+		log.entry();
 		try {
 			input.readFully(rcvBuf);
 		} catch (IOException e) {
 			log.error("caught IOException while reading from server");
 		}
+		log.exit();
 	}
 	
     private void sendMsg() {
+    	log.entry();
     	try {
 			output.write(cmdBuf);
 		} catch (IOException e) {
 			log.error("caught IOException while writing to server");
 		}
+    	log.exit();
 	}
 	
 	public void run() {
@@ -332,7 +342,7 @@ public class Client extends Thread implements Game {
 		int retVal = parseResponse(); 
 		
 		// we don't want to start working if the request fails
-		if(retVal == 1 || retVal == 2) {
+		if(retVal == 1) {
 			pokeMe();
 		}
 		return retVal;
@@ -340,10 +350,17 @@ public class Client extends Thread implements Game {
 
 	@Override
 	public int removeStone(int stone) {
+		log.entry(stone);
 		msgExchange(ProtocolOperators.REMOVE_STONE[0], (byte) stone);
 		
-		pokeMe();
-		return parseResponse();
+		
+		int retVal = parseResponse();
+		
+		if(retVal == 1) {
+			pokeMe();
+		}
+		log.exit(retVal);
+		return retVal;
 	}
 
 	public void conceed(boolean newGame) {

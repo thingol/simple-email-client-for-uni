@@ -183,7 +183,11 @@ public class Head extends Panel implements MouseListener, GameClient {
 		}
 		
 		sF.places(mFra);
-
+		for(int i = 0; i < sF.placed.length; i++) {
+			board.p[i].setText(""+sF.placed[i]);
+		}
+			
+		
 		if(winner != null) {
 			g.drawString(winner.name() + " won! Congratulations!", (width/2) - 50 , height - 50);
 			
@@ -198,9 +202,9 @@ public class Head extends Panel implements MouseListener, GameClient {
 		}
 	}
 
-	public static void main(String args[]) {
+	/*public static void main(String args[]) {
 		new Head().init();
-	}
+	}*/
 
 	public void init() {
 
@@ -209,11 +213,11 @@ public class Head extends Panel implements MouseListener, GameClient {
 		mFra.setBackground(new Color(94, 47, 0));
 		sF.places(mFra);
 		
-		if(debug) {
+		/*if(debug) {
 			for(int i = 0; i < 24; i++) {
 				board.p[i].setText("(" + sF.placement[i][0] + "," + sF.placement[i][1] + ")");
 			}
-		}
+		}*/
 
 		this.addMouseListener(this);
 		mFra.setVisible(true);
@@ -405,15 +409,14 @@ public class Head extends Panel implements MouseListener, GameClient {
 				}
 
 				// Selects the Stone
-				if (!stone.inPlacement() && stoneSelected == true && !stone.placed()) {
+				if (!stone.inPlacement() && stoneSelected == true) {
 					int stoneX = stone.getX();
 					int stoneY = stone.getY();
-					if (stoneX >= xMin && stoneX <= xMax) {
-						if (stoneY >= yMin && stoneY <= yMax && !stone.inPlacement()) { // else this function is not deterministic
+					if (stoneX >= xMin && stoneX <= xMax && stoneY >= yMin && stoneY <= yMax
+							&& !stone.inPlacement()) { // else this function is not deterministic
 							stone.inPlacement(true);
 							stone.mark();
 							log.trace("stone " + stone.getID() + " selected");
-						}
 					}
 				}
 			}// forI
@@ -421,12 +424,15 @@ public class Head extends Panel implements MouseListener, GameClient {
 		repaint();
 	}
 
-	public void removeStone(MouseEvent e) {
-		log.entry();
-		
+	public void removeS(MouseEvent e) {
+		log.entry(e);
 		
 		int x = e.getX() - (radius/2);
 		int y = e.getY() - (radius/2);
+		int xMax = x + (radius/2);
+		int xMin = x - (radius/2);
+		int yMax = y + (radius/2);
+		int yMin = y - (radius/2);
 		
 		if(debug) {
 			mouseClick.setText(String.format("(%d,%d)", e.getX(), e.getY()));
@@ -439,22 +445,28 @@ public class Head extends Panel implements MouseListener, GameClient {
 		} else
 			st = black;
 
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < radius; j++) {
-				for (int k = 0; k < radius; k++) {
-					if (x == st[i].getX() + j && y == st[i].getY() + k) {
-						int m2;
-						if(color == Player.WHITE)
-							m2 = game.removeStone(i+9);
-						else m2 = game.removeStone(i);
-						if (m2 == 1) {
-							sF.placed[st[i].placedAt()] = false;
-							st[i].hide();
-							mill = false;
-						}
-					}
+		for (Stone stone : st) {
+			int stoneX = stone.getX();
+			int stoneY = stone.getY();
+			if (stoneX >= xMin && stoneX <= xMax && stoneY >= yMin && stoneY <= yMax) {
+				log.trace("stone " + stone.getID() + " fits the bill");
+				int m2;
+				/*if(color == Player.WHITE) {
+					log.trace("game.removeStone(stone.getID())");
+					m2 = game.removeStone(stone.getID()+9);
+					log.trace("hrm");
+				} else {*/
+					log.trace("game.removeStone(stone.getID())");
+					m2 = game.removeStone(stone.getID());
+				//}
+				log.trace("m2 == " + m2);
+				if (m2 == 1) {
+					sF.placed[stone.placedAt()] = false;
+					stone.hide();
+					mill = false;
 				}
 			}
+
 		}
 		repaint();
 	}
@@ -476,13 +488,17 @@ public class Head extends Panel implements MouseListener, GameClient {
 	}
 
 	public synchronized void removeStone(int stone)	{
-		log.trace("removing stone " + stone);
+		log.entry(stone);
+		log.trace("white.length: " + white.length);
+		log.trace("black.length: " + black.length);
 		if (color == Player.WHITE) {
-			white[stone].hide();
+			log.trace("removing a white stone");
 			sF.placed[white[stone].placedAt()] = false;
+			white[stone].hide();
 		} else {
-			black[stone-9].hide();
+			log.trace("removing a black stone");
 			sF.placed[black[stone-9].placedAt()] = false;
+			black[stone-9].hide();
 		}
 		repaint();
 	}
@@ -523,20 +539,14 @@ public class Head extends Panel implements MouseListener, GameClient {
 	}
 
 	public void mouseClicked(MouseEvent e) {
-		log.trace("did we get a mill:" + mill);
-		if(winner != null)
-		{
-			repaint();
-		}
-		else if (mill) {
-			removeStone(e);
-			repaint();
+		if (mill) {
+			removeS(e);
 		} else {
 			moveS(e);
-			repaint();
 			this.paint(mFra.getGraphics());
 			if( globalRetVal == 1 && !mill) { globalRetVal = 0; }
 		}
+		repaint();
 	}
 
 	@Override

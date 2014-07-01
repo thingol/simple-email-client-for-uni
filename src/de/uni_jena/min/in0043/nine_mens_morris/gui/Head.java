@@ -202,10 +202,6 @@ public class Head extends Panel implements MouseListener, GameClient {
 		}
 	}
 
-	/*public static void main(String args[]) {
-		new Head().init();
-	}*/
-
 	public void init() {
 
 		mFra.add(this);
@@ -269,7 +265,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 	}
 
 	public void moveS(MouseEvent e) {
-		log.entry(e);
+		log.entry();
 		
 		Stone[] st;
 		boolean stoneSelected = true;
@@ -294,7 +290,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 		if (!donePlacing) {
 			boolean gotNone = true;
 			for(Stone s : black) {
-				if(!s.placed()) {
+				if(!s.used()) {
 					donePlacing = false;
 					log.trace("we're not done placing stones");
 					gotNone = false;
@@ -326,6 +322,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 										stone.setY(sF.placement[l][1] - (radius/2));
 										sF.placed[l] = true;
 										stone.placedAt(l);
+										stone.used(true);
 										stoneSelected = true;
 										if (globalRetVal == 2)
 											mill = true;
@@ -337,7 +334,6 @@ public class Head extends Panel implements MouseListener, GameClient {
 					}//for l
 					log.trace("stone is at (" + stone.getX() + "," + stone.getY() + ")");
 				} //Stone is placed
-				//Still in placing Stones for i loop
 
 				// This just wants to know if one stone has been selected yet
 				for (Stone s : st) {
@@ -364,7 +360,6 @@ public class Head extends Panel implements MouseListener, GameClient {
 		} else {
 
 			for(Stone stone : st) {
-				log.trace("looking up stones");
 				if(stone.inPlacement() == true)
 				{  //Did I choose a piece?            Is it already placed?
 					log.trace(stone.getID() + " might be suitable"); 
@@ -374,12 +369,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 						int placeY = sF.placement[l][1];
 						if(placeX >= xMin  && placeX <= xMax && placeY >= yMin  && placeY <= yMax) {
 							log.trace("calling game.moveStone(stone, place)");
-							if(color == Player.WHITE) {
-								globalRetVal = game.moveStone(stone.getID(), l);
-							} else {
-								globalRetVal = game.moveStone(stone.getID()+9, l);
-							}
-
+							globalRetVal = game.moveStone(stone.getID(), l);
 							if (globalRetVal > 0) {
 								stone.setX(sF.placement[l][0] - (radius/2));
 								stone.setY(sF.placement[l][1] - (radius/2));
@@ -450,17 +440,9 @@ public class Head extends Panel implements MouseListener, GameClient {
 			int stoneY = stone.getY();
 			if (stoneX >= xMin && stoneX <= xMax && stoneY >= yMin && stoneY <= yMax) {
 				log.trace("stone " + stone.getID() + " fits the bill");
-				int m2;
-				/*if(color == Player.WHITE) {
-					log.trace("game.removeStone(stone.getID())");
-					m2 = game.removeStone(stone.getID()+9);
-					log.trace("hrm");
-				} else {*/
-					log.trace("game.removeStone(stone.getID())");
-					m2 = game.removeStone(stone.getID());
-				//}
-				log.trace("m2 == " + m2);
-				if (m2 == 1) {
+				int retVal = game.removeStone(stone.getID()); 
+				log.trace("game.removeStone(stone.getID()) => " + retVal);
+				if (retVal == 1) {
 					sF.placed[stone.placedAt()] = false;
 					stone.hide();
 					mill = false;
@@ -504,6 +486,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 	}
 
 	public synchronized boolean newGame(boolean win){
+		log.entry();
 		if(win = false) {
 			if(color == Player.WHITE) {
 				winner = Player.BLACK;
@@ -525,12 +508,14 @@ public class Head extends Panel implements MouseListener, GameClient {
 				null,
 				options,
 				options[1]);
+		log.trace("n => " + n);
 		if(n == 0)
 			return true;
 		else return false;
 	}
 
 	public synchronized void noMore() {
+		log.entry();
 		JOptionPane.showMessageDialog(mFra,
 				"User denied. Disconnecting...",
 				"No more!",
@@ -539,6 +524,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 	}
 
 	public void mouseClicked(MouseEvent e) {
+		log.entry();
 		if (mill) {
 			removeS(e);
 		} else {
@@ -547,6 +533,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 			if( globalRetVal == 1 && !mill) { globalRetVal = 0; }
 		}
 		repaint();
+		log.exit();
 	}
 
 	@Override

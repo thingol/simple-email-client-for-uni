@@ -52,13 +52,17 @@ public class Client extends Thread implements Game {
 	}
 	
 	public void addDisplay(GameClient display) {
+		log.entry();
 		synchronized (lock) {
+			log.debug("adding display " + display);
 			this.display = display;
 			lock.notify();
 		}
+		log.exit();
 	}
 	
 	private void handleGameOver() {
+		log.entry();
 		if(display.newGame(state == ClientState.GAME_WON)) {
 			cmdBuf[0] = ProtocolOperators.NEW_GAME[0];
 			cmdBuf[1] = ProtocolOperators.NEW_GAME[1];
@@ -69,15 +73,17 @@ public class Client extends Thread implements Game {
 			cmdBuf[2] = ProtocolOperators.NO_MORE[2];
 		}
 		sendMsg();
+		log.exit();
 	}
 	
 	private void logIn() {
+		log.entry();
 		try {
 			output.write(ProtocolOperators.HELLO);
 			input.readFully(rcvBuf);
 			
 			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
-				log.trace("login successful");
+				log.debug("login successful");
 			} else {
 				log.error("login failed");
 			}
@@ -103,11 +109,13 @@ public class Client extends Thread implements Game {
 			log.error("caught IOException while logging in");
 		}
 		
+		log.exit();
 	}
 	
 	private void pokeMe() {
 		log.entry();
 		synchronized (lock) {
+			log.debug("poking client");
 			cmdSent = true;
 			lock.notify();
 		}
@@ -126,76 +134,94 @@ public class Client extends Thread implements Game {
 	}
 	
 	private void msgExchange(int op, int opnd0, int opnd1) {
-		log.entry(op, opnd0, opnd1);
+		log.entry();
 		cmdBuf[0] = (byte) op;
     	cmdBuf[1] = (byte) opnd0;
     	cmdBuf[2] = (byte) opnd1;
-    	
+    	log.debug("sending " + Arrays.toString(cmdBuf));
     	sendMsg();
     	receiveMsg();
+    	log.debug("received " + Arrays.toString(rcvBuf));
     	log.exit();
 	}
 	
 	private void receiveFromOtherPlayer() {
+		log.entry();
 		receiveMsg();
+		// TODO handle ACK of NEW_GAME request
 		
 		if(rcvBuf[0] == ProtocolOperators.MOVE_STONE[0]) {
 			state = ClientState.SINGLE_MOVE;
-			log.trace("calling display.moveStone(" + rcvBuf[1] + "," + rcvBuf[2] + ")");
+			log.debug("calling display.moveStone(" + rcvBuf[1] + "," + rcvBuf[2] + ")");
 			display.moveStone(rcvBuf[1], rcvBuf[2]);
 			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.MILL_CREATED)) {
 			state = ClientState.MILL_CREATED;
-			log.trace("Seems there's more than one message on the way");
+			log.debug("Seems there's more than one message on the way");
 			
 		} else if(rcvBuf[0] == ProtocolOperators.REMOVE_STONE[0]) {
 			state = ClientState.SINGLE_MOVE;
-			log.trace("calling display.removeStone(" + rcvBuf[1] + ")");
+			log.debug("calling display.removeStone(" + rcvBuf[1] + ")");
 			display.removeStone(rcvBuf[1]);
 			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.YOU_WIN)) {
 			state = ClientState.GAME_WON;
-			log.trace("calling handleGameOver()");
+			log.debug("calling handleGameOver()");
 			handleGameOver();
 			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.YOU_LOSE)) {
 			state = ClientState.GAME_LOST;
-			log.trace("calling handleGameOver()");
+			log.debug("calling handleGameOver()");
 			handleGameOver();
 			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.NEW_GAME)) {
 			// if both say NEW_GAME
-			log.trace("calling display.reset()");
-			display.reset();;
+			log.debug("calling display.reset()");
+			display.reset();
 			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.NO_MORE))  {
 			//if the other says NO_MORE
-			log.trace("guess there's not to be another round...");
+			log.debug("guess there's not to be another round...");
 			playing = false;
-		}		
+		}
+		log.exit();
 	}
 	
 	private int parseResponse() {
+		log.entry();
 		int i = cmdBuf[0];
+		int retVal;
 		
 		switch(i) {
 		case 1:
+			log.debug("we sent a moveStone");
 			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
-				return 1;
+				log.debug("and got back an ACK");
+				retVal = 1;
 			} else if (Arrays.equals(rcvBuf, ProtocolOperators.ACK_W_MILL)) {
-				return 2;
+				log.debug("and got back an ACK_W_MILL");
+				retVal = 2;
 			} else {
-				return 0;
+				log.debug("and got back a NACK");
+				retVal = 0;
 			}
+			break;
 		case 2:
+			log.debug("we sent a moveStone");
 			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
-				return 1;
+				log.debug("and got back an ACK");
+				retVal = 1;
 			}
-			return 0;
+			log.debug("and got back a NACK");
+			retVal = 0;
+			break;
 		default:
 			// shouldn't happen, but hey
-			return -128;
+			log.debug("this really shouldn't happen");
+			retVal = -128;
 		}
+		log.exit(retVal);
+		return retVal;
 	}
 	
 	private void receiveMsg() {
@@ -223,7 +249,7 @@ public class Client extends Thread implements Game {
 		
 		synchronized (lock) {
 			while(display == null) {
-				log.trace("waiting for display");
+				log.debug("waiting for display");
 				try {
 					lock.wait();
 				} catch (InterruptedException e) {
@@ -235,17 +261,17 @@ public class Client extends Thread implements Game {
 		display.setColour(colour);
 		
         if(colour == Player.BLACK) {
-			log.trace("reading white's first move");
+			log.debug("reading white's first move");
 			receiveFromOtherPlayer();
 		} else if(colour == null) {
-			log.trace("teh fuck?!? how could we not get a colour?");
+			log.debug("teh fuck?!? how could we not get a colour?");
 		}
 		
 		while(playing) {
 			synchronized (lock) {
 				while(!cmdSent) {
 					try {
-						log.trace("waiting for something to do");
+						log.debug("waiting for something to do");
 						lock.wait();
 					} catch (InterruptedException e) {
 						log.error("was interrupted while waiting for something to do, this is not normal");
@@ -272,7 +298,7 @@ public class Client extends Thread implements Game {
 			cmdSent = false;
 		}
 		
-		log.trace("logging off");
+		log.debug("logging off");
 		disconnect();
 		try {
 			srv.close();
@@ -280,6 +306,7 @@ public class Client extends Thread implements Game {
 			log.error("an error was encountered while attempting to " +
 		              "close the connection to the server");
 		}
+		log.exit();
 	}
 	
 	@Override
@@ -338,6 +365,7 @@ public class Client extends Thread implements Game {
 
 	@Override
 	public int moveStone(int stone, int point) {
+		log.entry();
 		msgExchange(ProtocolOperators.MOVE_STONE[0], (byte) stone, (byte) point);
 		int retVal = parseResponse(); 
 		
@@ -345,6 +373,7 @@ public class Client extends Thread implements Game {
 		if(retVal == 1) {
 			pokeMe();
 		}
+		log.exit(retVal);
 		return retVal;
 	}
 
@@ -364,28 +393,35 @@ public class Client extends Thread implements Game {
 	}
 
 	public void conceed(boolean newGame) {
+		log.entry(newGame);
+		
 		cmdBuf = ProtocolOperators.CONCEDE;
-		receiveMsg();
+		sendMsg();
 		if(newGame) {
 			cmdBuf = ProtocolOperators.NEW_GAME;
+			state = ClientState.WAITING;
+			log.debug("requesting new game");
 			sendMsg();
 			receiveMsg();
+			pokeMe();
 		} else {
 			cmdBuf = ProtocolOperators.NO_MORE;
 			sendMsg();
 			playing = false;
+			log.debug("quitting");
+			cmdBuf = ProtocolOperators.BYE;
+			sendMsg();
 		}
+		
+		log.exit();
 	}
 
 	public void disconnect() {
+		log.entry();
 		cmdBuf = ProtocolOperators.BYE;
 		sendMsg();
 		playing = false;
-	}
-
-	public void iNeedtoRead() {
-		// TODO Auto-generated method stub
-		
+		log.exit();
 	}
 
 }

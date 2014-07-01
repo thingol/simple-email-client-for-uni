@@ -45,7 +45,6 @@ public class TestClient extends Thread implements Game{
 				din.read(get);
 				handlingStuff();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

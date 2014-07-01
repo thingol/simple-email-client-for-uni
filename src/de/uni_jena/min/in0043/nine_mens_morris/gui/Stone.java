@@ -7,6 +7,7 @@ public class Stone{
 	private int y;
 	private int placedAt = -1;
 	private boolean inPlacement = false;
+	private boolean used = false;
 	
 	public Stone(int id, int x, int y) {
 		this.id = id;
@@ -52,6 +53,14 @@ public class Stone{
 
 	public void inPlacement(boolean inPlacement) {
 		this.inPlacement = inPlacement;
+	}
+	
+	public boolean used() {
+		return used;
+	}
+	
+    public void used(boolean used) {
+		this.used = used;
 	}
 
 	public void hide() {

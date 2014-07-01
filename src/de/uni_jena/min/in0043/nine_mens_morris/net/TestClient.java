@@ -404,7 +404,7 @@ public class TestClient extends Thread implements Game{
 //				System.out.println("Error! Connecting failed! " + get[0]);
 //				servers.close();
 //			}
-			head.BuildUp();
+			head.init();
 
 			din.readFully(get);
 			
@@ -450,7 +450,6 @@ public class TestClient extends Thread implements Game{
 		c.StartUp();
 	}
 
-	@Override
 	public void disconnect() {
 		try {
 			send = ProtocolOperators.BYE;

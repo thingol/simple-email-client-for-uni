@@ -30,10 +30,5 @@ public interface Game {
 	public int moveStone(int stone, int point);
 	
 	public int removeStone(int stone);
-	
-	public void conceed(boolean newgame);
-	
-	public void disconnect();
-	
-	public void iNeedtoRead();
+
 }

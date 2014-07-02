@@ -404,6 +404,8 @@ public class Client extends Thread implements Game {
 			cmdBuf = ProtocolOperators.NO_MORE;
 			sendMsg();
 			playing = false;
+			cmdBuf = ProtocolOperators.BYE;
+			sendMsg();
 		}
 		
 		log.exit();
@@ -415,11 +417,6 @@ public class Client extends Thread implements Game {
 		sendMsg();
 		playing = false;
 		log.exit();
-	}
-
-	public void iNeedtoRead() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

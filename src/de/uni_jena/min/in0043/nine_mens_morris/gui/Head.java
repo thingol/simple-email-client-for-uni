@@ -233,6 +233,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 						options[2]);
 				if(n == 0)
 				{
+					log.debug("Disconnecting from server and exiting");
 					((Client)game).disconnect();
 					System.exit(0);
 				}
@@ -251,11 +252,12 @@ public class Head extends Panel implements MouseListener, GameClient {
 							opt[2]);
 					if(n2 == 0)
 					{
+						log.debug("conceding game and requesting new");
 						((Client)game).conceed(true);
 					}
 					else if(n2 == 1)
 					{
-						((Client)game).disconnect();
+						log.debug("conceding game and exiting");
 						((Client)game).conceed(false);
 						System.exit(0);
 					}

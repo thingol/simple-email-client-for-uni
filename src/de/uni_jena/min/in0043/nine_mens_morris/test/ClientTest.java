@@ -7,7 +7,7 @@ import de.uni_jena.min.in0043.nine_mens_morris.net.Client;
 public class ClientTest {
 	
 	//static Client client = new Client("gw.kjerkreit.org");
-	static Client client = new Client("gw.kjerkreit.org");
+	static Client client = new Client("localhost");
 	static GameClient display = new Head(client);
 
 	public static void main(String[] args) {

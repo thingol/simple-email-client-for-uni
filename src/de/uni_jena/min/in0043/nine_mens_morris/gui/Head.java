@@ -37,7 +37,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 	private Game game;
 	private boolean mill;
 	private boolean donePlacing = false;
-	private Player colour;
+	private Player color;
 	private Player winner;
 	private int globalRetVal = 0;
 	
@@ -53,7 +53,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 
 	public Head() {
 		this(new Logic());
-		this.colour = Player.WHITE;
+		this.color = Player.WHITE;
 	}
 
 	public Head(Game game) {
@@ -111,19 +111,9 @@ public class Head extends Panel implements MouseListener, GameClient {
 		radius =  width * height / 30000;
 		log.trace("width: "+ width + ",height: " + height + ",radius: " + radius);
 		sF.reset();
-		sF.places(mFra);
 		mill = false;
 		
-		for (int i = 0; i < 9; i++) {
-			black[i].setX(i * radius); black[i].setY(height - 50);
-			white[i].setX(width - 80 - i * radius); white[i].setY(height - 50);
-			black[i].placedAt(-1);
-			black[i].inPlacement(false);
-			black[i].used(false);
-			white[i].placedAt(-1);
-			white[i].inPlacement(false);
-			white[i].used(false);
-		}
+		setUpStones();
 	}
 
 	public void paint(Graphics g) {
@@ -205,8 +195,8 @@ public class Head extends Panel implements MouseListener, GameClient {
 			g.drawString("Mill found! Take a stone!", (width/2) - 50 , height - 50);
 			
 		} else {
-			if(colour != null) {
-				g.drawString("I am " + colour.name() + "!", (width/2) - 50 , 50);
+			if(color != null) {
+				g.drawString("I am " + color.name() + "!", (width/2) - 50 , 50);
 			}
 			g.drawString("Someone's turn! Make a move.", (width/2) - 50 , height - 50);
 		}
@@ -293,7 +283,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 			offsetMouseClick.setText(String.format("(%d,%d)", x, y));
 		}
 		
-		if (colour == Player.WHITE) {
+		if (color == Player.WHITE) {
 			st = white;
 		} else {
 			st = black;
@@ -442,7 +432,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 		}
 
 		Stone[] st;
-		if (colour == Player.BLACK) {
+		if (color == Player.BLACK) {
 			st = white;
 		} else
 			st = black;
@@ -467,7 +457,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 
 	public synchronized void moveStone(int stone, int goal)
 	{
-		if (colour == Player.BLACK) {
+		if (color == Player.BLACK) {
 			white[stone].setX(sF.placement[goal][0]- (radius/2));
 			white[stone].setY(sF.placement[goal][1]- (radius/2));
 			white[stone].placedAt(goal);
@@ -485,7 +475,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 		log.entry(stone);
 		log.trace("white.length: " + white.length);
 		log.trace("black.length: " + black.length);
-		if (colour == Player.WHITE) {
+		if (color == Player.WHITE) {
 			log.trace("removing a white stone");
 			sF.placed[white[stone].placedAt()] = false;
 			white[stone].hide();
@@ -500,13 +490,13 @@ public class Head extends Panel implements MouseListener, GameClient {
 	public synchronized boolean newGame(boolean win){
 		log.entry();
 		if(win = false) {
-			if(colour == Player.WHITE) {
+			if(color == Player.WHITE) {
 				winner = Player.BLACK;
 			} else {
 				winner = Player.WHITE;
 			}
 		} else { 
-			winner = colour;
+			winner = color;
 		}
 		
 		repaint();
@@ -574,16 +564,8 @@ public class Head extends Panel implements MouseListener, GameClient {
 
 	@Override
 	public void setColour(Player colour) {
-		this.colour = colour;
+		this.color = colour;
 		repaint();
-	}
-	
-	public Player getColour() {
-		return colour;
-	}
-
-	public void setWinner(Player colour2) {
-		this.winner = colour2;
 	}
 
 

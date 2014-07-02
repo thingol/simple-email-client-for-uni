@@ -316,7 +316,7 @@ public class TestClient extends Thread implements Game{
 	private void handlingStuff() throws IOException {
 		// TODO Implement moveStone.
 		System.out.println("Handling stuff: " + get[0] + " " + get[1] + " "
-				+ get[2] + " in " + head.getColour());
+				+ get[2] + " in " + head.color);
 		if (get[0] == 1) {
 			head.moveStone((int) get[1], (int) get[2]);
 			System.out.println("Moved stone");
@@ -330,7 +330,7 @@ public class TestClient extends Thread implements Game{
 		} else if (Arrays.equals(get, ProtocolOperators.CONCEDE)) {
 			// TODO implement WIN method maybe
 			System.out.println("WIN");
-			head.setWinner(head.getColour());
+			head.winner = 1;
 		} else if (Arrays.equals(get, ProtocolOperators.NACK)) {
 			System.out.println("Not acknowledged");
 		} else if (Arrays.equals(get, ProtocolOperators.ACK)) {
@@ -338,7 +338,7 @@ public class TestClient extends Thread implements Game{
 		} else if (Arrays.equals(get, ProtocolOperators.BYE)) {
 			// TODO implement WIN method maybe
 			System.out.println("User disconnected, you won.");
-			head.setWinner(head.getColour());
+			head.winner = 1;
 		} else if (Arrays.equals(get, ProtocolOperators.NEW_GAME)) {
 			head.reset();
 			dout.write(ProtocolOperators.ACK);
@@ -350,13 +350,11 @@ public class TestClient extends Thread implements Game{
 			System.out.println("General Error detected... Closing Connection");
 		else if (Arrays.equals(get, ProtocolOperators.YOU_WIN)) {
 			System.out.println("YOU WIN, CONGRATULATIONS!");
-			head.setWinner(head.getColour());
+			head.winner = 1;
 		}
 		else if (Arrays.equals(get, ProtocolOperators.YOU_LOSE)) {
 			System.out.println("YOU LOST, CONGRATULATIONS!");
-			if(head.getColour() == Player.BLACK)
-				head.setWinner(Player.WHITE);
-			else head.setWinner(Player.BLACK);
+			head.winner = 1;
 		}
 		else if (Arrays.equals(get, ProtocolOperators.MILL_CREATED)) {
 			System.out.println("Other player has a mill...");
@@ -373,7 +371,7 @@ public class TestClient extends Thread implements Game{
 			System.out
 					.println("Something unexpected happened... closing server");
 			System.out.println(get[0] + " " + get[1] + " " + get[2] + " in "
-					+ head.getColour());
+					+ head.color);
 		}
 	}
 	
@@ -412,13 +410,13 @@ public class TestClient extends Thread implements Game{
 			
 			if(Arrays.equals(get, ProtocolOperators.IS_WHITE))
 			{
-				head.setColour(Player.WHITE);
+				head.color = Player.WHITE;
 				System.out.println("I am less pigmented");
 				dout.write(ProtocolOperators.ACK);
 			}
 			else if(Arrays.equals(get, ProtocolOperators.IS_BLACK))
 			{
-				head.setColour(Player.BLACK);
+				head.color = Player.BLACK;
 				System.out.println("The black one always dies first, GG");
 				dout.write(ProtocolOperators.ACK);
 				din.readFully(get);

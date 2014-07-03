@@ -63,15 +63,20 @@ public class Client extends Thread implements Game {
 	
 	private void handleGameOver() {
 		log.entry();
-		if(display.newGame(state == ClientState.GAME_WON)) {
-			cmdBuf[0] = ProtocolOperators.NEW_GAME[0];
-			cmdBuf[1] = ProtocolOperators.NEW_GAME[1];
-			cmdBuf[2] = ProtocolOperators.NEW_GAME[2];
+		if(state == ClientState.GAME_WON) {
+			if(display.newGame(state == ClientState.GAME_WON)) {
+				cmdBuf[0] = ProtocolOperators.NEW_GAME[0];
+				cmdBuf[1] = ProtocolOperators.NEW_GAME[1];
+				cmdBuf[2] = ProtocolOperators.NEW_GAME[2];
+			} else {
+				cmdBuf[0] = ProtocolOperators.NO_MORE[0];
+				cmdBuf[1] = ProtocolOperators.NO_MORE[1];
+				cmdBuf[2] = ProtocolOperators.NO_MORE[2];
+			}
 		} else {
-			cmdBuf[0] = ProtocolOperators.NO_MORE[0];
-			cmdBuf[1] = ProtocolOperators.NO_MORE[1];
-			cmdBuf[2] = ProtocolOperators.NO_MORE[2];
+			
 		}
+		
 		sendMsg();
 		log.exit();
 	}
@@ -165,12 +170,10 @@ public class Client extends Thread implements Game {
 			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.YOU_WIN)) {
 			state = ClientState.GAME_WON;
-			log.debug("calling handleGameOver()");
-			handleGameOver();
 			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.YOU_LOSE)) {
 			state = ClientState.GAME_LOST;
-			log.debug("calling handleGameOver()");
+			log.debug("state is: " + state + ",calling handleGameOver()");
 			handleGameOver();
 			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.NEW_GAME)) {
@@ -227,6 +230,7 @@ public class Client extends Thread implements Game {
 		log.entry();
 		try {
 			input.readFully(rcvBuf);
+			log.debug("received " + Arrays.toString(rcvBuf));
 		} catch (IOException e) {
 			log.error("caught IOException while reading from server");
 		}
@@ -236,6 +240,7 @@ public class Client extends Thread implements Game {
     private void sendMsg() {
     	log.entry();
     	try {
+    		log.debug("sending " + Arrays.toString(cmdBuf));
 			output.write(cmdBuf);
 		} catch (IOException e) {
 			log.error("caught IOException while writing to server");
@@ -287,7 +292,9 @@ public class Client extends Thread implements Game {
 				receiveFromOtherPlayer();
 				break;
 			case GAME_WON:
-			case GAME_LOST:
+				handleGameOver();
+				break;
+			case AWAITING_NEW_GAME:
 				handleGameOver();
 				break;
 			default:
@@ -397,11 +404,13 @@ public class Client extends Thread implements Game {
 		cmdBuf = ProtocolOperators.CONCEDE;
 		sendMsg();
 		if(newGame) {
+			state = ClientState.AWAITING_NEW_GAME;
 			cmdBuf = ProtocolOperators.NEW_GAME;
+			log.debug("requesting new game");
 			sendMsg();
-			receiveMsg();
 		} else {
 			cmdBuf = ProtocolOperators.NO_MORE;
+			log.debug("signing off");
 			sendMsg();
 			playing = false;
 		}

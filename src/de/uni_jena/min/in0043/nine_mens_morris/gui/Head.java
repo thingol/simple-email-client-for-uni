@@ -187,10 +187,6 @@ public class Head extends Panel implements MouseListener, GameClient {
 
 		}
 
-		for (int i = 0; i < 9; i++) {
-			g.fillOval(black[i].getX(), black[i].getY(), radius, radius);
-			g.drawOval(white[i].getX(), white[i].getY(), radius, radius);
-		}
 		
 		sF.places(mFra);
 		for(int i = 0; i < sF.placed.length; i++) {
@@ -209,6 +205,10 @@ public class Head extends Panel implements MouseListener, GameClient {
 				g.drawString("I am " + colour.name() + "!", (width/2) - 50 , 50);
 			}
 			g.drawString("Someone's turn! Make a move.", (width/2) - 50 , height - 50);
+		}
+		for (int i = 0; i < 9; i++) {
+			g.fillOval(black[i].getX(), black[i].getY(), radius, radius);
+			g.drawOval(white[i].getX(), white[i].getY(), radius, radius);
 		}
 	}
 

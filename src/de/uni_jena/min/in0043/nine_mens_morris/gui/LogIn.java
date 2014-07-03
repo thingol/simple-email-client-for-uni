@@ -5,6 +5,7 @@ import java.awt.Frame;
 import java.awt.Panel;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -18,7 +19,7 @@ public class LogIn extends Panel {
 	private Frame screen;
 	private int width = 500;
 	private int height = 600;
-	private String s;
+	private List<String> list;
 	JTextField username = new JTextField();
 	JPasswordField password = new JPasswordField();
 	
@@ -42,8 +43,9 @@ public class LogIn extends Panel {
 		//TODO ask for users and then put them in a list
 		
 		screen.add(this);
-		screen.setForeground(new Color(255, 255, 255));
-		screen.setBackground(new Color(0, 0, 0));
+		screen.add(username);
+		screen.setForeground(new Color(100, 100, 100));
+		screen.setBackground(new Color(255, 255, 255));
 		screen.setVisible(true);
 		
 		screen.addWindowListener(new WindowAdapter() {
@@ -68,7 +70,7 @@ public class LogIn extends Panel {
 				password
 		};
 		JOptionPane.showMessageDialog(null, inputs, "Log In", JOptionPane.PLAIN_MESSAGE);
-
+		
 	}
 	
 	public static void main(String[] args)

@@ -121,7 +121,7 @@ public class GameServer extends Thread {
 		if(Arrays.equals(rcvBuf,ProtocolOperators.CONCEDE)) {
 			state = GameServerState.GAME_OVER;
 			log.info("state is now " + state);
-			curr_out.write(ProtocolOperators.ACK);
+			//curr_out.write(ProtocolOperators.ACK);
 			log.info("active player has conceded defeat, declaring other player the winner");
 			notifyOtherPlayer(ProtocolOperators.YOU_WIN);
 			state = GameServerState.GAME_OVER;

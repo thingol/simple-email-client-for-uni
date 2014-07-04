@@ -114,6 +114,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 		mill = false;
 		
 		setUpStones();
+		repaint();
 	}
 
 	public void paint(Graphics g) {
@@ -233,6 +234,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 						options[2]);
 				if(n == 0)
 				{
+					log.debug("Disconnecting from server and exiting");
 					((Client)game).disconnect();
 					System.exit(0);
 				}
@@ -251,11 +253,12 @@ public class Head extends Panel implements MouseListener, GameClient {
 							opt[2]);
 					if(n2 == 0)
 					{
+						log.debug("conceding game and requesting new");
 						((Client)game).conceed(true);
 					}
 					else if(n2 == 1)
 					{
-						((Client)game).disconnect();
+						log.debug("conceding game and exiting");
 						((Client)game).conceed(false);
 						System.exit(0);
 					}
@@ -335,6 +338,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 					log.trace("stone is at (" + stone.getX() + "," + stone.getY() + ")");
 				} //Stone is placed
 
+				log.trace("checking for selected stones");
 				// This just wants to know if one stone has been selected yet
 				for (Stone s : st) {
 					if (s.inPlacement() == true) {
@@ -487,28 +491,36 @@ public class Head extends Panel implements MouseListener, GameClient {
 
 	public synchronized boolean newGame(boolean win){
 		log.entry();
+		log.debug("did I win? " + win);
+		int n = 0;
+		Object[] options = {"Yes, please",
+				"No",};
+		
+		if(color == Player.WHITE) {
+			winner = Player.BLACK;
+		} else {
+			winner = Player.WHITE;
+		}
+		
 		if(win = false) {
-			if(color == Player.WHITE) {
-				winner = Player.BLACK;
-			} else {
-				winner = Player.WHITE;
-			}
+			
+
 		} else { 
 			winner = color;
+			
+			log.debug("asking player about new game");
+			n = JOptionPane.showOptionDialog(mFra,
+					"Do you to start a new Game?",
+					"New Game Dialog",
+					JOptionPane.YES_NO_CANCEL_OPTION,
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					options,
+					options[1]);
 		}
 		
 		repaint();
-		Object[] options = {"Yes, please",
-				            "No",};
-		int n = JOptionPane.showOptionDialog(mFra,
-				"Do you to start a new Game?",
-				"New Game Dialog",
-				JOptionPane.YES_NO_CANCEL_OPTION,
-				JOptionPane.QUESTION_MESSAGE,
-				null,
-				options,
-				options[1]);
-		log.trace("n => " + n);
+		
 		if(n == 0)
 			return true;
 		else return false;

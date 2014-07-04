@@ -323,7 +323,7 @@ public class TestClient extends Thread implements Game{
 			head.repaint();
 			dout.write(ProtocolOperators.ACK);
 		} else if (get[0] == 2) {
-			head.delete((int) get[1]);
+			head.removeStone((int) get[1]);
 			System.out.println("Removed stone");
 			dout.write(ProtocolOperators.ACK);
 		} else if (Arrays.equals(get, ProtocolOperators.CONCEDE)) {

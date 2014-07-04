@@ -61,6 +61,24 @@ public class Client extends Thread implements Game {
 		log.exit();
 	}
 	
+	private void handleColour() {
+		if(Arrays.equals(rcvBuf, ProtocolOperators.IS_WHITE)) {
+			log.info("colour is white");
+			colour =  Player.WHITE;
+
+	    } else if(Arrays.equals(rcvBuf, ProtocolOperators.IS_BLACK)) {
+			log.info("colour is black");
+			colour =  Player.BLACK;
+		} else {
+			log.error("Protocol error!");
+			return;
+		}
+		
+		rcvBuf = ProtocolOperators.ACK;
+		playing = true;
+		sendMsg();
+	}
+	
 	private void handleGameOver() {
 		log.entry();
 		if(state == ClientState.GAME_WON) {
@@ -68,6 +86,7 @@ public class Client extends Thread implements Game {
 				cmdBuf[0] = ProtocolOperators.NEW_GAME[0];
 				cmdBuf[1] = ProtocolOperators.NEW_GAME[1];
 				cmdBuf[2] = ProtocolOperators.NEW_GAME[2];
+				state = ClientState.AWAITING_NEW_GAME;
 			} else {
 				cmdBuf[0] = ProtocolOperators.NO_MORE[0];
 				cmdBuf[1] = ProtocolOperators.NO_MORE[1];
@@ -79,6 +98,25 @@ public class Client extends Thread implements Game {
 		
 		sendMsg();
 		log.exit();
+	}
+	
+	private void handleAwaitingNewGame() {
+		if(Arrays.equals(rcvBuf, ProtocolOperators.IS_WHITE)) {
+			log.info("new game has been accepted");
+			display.reset();
+			
+
+	    } else if(Arrays.equals(rcvBuf, ProtocolOperators.IS_BLACK)) {
+	    	log.info("new game has not been accepted, terminating");
+	    	playing = false;
+		} else {
+			log.error("Protocol error!");
+			return;
+		}
+		
+		rcvBuf = ProtocolOperators.ACK;
+		playing = true;
+		sendMsg();
 	}
 	
 	private void logIn() {
@@ -95,19 +133,7 @@ public class Client extends Thread implements Game {
 			
 			input.readFully(rcvBuf);
 			
-			if(Arrays.equals(rcvBuf, ProtocolOperators.IS_WHITE)) {
-				log.info("colour is white");
-				output.write(ProtocolOperators.ACK);
-				colour =  Player.WHITE;
-				playing = true;
-		    } else if(Arrays.equals(rcvBuf, ProtocolOperators.IS_BLACK)) {
-				log.info("colour is black");
-				output.write(ProtocolOperators.ACK);
-				colour =  Player.BLACK;
-				playing = true;
-			} else {
-				log.error("Protocol error!");
-			}
+			handleColour();
 			
 			
 		} catch (IOException e) {
@@ -295,8 +321,11 @@ public class Client extends Thread implements Game {
 			case GAME_WON:
 				handleGameOver();
 				break;
-			case AWAITING_NEW_GAME:
+			case GAME_LOST:
 				handleGameOver();
+				break;
+			case AWAITING_NEW_GAME:
+				handleAwaitingNewGame();
 				break;
 			default:
 				break;
@@ -318,55 +347,46 @@ public class Client extends Thread implements Game {
 	
 	@Override
 	public Player getActivePlayer() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public Phase getPhase() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public int getRound() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public int getWhiteActivated() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public int getWhiteInPlay() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public int getWhiteLost() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public int getBlackActivated() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public int getBlackInPlay() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
 	public int getBlackLost() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 

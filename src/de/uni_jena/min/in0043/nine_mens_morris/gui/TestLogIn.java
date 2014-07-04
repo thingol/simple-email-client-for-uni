@@ -23,9 +23,11 @@ public class TestLogIn extends Panel implements ActionListener {
 	private int height = 600;
 	private String user;
 	private char[] pass;
+	private boolean newU;
 	JTextField username = new JTextField();
 	JPasswordField password = new JPasswordField();
 	JButton ok, cancel;
+	JCheckBox newUser;
 	
 	public TestLogIn()
 	{
@@ -35,21 +37,25 @@ public class TestLogIn extends Panel implements ActionListener {
 		pass = null;
 		ok = new JButton("Ok");
 		cancel = new JButton("Cancel");
+		newUser = new JCheckBox("Register me!");
+		newU = false;
 	}
 	
 	public void LoggingIn() {
 		screen.setLayout(null);
 		username.setBounds(width/2 - 100, height/2 - 15, 200, 30);
 		password.setBounds(width/2 - 100, height/2 + 15, 200, 30);
-		ok.setBounds(width/2 - 100, height/2 + 50, 100, 20);
-		cancel.setBounds(width/2, height/2 + 50, 100, 20);
+		newUser.setBounds(width/2 - 100, height/2 + 50, 200, 30);
+		ok.setBounds(width/2 - 100, height/2 + 100, 100, 20);
+		cancel.setBounds(width/2, height/2 + 100, 100, 20);
 		this.setBounds(0, 0, width, height);
 		screen.add(username);
 		screen.add(password);
 		screen.add(ok);
 		screen.add(cancel);
-		screen.setForeground(new Color(255, 255, 255));
-		screen.setBackground(new Color(0, 0, 0));
+		screen.add(newUser);
+		screen.setForeground(new Color(0, 0, 0));
+		screen.setBackground(new Color(255, 255, 255));
 		screen.setVisible(true);
 		screen.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
@@ -65,6 +71,7 @@ public class TestLogIn extends Panel implements ActionListener {
 		
 		ok.addActionListener(this);
 		cancel.addActionListener(this);
+		newUser.addActionListener(this);
 		screen.add(this);
 		
 	}
@@ -83,11 +90,26 @@ public class TestLogIn extends Panel implements ActionListener {
 		 for(int i = 0; i < pass.length; i++) {
 			 g += pass[i];
 		 }
-		 System.out.println(g + "\n");
+		 System.out.println(g + "\nNewUser: " + newU);
+		 
+		 if(newUser == e.getSource()){
+			 if(newU == false)
+			 newU = true;
+			 else newU = false;
+		 }
 		 
 		 if( ok == e.getSource())
 		 {
 			 //TODO an server senden
+			 if(newU == true)
+			 {
+				 //Send new User request
+			 }
+			 else {
+				 //Ask if user+pass is correct
+			 }
+			 //wenn Antwort korrekt tue:
+			 pass = null;
 		 }
 		 else if( cancel == e.getSource())
 		 {

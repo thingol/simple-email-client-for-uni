@@ -1,33 +1,45 @@
 package de.uni_jena.min.in0043.nine_mens_morris.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Frame;
+import java.awt.GridLayout;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.*;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.uni_jena.min.in0043.nine_mens_morris.net.LogInClient;
+
 public class TestLogIn extends Panel implements ActionListener {
 
 	private static final long serialVersionUID = 8838423681956882828L;
 	private static Logger log = LogManager.getLogger();
 	private Frame screen;
-	private int width = 500;
-	private int height = 600;
+	private int width = 300;
+	private int height = 300;
+	private int width2 = 600;
+	private int height2 = 600;
 	private String user;
 	private char[] pass;
 	private boolean newU;
-	JTextField username = new JTextField();
-	JPasswordField password = new JPasswordField();
-	JButton ok, cancel;
-	JCheckBox newUser;
+	private JTextField username = new JTextField();
+	private JPasswordField password = new JPasswordField();
+	private JButton ok, cancel;
+	private JCheckBox newUser;
+	private boolean nextLine;
+	private LogInClient client;
+	
+	private List<JButton> Players;
+	private int[] numbers;
+	private String[] names;
 	
 	public TestLogIn()
 	{
@@ -39,6 +51,9 @@ public class TestLogIn extends Panel implements ActionListener {
 		cancel = new JButton("Cancel");
 		newUser = new JCheckBox("Register me!");
 		newU = false;
+		nextLine = false;
+		Players = new ArrayList<JButton>();
+		client = new LogInClient();
 	}
 	
 	public void LoggingIn() {
@@ -51,9 +66,9 @@ public class TestLogIn extends Panel implements ActionListener {
 		this.setBounds(0, 0, width, height);
 		screen.add(username);
 		screen.add(password);
+		screen.add(newUser);
 		screen.add(ok);
 		screen.add(cancel);
-		screen.add(newUser);
 		screen.setForeground(new Color(0, 0, 0));
 		screen.setBackground(new Color(255, 255, 255));
 		screen.setVisible(true);
@@ -72,7 +87,31 @@ public class TestLogIn extends Panel implements ActionListener {
 		ok.addActionListener(this);
 		cancel.addActionListener(this);
 		newUser.addActionListener(this);
-		screen.add(this);
+		
+		if(nextLine) {
+			screen.remove(username);
+			screen.remove(password);
+			screen.remove(newUser);
+			screen.remove(ok);
+			screen.remove(cancel);
+			screen.setSize(width2, height2);
+			
+			
+			numbers = new int[20];
+			names = new String[numbers.length];
+			JButton x;
+			for(int i = 0; i < names.length; i++) {
+				screen.setLayout(new GridLayout(names.length, 0));
+				names[i] = "" + (i+1);
+				JButton d = new JButton(names[i]);
+				Players.add(d);
+				x = Players.get(i);
+				screen.add(x);
+				Players.get(i).addActionListener(this);
+			}
+			screen.setVisible(false);
+			screen.setVisible(true);
+		}
 		
 	}
 	
@@ -84,37 +123,50 @@ public class TestLogIn extends Panel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+		if(!nextLine) {
 		 user = username.getText();
 		 pass = password.getPassword();
-		 String g = "Username: " + user + "\nPassword: ";
+		 String g = "\nUsername: " + user + "\nPassword: ";
 		 for(int i = 0; i < pass.length; i++) {
 			 g += pass[i];
 		 }
-		 System.out.println(g + "\nNewUser: " + newU);
+		 log.debug(g + "\nNewUser: " + newU);
 		 
 		 if(newUser == e.getSource()){
 			 if(newU == false)
 			 newU = true;
 			 else newU = false;
 		 }
-		 
 		 if( ok == e.getSource())
 		 {
-			 //TODO an server senden
 			 if(newU == true)
 			 {
-				 //Send new User request
+				 boolean register = client.register(user, pass);
+				 if(!register)
+					 log.trace("Username taken");
+				 else { pass = null;
+				 		nextLine = true;
+				 		this.LoggingIn(); }
 			 }
 			 else {
-				 //Ask if user+pass is correct
+				 boolean login = client.loggingIn(user, pass);
+				 if(login) { pass = null;
+				 			 nextLine = true;
+				 			 this.LoggingIn(); }
+				 else log.trace("Wrong user, password combination");
 			 }
-			 //wenn Antwort korrekt tue:
-			 pass = null;
 		 }
 		 else if( cancel == e.getSource())
 		 {
+			 client.disconnect();
 			 System.exit(0);
 		 }
-		
+		}//!newline
+		else {
+			Object source = e.getSource();
+			int number = Integer.parseInt(((JButton)source).getText());
+			log.trace(number + " was pressed");
+			//TODO an den Server senden
+		}
 	}
 }

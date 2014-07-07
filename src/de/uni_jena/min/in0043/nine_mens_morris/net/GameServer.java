@@ -121,7 +121,7 @@ public class GameServer extends Thread {
 		if(Arrays.equals(rcvBuf,ProtocolOperators.CONCEDE)) {
 			state = GameServerState.GAME_OVER;
 			log.info("state is now " + state);
-			curr_out.write(ProtocolOperators.ACK);
+			//curr_out.write(ProtocolOperators.ACK);
 			log.info("active player has conceded defeat, declaring other player the winner");
 			notifyOtherPlayer(ProtocolOperators.YOU_WIN);
 			state = GameServerState.GAME_OVER;
@@ -192,6 +192,7 @@ public class GameServer extends Thread {
 	}
 	
     private void parseInGameOver() throws IOException {
+    	log.entry();
     	if (Arrays.equals(rcvBuf,ProtocolOperators.NEW_GAME)) {
     		log.trace("loser wants a new game");
     		notifyOtherPlayer(ProtocolOperators.NEW_GAME);
@@ -213,6 +214,7 @@ public class GameServer extends Thread {
 			log.trace("illegal operator received");
 			curr_out.write(ProtocolOperators.ILLEGAL_OP);
 		}
+    	log.exit();
 	}
 	
     private void parseThatShit() throws Exception {

@@ -28,8 +28,8 @@ public class Client extends Thread implements Game {
 	private DataInputStream input;
 	private DataOutputStream output;
 	private Player colour = null;
-	private byte[] cmdBuf = new byte[3];
-	private byte[] rcvBuf = new byte[3];
+	private volatile byte[] cmdBuf = new byte[3];
+	private volatile byte[] rcvBuf = new byte[3];
 	private Object lock = new Object();
 	private boolean cmdSent = false;
 	private boolean playing = false;
@@ -59,17 +59,12 @@ public class Client extends Thread implements Game {
 	 */
 	private void handleAwaitingNewGame() {
 		log.entry();
+		log.trace("rcvBuf = " + Arrays.toString(rcvBuf));
+		log.trace("ProtocolOperators.ACK = " + Arrays.toString(ProtocolOperators.ACK));
 		if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
 			log.info("new game has been accepted");
 			display.reset();
 			handleColour();
-			
-			if(colour == Player.BLACK) {
-				log.debug("reading white's first move");
-				receiveFromOtherPlayer();
-			} else if(colour == null) {
-				log.debug("teh fuck?!? how could we not get a colour?");
-			}
 			
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.NACK)) {
 			log.info("new game has not been accepted, terminating");
@@ -96,10 +91,19 @@ public class Client extends Thread implements Game {
 			log.error("Protocol error!");
 			return;
 		}
-
+		
+		log.trace("setting colour");
 		playing = true;
 		display.setColour(colour);
 		ack();
+		
+		if(colour == Player.BLACK) {
+			log.debug("reading white's first move");
+			receiveFromOtherPlayer();
+		} else if(colour == null) {
+			log.debug("teh fuck?!? how could we not get a colour?");
+		}
+		
 	}
 	
 	private void handleGameOver() {
@@ -108,13 +112,15 @@ public class Client extends Thread implements Game {
 		if(Arrays.equals(rcvBuf, ProtocolOperators.NEW_GAME)) {
 			if(display.newGame(true)) {
 				cmdBuf = ProtocolOperators.NEW_GAME;
+				sendMsg();
+				display.reset();
 				handleColour();
 				
 			} else {
 				cmdBuf = ProtocolOperators.NO_MORE;
+				sendMsg();
 			}
 			
-			sendMsg();
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.NO_MORE)){
 			playing = false;
 		}
@@ -186,7 +192,6 @@ public class Client extends Thread implements Game {
 			cmdBuf = ProtocolOperators.NEW_GAME;
 			log.debug("requesting new game");
 			sendMsg();
-			receiveMsg();
 			pokeMe();
 		} else {
 			cmdBuf = ProtocolOperators.NO_MORE;
@@ -211,8 +216,7 @@ public class Client extends Thread implements Game {
 	
 	private void msgExchange(int op, int opnd0) {
 		log.entry(op, opnd0);
-		cmdBuf[0] = (byte) op;
-    	cmdBuf[1] = (byte) opnd0;
+		cmdBuf = new byte[]{(byte) op, (byte) opnd0, 0};
     	
     	sendMsg();
     	receiveMsg();
@@ -221,9 +225,7 @@ public class Client extends Thread implements Game {
 	
 	private void msgExchange(int op, int opnd0, int opnd1) {
 		log.entry();
-		cmdBuf[0] = (byte) op;
-    	cmdBuf[1] = (byte) opnd0;
-    	cmdBuf[2] = (byte) opnd1;
+		cmdBuf = new byte[]{(byte) op, (byte) opnd0, (byte) opnd1};
     	log.debug("sending " + Arrays.toString(cmdBuf));
     	sendMsg();
     	receiveMsg();
@@ -355,12 +357,7 @@ public class Client extends Thread implements Game {
 		logIn();
 		handleColour();
 		
-        if(colour == Player.BLACK) {
-			log.debug("reading white's first move");
-			receiveFromOtherPlayer();
-		} else if(colour == null) {
-			log.debug("teh fuck?!? how could we not get a colour?");
-		}
+        
 		
         /*
          * main loop

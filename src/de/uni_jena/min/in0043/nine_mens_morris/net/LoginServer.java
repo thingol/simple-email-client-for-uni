@@ -65,9 +65,7 @@ public class LoginServer {
 	public void startServer() {
 		log.entry();
 		
-		int i = 10;
-		
-		while (i > 0) {
+		while (true) {
 
 			log.trace("top of main loop");
 			GameServer gameThread;
@@ -97,7 +95,6 @@ public class LoginServer {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			i--;
 		}
 	}
 	

@@ -14,5 +14,7 @@ public interface GameClient {
 	
 	public void setColour(Player colour);
 	
+	public void youWon(boolean loserGone);
+	
 
 }

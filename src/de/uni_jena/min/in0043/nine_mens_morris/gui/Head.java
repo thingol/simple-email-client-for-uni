@@ -40,6 +40,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 	private Player colour;
 	private Player winner;
 	private int globalRetVal = 0;
+	private boolean sessionOver = false;
 	
 	private boolean debug = true;
 	private JFrame debugFrame;
@@ -195,7 +196,19 @@ public class Head extends Panel implements MouseListener, GameClient {
 			
 		
 		if(winner != null) {
-			g.drawString(winner.name() + " won! Congratulations!", (width/2) - 50 , height - 50);
+			String victoryInfo;
+			if(winner == colour) {
+				victoryInfo = "You won! ";
+				if(sessionOver) {
+					victoryInfo += "The loser has left. You may now quit ;)";
+				} else {
+					victoryInfo += "Perhaps the loser want another go.";
+				}
+			} else {
+				victoryInfo = "Dang! You lost :(";
+			}
+			
+			g.drawString(victoryInfo, (width/2) - 50 , height - 50);
 			
 		} else if(mill)	{
 			g.drawString("Mill found! Take a stone!", (width/2) - 50 , height - 50);
@@ -468,10 +481,12 @@ public class Head extends Panel implements MouseListener, GameClient {
 			white[stone].setX(sF.placement[goal][0]- (radius/2));
 			white[stone].setY(sF.placement[goal][1]- (radius/2));
 			white[stone].placedAt(goal);
+			white[stone].used(true);
 		} else {
 			black[stone-9].setX(sF.placement[goal][0] - (radius/2));
 			black[stone-9].setY(sF.placement[goal][1] - (radius/2));
 			black[stone-9].placedAt(goal);
+			black[stone-9].used(true);
 		}
 		sF.placed[goal] = true;
 
@@ -576,6 +591,14 @@ public class Head extends Panel implements MouseListener, GameClient {
 		log.debug("new colour is " + this.colour);
 		repaint();
 		log.exit();
+	}
+
+	@Override
+	public void youWon(boolean loserGone) {
+		this.winner = colour;
+		this.sessionOver = loserGone;
+		repaint();
+		
 	}
 
 

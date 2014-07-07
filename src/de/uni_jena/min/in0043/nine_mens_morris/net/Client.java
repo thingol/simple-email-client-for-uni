@@ -8,8 +8,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-import javax.rmi.PortableRemoteObject;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -306,7 +304,7 @@ public class Client extends Thread implements Game {
 		case 1:
 			log.debug("we sent a moveStone");
 			log.debug("rcvBuf = " + Arrays.toString(rcvBuf)); 
-			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)|| rcvBuf[0] == -2) {
+			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
 				log.debug("and got back an ACK");
 				retVal = 1;
 			} else if (Arrays.equals(rcvBuf, ProtocolOperators.ACK_W_MILL)) {
@@ -321,14 +319,17 @@ public class Client extends Thread implements Game {
 			}
 			break;
 		case 2:
-			log.debug("we sent a moveStone");
+			log.debug("we sent a removeStone");
 			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
 				log.debug("and got back an ACK");
 				retVal = 1;
+				break;
+			} else if(Arrays.equals(rcvBuf, ProtocolOperators.NACK)) {
+				log.debug("and got back a NACK");
+				retVal = 0;
+				break;
 			}
-			log.debug("and got back a NACK");
-			retVal = 0;
-			break;
+			log.debug("and got back something funny");
 		default:
 			// shouldn't happen, but hey
 			log.debug("this really shouldn't happen");

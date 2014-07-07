@@ -97,11 +97,13 @@ public class Head extends Panel implements MouseListener, GameClient {
 	}
 	
 	private void setUpStones() {
-		log.trace("setting up stones, radius: " + radius + ", width: " + width + ",height: " + height);
+		log.entry();
+		log.debug("setting up stones, radius: " + radius + ", width: " + width + ",height: " + height);
 		for (int i = 0; i < 9; i++) {
 			black[i] = new Stone(i+9,40 + i * radius, height - 50);
 			white[i] = new Stone(i,width - 80 - i * radius, height - 50);
 		}
+		log.exit();
 	}
 
 	public synchronized void reset() {
@@ -109,12 +111,15 @@ public class Head extends Panel implements MouseListener, GameClient {
 		width = mFra.getSize().width;
 		height = mFra.getSize().height;
 		radius =  width * height / 30000;
-		log.trace("width: "+ width + ",height: " + height + ",radius: " + radius);
+		log.debug("width: "+ width + ",height: " + height + ",radius: " + radius);
 		sF.reset();
 		mill = false;
+		color = null;
+		winner = null;
 		
 		setUpStones();
 		repaint();
+		log.exit();
 	}
 
 	public void paint(Graphics g) {
@@ -295,14 +300,14 @@ public class Head extends Panel implements MouseListener, GameClient {
 			for(Stone s : black) {
 				if(!s.used()) {
 					donePlacing = false;
-					log.trace("we're not done placing stones");
+					log.debug("we're not done placing stones");
 					gotNone = false;
 					break;
 				}
 			}
 			
 			if(gotNone) {
-				log.trace("done placing stones");
+				log.debug("done placing stones");
 				donePlacing = true;
 			}
 			
@@ -335,10 +340,10 @@ public class Head extends Panel implements MouseListener, GameClient {
 							}
 						}
 					}//for l
-					log.trace("stone is at (" + stone.getX() + "," + stone.getY() + ")");
+					log.debug("stone is at (" + stone.getX() + "," + stone.getY() + ")");
 				} //Stone is placed
 
-				log.trace("checking for selected stones");
+				log.debug("checking for selected stones");
 				// This just wants to know if one stone has been selected yet
 				for (Stone s : st) {
 					if (s.inPlacement() == true) {
@@ -355,7 +360,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 						if (stoneY >= yMin && stoneY <= yMax && !stone.inPlacement()) { // else this function is not deterministic
 							stone.inPlacement(true);
 							stone.mark();
-							log.trace("stone " + stone.getID() + " selected");
+							log.debug("stone " + stone.getID() + " selected");
 						}
 					}
 				}// if
@@ -366,13 +371,13 @@ public class Head extends Panel implements MouseListener, GameClient {
 			for(Stone stone : st) {
 				if(stone.inPlacement() == true)
 				{  //Did I choose a piece?            Is it already placed?
-					log.trace(stone.getID() + " might be suitable"); 
+					log.debug(stone.getID() + " might be suitable"); 
 					for(int l = 0; l < 24; l++)
 					{
 						int placeX = sF.placement[l][0];
 						int placeY = sF.placement[l][1];
 						if(placeX >= xMin  && placeX <= xMax && placeY >= yMin  && placeY <= yMax) {
-							log.trace("calling game.moveStone(stone, place)");
+							log.debug("calling game.moveStone(stone, place)");
 							globalRetVal = game.moveStone(stone.getID(), l);
 							if (globalRetVal > 0) {
 								stone.setX(sF.placement[l][0] - (radius/2));
@@ -389,7 +394,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 								log.error("ERROR!");
 							}
 							stone.inPlacement(false);
-							log.trace("stone.inPlacement() => " + stone.inPlacement());
+							log.debug("stone.inPlacement() => " + stone.inPlacement());
 						}
 					}
 
@@ -410,7 +415,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 							&& !stone.inPlacement()) { // else this function is not deterministic
 							stone.inPlacement(true);
 							stone.mark();
-							log.trace("stone " + stone.getID() + " selected");
+							log.debug("stone " + stone.getID() + " selected");
 					}
 				}
 			}// forI
@@ -443,9 +448,9 @@ public class Head extends Panel implements MouseListener, GameClient {
 			int stoneX = stone.getX();
 			int stoneY = stone.getY();
 			if (stoneX >= xMin && stoneX <= xMax && stoneY >= yMin && stoneY <= yMax) {
-				log.trace("stone " + stone.getID() + " fits the bill");
+				log.debug("stone " + stone.getID() + " fits the bill");
 				int retVal = game.removeStone(stone.getID()); 
-				log.trace("game.removeStone(stone.getID()) => " + retVal);
+				log.debug("game.removeStone(stone.getID()) => " + retVal);
 				if (retVal == 1) {
 					sF.placed[stone.placedAt()] = false;
 					stone.hide();
@@ -475,14 +480,14 @@ public class Head extends Panel implements MouseListener, GameClient {
 
 	public synchronized void removeStone(int stone)	{
 		log.entry(stone);
-		log.trace("white.length: " + white.length);
-		log.trace("black.length: " + black.length);
+		log.debug("white.length: " + white.length);
+		log.debug("black.length: " + black.length);
 		if (color == Player.WHITE) {
-			log.trace("removing a white stone");
+			log.debug("removing a white stone");
 			sF.placed[white[stone].placedAt()] = false;
 			white[stone].hide();
 		} else {
-			log.trace("removing a black stone");
+			log.debug("removing a black stone");
 			sF.placed[black[stone-9].placedAt()] = false;
 			black[stone-9].hide();
 		}
@@ -521,9 +526,13 @@ public class Head extends Panel implements MouseListener, GameClient {
 		
 		repaint();
 		
-		if(n == 0)
+		if(n == 0) {
+			log.debug("player says 'yes'");
 			return true;
-		else return false;
+		} else {
+			log.debug("player says 'no'");
+			return false;
+		}
 	}
 
 	public synchronized void noMore() {
@@ -549,28 +558,16 @@ public class Head extends Panel implements MouseListener, GameClient {
 	}
 
 	@Override
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseEntered(MouseEvent arg0) {}
 
 	@Override
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseExited(MouseEvent arg0) {}
 
 	@Override
-	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mousePressed(MouseEvent arg0) {}
 
 	@Override
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void mouseReleased(MouseEvent arg0) {}
 
 	@Override
 	public void setColour(Player colour) {

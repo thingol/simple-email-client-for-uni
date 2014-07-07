@@ -203,7 +203,7 @@ public class GameServer extends Thread {
 				startGame();
 			} else if(Arrays.equals(rcvBuf, ProtocolOperators.NO_MORE)) {
 				log.info("winner declines");
-				curr_out.write(ProtocolOperators.NO_MORE);
+				curr_out.write(ProtocolOperators.NACK);
 				twoPlayers = false;
 			}
 		} else if (Arrays.equals(rcvBuf,ProtocolOperators.NO_MORE)) {

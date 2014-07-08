@@ -16,7 +16,7 @@ import javax.swing.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.uni_jena.min.in0043.nine_mens_morris.net.Client;
+import de.uni_jena.min.in0043.nine_mens_morris.net.LogInClient;
 
 public class TestLogIn extends Panel implements ActionListener {
 
@@ -35,7 +35,7 @@ public class TestLogIn extends Panel implements ActionListener {
 	private JButton ok, cancel;
 	private JCheckBox newUser;
 	private boolean nextLine;
-	private Client client;
+	private LogInClient client;
 	private List<JButton> Players;
 	private int playerCount;
 	
@@ -54,7 +54,7 @@ public class TestLogIn extends Panel implements ActionListener {
 		nextLine = false;
 		Players = new ArrayList<JButton>();
 		names = new ArrayList<String>();
-		client = new Client("gw.kjerkreit.org");
+		client = new LogInClient("gw.kjerkreit.org");
 	}
 	
 	public void LoggingIn() {
@@ -129,8 +129,8 @@ public class TestLogIn extends Panel implements ActionListener {
 				null,
 				opt,
 				opt[1]);
-		if(n2 == 0) ;//TODO Send yes to server
-		else if (n2 == 1) ; //TODO Send no to server 
+		if(n2 == 0) log.trace("Accepted the duel for life and death");//TODO Send yes to server
+		else if (n2 == 1) log.trace("Declined the duel"); //TODO Send no to server 
 	}
 	
 	public static void main(String[] args)

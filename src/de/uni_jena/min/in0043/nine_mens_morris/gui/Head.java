@@ -22,7 +22,7 @@ import de.uni_jena.min.in0043.nine_mens_morris.core.Game;
 import de.uni_jena.min.in0043.nine_mens_morris.core.GameClient;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Logic;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
-import de.uni_jena.min.in0043.nine_mens_morris.net.Client;
+import de.uni_jena.min.in0043.nine_mens_morris.net.LogInClient;
 import de.uni_jena.min.in0043.nine_mens_morris.test.ToyBoard;
 
 public class Head extends Panel implements MouseListener, GameClient {
@@ -253,7 +253,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 				if(n == 0)
 				{
 					log.debug("Disconnecting from server and exiting");
-					((Client)game).disconnect();
+					((LogInClient)game).disconnect();
 					System.exit(0);
 				}
 				else if(n == 1)
@@ -272,12 +272,12 @@ public class Head extends Panel implements MouseListener, GameClient {
 					if(n2 == 0)
 					{
 						log.debug("conceding game and requesting new");
-						((Client)game).conceed(true);
+						((LogInClient)game).conceed(true);
 					}
 					else if(n2 == 1)
 					{
 						log.debug("conceding game and exiting");
-						((Client)game).conceed(false);
+						((LogInClient)game).conceed(false);
 						System.exit(0);
 					}
 				}

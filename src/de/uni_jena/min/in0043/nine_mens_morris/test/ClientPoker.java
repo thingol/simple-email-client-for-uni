@@ -8,16 +8,16 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 
-import de.uni_jena.min.in0043.nine_mens_morris.net.Client;
+import de.uni_jena.min.in0043.nine_mens_morris.net.LogInClient;
 
 public class ClientPoker {
 	
 	static Frame testFrame;
     static JButton poker;
-    static Client client;
+    static LogInClient client;
 
     private static void setUp() {
-    	client = new Client("gw.kjerkreit.org");
+    	client = new LogInClient("gw.kjerkreit.org");
     	testFrame = new Frame("ToyClient for nine men's morris");
         poker = new JButton("Poke client");
         	        

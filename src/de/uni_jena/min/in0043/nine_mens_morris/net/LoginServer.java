@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -59,9 +60,51 @@ public class LoginServer {
 	}
 	
 	
+	public boolean addUser(String[] user, String entry) {
+		log.entry();
+		
+		boolean retVal = false;
+		
+		if(cachedUserDb.get((String)user[0]) != null) {
+			log.error("a user '" + user[0] + "' already exists");
+		} else {
+			cachedUserDb.put(user[0], user[1]);
+			PrintWriter pw = null;
+			try {
+				pw = new PrintWriter(userDb);
+				pw.append(entry);
+				pw.flush();
+				retVal = true;
+				log.info("added '" + user[0] + "'");
+			} catch (FileNotFoundException e) {
+				log.error("caught " + e.getClass() + " while adding new user to db");
+			} finally {
+				log.debug("closing writer");
+				pw.close();
+			}
+		}
+		log.exit();
+		return retVal;
+	}
+	
+	private boolean checkUser(String[] user) {
+		boolean retVal = false;
+		
+		if(cachedUserDb.containsKey(user[0])
+				&& cachedUserDb.get((String)user[0]).equals(user[0])) {
+			retVal = true;
+			log.info("user '" + user[0] + "' has been authenticated");
+		} else {
+			log.warn("user '" + user[0] + "' has not been authenticated!");
+		}
+		
+		return retVal;
+	}
+	
 	public boolean logIn(Socket player) throws IOException {
 		log.entry();
 		
+		boolean retVal = false;
 		byte[] rcvBuf = new byte[3];
 		DataInputStream in = new DataInputStream(player.getInputStream());
 		DataOutputStream out = new DataOutputStream(player.getOutputStream());
@@ -70,21 +113,37 @@ public class LoginServer {
 		in.readFully(rcvBuf);
 
 		if(Arrays.equals(rcvBuf, ProtocolOperators.HELLO)) {
-			in.readUTF();
 			
+			in.readFully(rcvBuf);
+			if(Arrays.equals(rcvBuf, ProtocolOperators.EXISTING_USER)) {
+				log.debug("checking existing user");
+				if(checkUser(in.readUTF().split(","))) {
+					retVal = true;
+					out.write(ProtocolOperators.ACK);
+				} else {
+					out.write(ProtocolOperators.NACK);
+				}
+			} else if(Arrays.equals(rcvBuf, ProtocolOperators.NEW_USER)) {
+				log.debug("add new user");
+				String s = in.readUTF();
+				if(addUser(s.split(","), s)) {
+					retVal = true;
+				}
+			} else {
+				log.error("Protocol error: Illegal operator after initial 'HELLO'");
+			}
 			
+			// old
 			log.info("player verified");
 			out.write(ProtocolOperators.ACK);
 			
-			log.exit();
-			return true;
 		} else {
-			log.warn("player cannot be verified, closing socket");
+			log.error("Protocol error: no 'HELLO' received");
 			player.close();
-			
-			log.exit(false);
-			return false;
 		}
+		
+		log.exit();
+		return retVal;
 	}
 	
 	private void init(int port, String dbFileName) {

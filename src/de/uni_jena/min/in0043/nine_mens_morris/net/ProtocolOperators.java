@@ -3,6 +3,8 @@ package de.uni_jena.min.in0043.nine_mens_morris.net;
 public class ProtocolOperators {
 	// log in and log out
     public final static byte[] HELLO               = {0,0,0};
+    public final static byte[] EXISTING_USER       = {0,1,0};
+    public final static byte[] NEW_USER            = {0,1,1};
     public final static byte[] BYE                 = {4,0,0};
     
     /* 

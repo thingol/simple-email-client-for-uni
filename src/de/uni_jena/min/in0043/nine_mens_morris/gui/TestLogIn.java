@@ -124,45 +124,40 @@ public class TestLogIn extends Panel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if(!nextLine) {
-		 user = username.getText();
-		 pass = password.getPassword();
-		 String g = "\nUsername: " + user + "\nPassword: ";
-		 for(int i = 0; i < pass.length; i++) {
-			 g += pass[i];
-		 }
-		 log.debug(g + "\nNewUser: " + newU);
-		 
-		 if(newUser == e.getSource()){
-			 if(newU == false)
-			 newU = true;
-			 else newU = false;
-		 }
-		 if( ok == e.getSource())
-		 {
-			 if(newU == true)
-			 {
-				 boolean register = client.register(user, pass);
-				 if(!register)
-					 log.trace("Username taken");
-				 else { pass = null;
-				 		nextLine = true;
-				 		this.LoggingIn(); }
-			 }
-			 else {
-				 boolean login = client.loggingIn(user, pass);
-				 if(login) { pass = null;
-				 			 nextLine = true;
-				 			 this.LoggingIn(); }
-				 else log.trace("Wrong user, password combination");
-			 }
-		 }
-		 else if( cancel == e.getSource())
-		 {
-			 client.disconnect();
-			 System.exit(0);
-		 }
-		}//!newline
-		else {
+			user = username.getText();
+			pass = password.getPassword();
+			log.debug("Username: " + user + "\nPassword: " + new String(pass) + "NewUser: " + newU);
+
+			if(newUser == e.getSource()){
+				if(newU == false)
+					newU = true;
+				else newU = false;
+			}
+
+			if(ok == e.getSource()) {
+				if(newU == true) {
+					boolean register = client.loggingIn(user, pass, newU);
+					if(!register) {
+						log.trace("Username taken");
+					} else { pass = null;
+					nextLine = true;
+					this.LoggingIn();
+					}
+				} else {
+					boolean login = client.loggingIn(user, pass, newU);
+					if(login) { pass = null;
+					nextLine = true;
+					this.LoggingIn();
+					} else {
+						log.trace("Wrong user, password combination");
+					}
+				}
+			} else if(cancel == e.getSource()) {
+				client.disconnect();
+				System.exit(0);
+			}
+			//!newline
+		} else {
 			Object source = e.getSource();
 			int number = Integer.parseInt(((JButton)source).getText());
 			log.trace(number + " was pressed");

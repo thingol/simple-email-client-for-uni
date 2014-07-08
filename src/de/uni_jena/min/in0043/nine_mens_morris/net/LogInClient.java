@@ -6,6 +6,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,10 +17,11 @@ public class LogInClient extends Thread {
 	private Socket srv;
 	private DataInputStream input;
 	private DataOutputStream output;
+	private byte[] rcvBuf;
 	private static Logger log = LogManager.getLogger();
 	
 	public LogInClient() {
-		this("gw.kjerkreit.org", DEFAULT_PORT);
+		this("localhost", DEFAULT_PORT);
 	}
 	
 	public LogInClient(String hostName) {
@@ -28,6 +30,7 @@ public class LogInClient extends Thread {
 	
 	public LogInClient(String hostName, int port) {
 		try {
+			log.debug("connection to " + hostName + ":" + port);
 			srv = new Socket(hostName, port);
 			input = new DataInputStream(new BufferedInputStream(srv.getInputStream()));
 			output = new DataOutputStream(srv.getOutputStream());
@@ -36,15 +39,50 @@ public class LogInClient extends Thread {
 		} catch (IOException e) {
 			log.error("caught IOException while setting up");
 		}
+		rcvBuf = new byte[3];
 	}
 	
-	public boolean loggingIn(String user, char[] pass) {
-		return false;
+	private boolean initiateHandshake(boolean newUser) throws IOException {
+		log.entry();
+		boolean retVal = false;
+		
+		output.write(ProtocolOperators.HELLO);
+		if(newUser) {
+			log.debug("new user");
+			output.write(ProtocolOperators.NEW_USER);
+		} else {
+			output.write(ProtocolOperators.EXISTING_USER);
+			log.debug("old user");
+		}
+		input.readFully(rcvBuf);
+		
+		if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
+			retVal = true;
+			log.debug("handshake went ok");
+		}
+	
+		log.exit();
+		return retVal;
 	}
 	
-	public boolean register(String user, char[] pass) {
-		return false;
+	public boolean loggingIn(String user, char[] pass, boolean newUser) {
+		log.entry();
+		boolean retVal = false;
+		try {
+			if(initiateHandshake(newUser)) {
+				output.writeUTF(user+","+new String(pass));
+				input.readFully(rcvBuf);
+				if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
+					retVal = true;
+				}
+			}
+		} catch (IOException e) {
+			log.error("caught " + e.getClass() + " while logging in");
+		}
+		log.exit();
+		return retVal;
 	}
+	
 	
 	public void playWith(int number) {
 		

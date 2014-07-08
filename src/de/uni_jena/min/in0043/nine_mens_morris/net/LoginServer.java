@@ -2,6 +2,7 @@ package de.uni_jena.min.in0043.nine_mens_morris.net;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
@@ -14,7 +15,8 @@ public class LoginServer {
 	
 	private static Logger log = LogManager.getLogger();
 	private static final int DEFAULT_PORT = 6112;
-	private static final String DEFAULT_USER_DB = "user.db";
+	private static final String DEFAULT_USER_DB_FNAME = "user.db";
+	private File userDb;
 
 	private ServerSocket server;
 	
@@ -28,6 +30,14 @@ public class LoginServer {
 				System.exit(1);
 			}
 		}
+		
+		userDb = new File(DEFAULT_USER_DB_FNAME);
+		if(!userDb.exists()) {
+			userDb.createNewFile();
+		}
+		
+		
+		
 	}
 	
 	public LoginServer() {

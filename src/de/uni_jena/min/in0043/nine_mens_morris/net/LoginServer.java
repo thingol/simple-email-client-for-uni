@@ -1,6 +1,5 @@
 package de.uni_jena.min.in0043.nine_mens_morris.net;
 
-import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,9 +13,8 @@ import org.apache.logging.log4j.Logger;
 public class LoginServer {
 	
 	private static Logger log = LogManager.getLogger();
-	private static final int MAX_GAMES = 32;
 	private static final int DEFAULT_PORT = 6112;
-	private int gameCount = 0;
+	private static final String DEFAULT_USER_DB = "user.db";
 
 	private ServerSocket server;
 	
@@ -41,12 +39,12 @@ public class LoginServer {
 		log.entry(player);
 		
 		byte[] rcvBuf = new byte[3];
-		DataInputStream in = new DataInputStream(new BufferedInputStream(player.getInputStream()));
+		DataInputStream in = new DataInputStream(player.getInputStream());
 		DataOutputStream out = new DataOutputStream(player.getOutputStream());
 		
 		log.trace("verifying player");
 		in.readFully(rcvBuf);
-		log.trace("received [" + rcvBuf[0] + "," + rcvBuf[1] + "," + rcvBuf[2] + "]");
+
 		if(rcvBuf[0] != 0) {
 			log.warn("player cannot be verified, closing socket");
 			player.close();
@@ -68,30 +66,20 @@ public class LoginServer {
 		while (true) {
 
 			log.trace("top of main loop");
-			GameServer gameThread;
-			boolean player0_verified = false;
-			boolean player1_verified = false;
-			Socket player0;
-			Socket player1;
+			Socket player;
 			
 			try {
 				
-				do {
-					player0 = server.accept();
-					log.info("first player connected from " + player0.getInetAddress().getHostAddress());
-					player0_verified = logIn(player0);
-				} while (!player0_verified);
-				
-				do {
-					player1 = server.accept();
-					log.info("second player connected from " + player1.getInetAddress().getHostAddress());
-					player1_verified = logIn(player1);
-				} while(!player1_verified);
-				
-				gameThread = new GameServer(System.currentTimeMillis(), player0, player1);
-				gameThread.start();
-				gameCount++;
-				log.trace("number of games started: " + gameCount);
+				player = server.accept();
+				log.info("player connected from " + player.getInetAddress().getHostAddress());
+				if(logIn(player)) {
+					log.info("login successful");
+					
+				} else {
+					log.info("login failed");
+					player.close();
+				}
+
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -1,11 +1,8 @@
 package de.uni_jena.min.in0043.nine_mens_morris.net;
 
-import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.Socket;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -20,16 +17,16 @@ public class GameServer extends Thread {
 
 	private static Logger log = LogManager.getLogger();
 	private Logic logic;
-	private Socket[] players = new Socket[2];
+	private LoggedInUser[] players = new LoggedInUser[2];
 	private DataInputStream w_in, b_in, curr_in;
-	private OutputStream w_out, b_out, curr_out;
+	private DataOutputStream w_out, b_out, curr_out;
 	private GameServerState state = GameServerState.WAITING_TO_START;
 	private final long sid;
 	private byte[] rcvBuf = new byte[3];
 	private final static Random rg = new Random();
 	private boolean twoPlayers = false;
 
-	public GameServer(long sid, Socket player0, Socket player1) {
+	public GameServer(long sid, LoggedInUser player0, LoggedInUser player1) {
 		ThreadContext.put("sID", "" + sid);
 		log.entry(sid, player0, player1);
 		this.sid = sid;
@@ -249,10 +246,10 @@ public class GameServer extends Thread {
     	log.trace("assigning colours to players and getting network streams");
     	log.trace("player[" + (1 - ran) + "] is white");
     	try {
-    		w_in = new DataInputStream(new BufferedInputStream(players[1 - ran].getInputStream()));
-    		w_out = new DataOutputStream(players[1 - ran].getOutputStream());
-    		b_in = new DataInputStream(new BufferedInputStream(players[ran].getInputStream()));
-    		b_out = new DataOutputStream(players[ran].getOutputStream());
+    		w_in = players[1 - ran].getInputStream();
+    		w_out = players[1 - ran].getOutputStream();
+    		b_in = players[ran].getInputStream();
+    		b_out = players[ran].getOutputStream();
     	
     		log.trace("notifying client of colour");
     		w_out.write(ProtocolOperators.IS_WHITE);

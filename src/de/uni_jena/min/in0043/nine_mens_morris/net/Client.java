@@ -345,6 +345,11 @@ public class Client extends Thread implements Game {
 	 */
 	public void run() {
 		synchronized (lock) {
+			while(state == ClientState.LOGIN) {
+				
+			}
+		}
+		synchronized (lock) {
 			while(display == null) {
 				log.debug("waiting for display");
 				try {

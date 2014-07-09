@@ -26,7 +26,7 @@ public class LogInClient extends Thread {
 	private volatile byte[] rcvBuf = new byte[3];
 	private Object lock = new Object();
 	private ClientState state = ClientState.WAITING;
-	private TestLogIn  display;
+	private TestLogIn display;
 
 	private boolean cmdSent;
 	private boolean login; //If Player didnt enter username/pw yet
@@ -67,16 +67,6 @@ public class LogInClient extends Thread {
     	log.exit();
 		
 	}
-	
-	private void msgExchange(int op, int opnd0, int opnd1) {
-		log.entry();
-		cmdBuf = new byte[]{(byte) op, (byte) opnd0, (byte) opnd1};
-    	log.debug("sending " + Arrays.toString(cmdBuf));
-    	sendMsg();
-    	receiveMsg();
-    	log.debug("received " + Arrays.toString(rcvBuf));
-    	log.exit();
-	}
 
 	private void receiveMsg() {
 		log.entry();
@@ -113,32 +103,27 @@ public class LogInClient extends Thread {
 				log.debug("LogIn suceeded");
 				retVal = 1;
 				break;
-			}
-			else {
-			int opn = rcvBuf[2];
-			switch(opn) {
-			case 0x00:
-				log.debug("LogIn failed due to unknown reasons!");
-				retVal = 0;
-				break;
-			case 0x01:
+			} else if (Arrays.equals(rcvBuf, ProtocolOperators.WRONG_CREDS)) {
 				log.debug("Wrong User/Password Combination!");
 				retVal = 2;
 				break;
-			case 0x02:
+			} else if (Arrays.equals(rcvBuf, ProtocolOperators.LOGGED_IN)) {
 				log.debug("You are already logged in!");
 				retVal = 3;
 				break;
-			case 0x03:
+			} else if (Arrays.equals(rcvBuf, ProtocolOperators.NACK)) {
+				log.debug("LogIn failed due to unknown reasons!");
+				retVal = 0;
+				break;
+			} else if (Arrays.equals(rcvBuf, ProtocolOperators.SERVER_FULL)) {
 				log.debug("Server is full, sorry!");
 				retVal = 4;
 				break;
-			default:
+			} else {
 				log.debug("What happened?");
 				retVal = -128;
 			}
 			break;
-			}
 		case 0x14:
 			log.debug("We sent a playWith");
 			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
@@ -251,10 +236,9 @@ public class LogInClient extends Thread {
 	}
 	
 	public void acceptChallenge(boolean g) {
-		cmdBuf[0] = 0x16;
-		if(g) cmdBuf[1] = 0x00;
-		else cmdBuf[1] = 0x01;
-		cmdBuf[2] = 0x00;
+		if(g) cmdBuf = ProtocolOperators.ACK;
+		else cmdBuf = ProtocolOperators.NACK;
+		sendMsg();
 	}
 
 }

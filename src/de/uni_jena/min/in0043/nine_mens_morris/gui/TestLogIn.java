@@ -74,7 +74,6 @@ public class TestLogIn extends Panel implements ActionListener {
 	}
 	
 	public void init() {
-//		client.hello();
 		this.LoggingIn();
 	}
 	

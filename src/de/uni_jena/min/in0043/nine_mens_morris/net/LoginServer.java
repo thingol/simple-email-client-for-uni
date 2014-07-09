@@ -30,6 +30,7 @@ public class LoginServer {
 	private File userDb;
 	private HashMap<String, String> cachedUserDb;
 	private Lobby lobby;
+	private int usersAuthenticated = 0;
 
 	
 	
@@ -126,9 +127,10 @@ public class LoginServer {
 				String s = in.readUTF();
 				String[] userinfo = s.split(",");
 				if(checkUser(userinfo)) {
+					usersAuthenticated++;
 					retVal = true;
 					out.write(ProtocolOperators.ACK);
-					lobby.add(new LoggedInUser(userinfo[0], player, in, out));
+					lobby.add(new LoggedInUser(usersAuthenticated, userinfo[0], player, in, out));
 				} else {
 					out.write(ProtocolOperators.NACK);
 				}
@@ -137,9 +139,10 @@ public class LoginServer {
 				String s = in.readUTF();
 				String[] userinfo = s.split(",");
 				if(addUser(userinfo, s)) {
+					usersAuthenticated++;
 					retVal = true;
 					out.write(ProtocolOperators.ACK);
-					lobby.add(new LoggedInUser(userinfo[0], player, in, out));
+					lobby.add(new LoggedInUser(usersAuthenticated,userinfo[0], player, in, out));
 				} else {
 					out.write(ProtocolOperators.NACK);
 				}

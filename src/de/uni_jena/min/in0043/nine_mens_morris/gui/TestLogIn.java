@@ -21,6 +21,9 @@ import de.uni_jena.min.in0043.nine_mens_morris.net.ProtocolOperators;
 
 public class TestLogIn extends Panel implements ActionListener {
 
+	/*
+	 * Attributes for Frame
+	 */
 	private static final long serialVersionUID = 8838423681956882828L;
 	private static Logger log = LogManager.getLogger();
 	private Frame screen;
@@ -28,19 +31,25 @@ public class TestLogIn extends Panel implements ActionListener {
 	private int height = 300;
 	private int width2 = 600;
 	private int height2 = 600;
+	/*
+	 * Attributes for Buttons
+	 */
 	private String user;
 	private char[] pass;
-	private boolean newU;
 	private JTextField username = new JTextField();
 	private JPasswordField password = new JPasswordField();
-	private JButton ok, cancel;
+	private JButton ok, cancel, refresh;
 	private JCheckBox newUser;
+	private List<JButton> Players;
+	private String DemPlayers;
+	public List<String> names;
+	/*
+	 * Other Attributes
+	 */
+	private boolean newU;
 	private boolean nextLine;
 	private LogInClient client;
-	private List<JButton> Players;
-	private int playerCount;
 	
-	public List<String> names;
 	
 	public TestLogIn()
 	{
@@ -55,6 +64,7 @@ public class TestLogIn extends Panel implements ActionListener {
 		pass = null;
 		ok = new JButton("Ok");
 		cancel = new JButton("Cancel");
+		refresh = new JButton("Refresh");
 		newUser = new JCheckBox("Register me!");
 		newU = false;
 		nextLine = false;
@@ -99,6 +109,7 @@ public class TestLogIn extends Panel implements ActionListener {
 		ok.addActionListener(this);
 		cancel.addActionListener(this);
 		newUser.addActionListener(this);
+		refresh.addActionListener(this);
 		
 		if(nextLine) {
 			screen.remove(username);
@@ -108,26 +119,28 @@ public class TestLogIn extends Panel implements ActionListener {
 			screen.remove(cancel);
 			screen.setSize(width2, height2);
 			
-//			String z = client.getPlayerList();
-			String z = "Hello|I|Am|No|Name|Noob";
+//			DemPlayers = client.getPlayerList();
+			DemPlayers = "Hello|I|Am|No|Name|Noob";
 			
-			playerCount = names.size();
 			JButton x;
 			String k = "";
 			screen.setLayout(new GridLayout(20, 0));
-			for(int i = 0; i < z.length(); i++) {
-				if(z.charAt(i) == '|') {
+			screen.add(refresh);
+			screen.add(this);
+			
+			for(int i = 0; i < DemPlayers.length(); i++) {
+				if(DemPlayers.charAt(i) == '|') {
 				JButton d = new JButton(k);
 				Players.add(d);
 				k = "";
 				}
-				else if(i == z.length()-1) {
-					k += z.charAt(i);
+				else if(i == DemPlayers.length()-1) {
+					k += DemPlayers.charAt(i);
 					JButton d = new JButton(k);
 					Players.add(d);
 					k = "";
 				}
-				else k += z.charAt(i);
+				else k += DemPlayers.charAt(i);
 			}
 			for(int i = 0; i < Players.size(); i++) {
 				names.add(Players.get(i).getText());
@@ -140,6 +153,33 @@ public class TestLogIn extends Panel implements ActionListener {
 			screen.setVisible(true);
 		}
 		
+	}
+	
+	private void refreshPlayer() {
+		String k = "";
+		JButton x;
+		for(int i = 0; i < DemPlayers.length(); i++) {
+			if(DemPlayers.charAt(i) == '|') {
+			JButton d = new JButton(k);
+			Players.add(d);
+			k = "";
+			}
+			else if(i == DemPlayers.length()-1) {
+				k += DemPlayers.charAt(i);
+				JButton d = new JButton(k);
+				Players.add(d);
+				k = "";
+			}
+			else k += DemPlayers.charAt(i);
+		}
+		for(int i = 0; i < Players.size(); i++) {
+			names.add(Players.get(i).getText());
+			x = Players.get(i);
+			screen.add(x);
+			Players.get(i).addActionListener(this);
+		}
+		screen.setVisible(false);
+		screen.setVisible(true);
 	}
 	
 	public void duel(int id) {
@@ -211,15 +251,22 @@ public class TestLogIn extends Panel implements ActionListener {
 		 }
 		}//!newline
 		else {
-			Object source = e.getSource();
-			int number = -1;
-			for(int i = 0; i < playerCount; i++) {
-				if(((JButton)source).getText().equals(names.get(i)))
-					number = i;
+			if(refresh == e.getSource()) {
+				log.debug(DemPlayers);
+				DemPlayers = client.getPlayerList();
+				this.refreshPlayer();
 			}
-			log.trace(number + " was pressed");
-//			client.playWith(number);
+			else {
+				Object source = e.getSource();
+				int number = -1;
+				for(int i = 0; i < Players.size(); i++) {
+					if(((JButton)source).getText().equals(names.get(i)))
+						number = i;
+					}
+				log.trace(number + " was pressed");
+//				client.playWith(number);
 			//TODO an den Server senden
+			}
 		}
 	}
 }

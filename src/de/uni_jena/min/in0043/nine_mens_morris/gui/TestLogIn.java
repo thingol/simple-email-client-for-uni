@@ -49,6 +49,7 @@ public class TestLogIn extends Panel implements ActionListener {
 	private boolean newU;
 	private boolean nextLine;
 	private LogInClient client;
+	private int id;
 	
 	
 	public TestLogIn()
@@ -156,11 +157,19 @@ public class TestLogIn extends Panel implements ActionListener {
 	private void refreshPlayer() {
 		String k = "";
 		JButton x;
+		boolean me = false;
 		for(int i = 0; i < DemPlayers.length(); i++) {
-			if(DemPlayers.charAt(i) == '|') {
-			JButton d = new JButton(k);
-			Players.add(d);
-			k = "";
+			if(DemPlayers.charAt(i) == ',') {
+				if(!k.equals(user)) {
+					JButton d = new JButton(k);
+					Players.add(d);
+					} else {
+						me = true;
+					}
+				k = "";
+			} else if (DemPlayers.charAt(i) == ';') {
+				if(me) id = Integer.parseInt(k);
+				k = "";
 			}
 			else if(i == DemPlayers.length()-1) {
 				k += DemPlayers.charAt(i);
@@ -180,11 +189,12 @@ public class TestLogIn extends Panel implements ActionListener {
 		screen.setVisible(true);
 	}
 	
-	public void challenged(int id) {
+	public void challenged(int id2) {
+		if(id <= id2) id2++;
 		Object[] opt = {"Yes",
 				"No"};
 		int n2 = JOptionPane.showOptionDialog(this,
-				names.get(id-1) + " challenges you to a fight?",
+				names.get(id2-1) + " challenges you to a fight?",
 				"Duel Dialog",
 				JOptionPane.YES_NO_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE,
@@ -268,6 +278,7 @@ public class TestLogIn extends Panel implements ActionListener {
 						number = i;
 					}
 				log.trace(number + " was pressed");
+				if(number >= id) number++;
 				int worked = client.challenge(number);
 				if(worked == 1)
 					log.debug("Commencing challenge");//TODO Client mit Head aufbauen

@@ -230,7 +230,8 @@ public class LogInClient extends Thread {
 		}
 		try {
 		sendMsg();
-		output.writeChars(UP);
+		log.entry("Writing " + UP + " to Server");
+		output.writeUTF(UP);
 		receiveMsg();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -251,6 +252,11 @@ public class LogInClient extends Thread {
 		sendMsg();
 		//TODO I don't even know if this works LOL
 		ClientTest.main(null);
+	}
+
+	public void hello() {
+		cmdBuf = ProtocolOperators.HELLO;
+		sendMsg();
 	}
 
 }

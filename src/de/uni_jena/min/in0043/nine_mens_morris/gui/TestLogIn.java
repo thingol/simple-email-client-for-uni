@@ -75,6 +75,7 @@ public class TestLogIn extends Panel implements ActionListener {
 	}
 	
 	public void init() {
+		client.hello();
 		this.LoggingIn();
 	}
 	
@@ -236,10 +237,10 @@ public class TestLogIn extends Panel implements ActionListener {
 		 }
 		 if( ok == e.getSource())
 		 {
-			 String G = user+ "|" + passS;
+			 String G = user+ "," + passS;
+			 log.debug("G: " + G);
 			 if(newU == true)
 			 {
-				 log.debug("G: " + G);
 				 int register = client.sendLogIn(G, true);
 				 if(register == 1)
 					 { pass = null;

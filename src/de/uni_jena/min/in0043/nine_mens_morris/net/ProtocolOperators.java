@@ -74,4 +74,6 @@ public class ProtocolOperators {
     public final static byte[] UNKNOW_OP           = {-1,-1,-3};
     public final static byte[] ILLEGAL_OP          = {-1,-1,-2};
     public final static byte[] GENERAL_ERROR       = {-1,-1,-1};
+	public static final byte[] NO_RESPONSE         = {-1, 1, 4};
+	public static final byte[] DECLINED            = {-1, 1, 5};
 }

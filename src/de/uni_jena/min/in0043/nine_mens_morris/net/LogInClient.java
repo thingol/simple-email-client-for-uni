@@ -106,28 +106,30 @@ public class LogInClient extends Thread {
 		int retVal;
 		
 		switch(i) {
-		case 0xFE:
-			log.debug("We tried to log in");
+		case 0x00:
+			log.debug("We said hello and tried to log in");
 			log.debug("rcvBuf = " + Arrays.toString(rcvBuf)); 
-			int opn = rcvBuf[1];
-			switch(opn) {
-			case 0x00:
-				log.debug("LogIn suceeded!");
+			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
+				log.debug("LogIn suceeded");
 				retVal = 1;
 				break;
-			case 0x01:
+			}
+			else {
+			int opn = rcvBuf[2];
+			switch(opn) {
+			case 0x00:
 				log.debug("LogIn failed due to unknown reasons!");
 				retVal = 0;
 				break;
-			case 0x02:
+			case 0x01:
 				log.debug("Wrong User/Password Combination!");
 				retVal = 2;
 				break;
-			case 0x03:
+			case 0x02:
 				log.debug("You are already logged in!");
 				retVal = 3;
 				break;
-			case 0x04:
+			case 0x03:
 				log.debug("Server is full, sorry!");
 				retVal = 4;
 				break;
@@ -136,8 +138,9 @@ public class LogInClient extends Thread {
 				retVal = -128;
 			}
 			break;
-		case 5:
-			log.debug("we sent a playWith");
+			}
+		case 0x14:
+			log.debug("We sent a playWith");
 			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
 				log.debug("and got back an ACK");
 				retVal = 1;
@@ -146,6 +149,10 @@ public class LogInClient extends Thread {
 				log.debug("and got back a NACK");
 				retVal = 0;
 				break;
+			} else if(Arrays.equals(rcvBuf, ProtocolOperators.NO_RESPONSE)) {
+				log.debug("lol no response");
+			} else if(Arrays.equals(rcvBuf, ProtocolOperators.DECLINED)) {
+				log.debug("Declined! Guess you aren't allowed to");
 			}
 			log.debug("and got back something funny");
 		default:
@@ -214,7 +221,7 @@ public class LogInClient extends Thread {
 		sendMsg();
 	}
 	
-	public int sendLogin(String UP, boolean newUser) {
+	public int sendLogIn(String UP, boolean newUser) {
 		int retVal;
 		if(newUser) {
 			cmdBuf[0] = 0;
@@ -235,6 +242,19 @@ public class LogInClient extends Thread {
 		}
 		retVal = parseResponse();
 		return retVal;
+	}
+
+	public int duel(int number) {
+		msgExchange(0x14, number);
+		int retVal = parseResponse();
+		return retVal;
+	}
+	
+	public void acceptChallenge(boolean g) {
+		cmdBuf[0] = 0x16;
+		if(g) cmdBuf[1] = 0x00;
+		else cmdBuf[1] = 0x01;
+		cmdBuf[2] = 0x00;
 	}
 
 }

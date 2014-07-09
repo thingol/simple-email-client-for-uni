@@ -193,8 +193,14 @@ public class TestLogIn extends Panel implements ActionListener {
 				null,
 				opt,
 				opt[1]);
-		if(n2 == 0) log.trace("Accepted the duel for life and death");//TODO Send yes to server
-		else if (n2 == 1) log.trace("Declined the duel"); //TODO Send no to server 
+		if(n2 == 0) {
+			log.trace("Accepted the duel for life and death");
+			client.acceptChallenge(true);
+		}
+		else if (n2 == 1) {
+			log.trace("Declined the duel");
+			client.acceptChallenge(false);
+		}
 	}
 	
 	public static void main(String[] args)
@@ -209,10 +215,11 @@ public class TestLogIn extends Panel implements ActionListener {
 		 user = username.getText();
 		 pass = password.getPassword();
 		 String g = "\nUsername: " + user + "\nPassword: ";
+		 String passS="";
 		 for(int i = 0; i < pass.length; i++) {
-			 g += pass[i];
+			 passS += pass[i];
 		 }
-		 log.debug(g + "\nNewUser: " + newU);
+		 log.debug(g + passS + "\nNewUser: " + newU);
 		 
 		 if(newUser == e.getSource()){
 			 if(newU == false)
@@ -221,11 +228,11 @@ public class TestLogIn extends Panel implements ActionListener {
 		 }
 		 if( ok == e.getSource())
 		 {
+			 String G = user+ "|" + passS;
 			 if(newU == true)
 			 {
-				 String G = user+ "|" + g;
 				 log.debug("G: " + G);
-				 int register = client.sendLogin(G, true);
+				 int register = client.sendLogIn(G, true);
 				 if(register == 1)
 					 { pass = null;
 					 nextLine = true;
@@ -233,15 +240,14 @@ public class TestLogIn extends Panel implements ActionListener {
 				 else log.trace("Username taken");
 			 }
 			 else {
-				 byte login = 0;
-//				 byte login = client.loggingIn(user, pass);
-				 if(login == 0) { pass = null;
+				 int login = client.sendLogIn(G, false);
+				 if(login == 1) { pass = null;
 				 			 nextLine = true;
 				 			 this.LoggingIn(); }
-				 else if(login == -1) log.trace("Wrong user, password combination");
-				 else if(login == -2) log.trace("Login failed, general error");
-				 else if(login == -3) log.trace("You are already logged in");
-				 else if(login == -4) log.trace("Server is full, please try again later!");
+				 else if(login == 2) log.trace("Wrong user, password combination");
+				 else if(login == 3) log.trace("You are already logged in");
+				 else if(login == 4) log.trace("Server is full, please try again later!");
+				 else if(login == 0) log.trace("Login failed, general error");
 			 }
 		 }
 		 else if( cancel == e.getSource())
@@ -264,7 +270,7 @@ public class TestLogIn extends Panel implements ActionListener {
 						number = i;
 					}
 				log.trace(number + " was pressed");
-//				client.playWith(number);
+				int worked = client.duel(number);
 			//TODO an den Server senden
 			}
 		}

@@ -17,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.uni_jena.min.in0043.nine_mens_morris.net.LogInClient;
+import de.uni_jena.min.in0043.nine_mens_morris.net.ProtocolOperators;
 
 public class TestLogIn extends Panel implements ActionListener {
 
@@ -43,6 +44,11 @@ public class TestLogIn extends Panel implements ActionListener {
 	
 	public TestLogIn()
 	{
+		this(new LogInClient("gw.kjerkreit.org"));
+	}
+	
+	public TestLogIn(LogInClient G)
+	{
 		screen = new Frame("LogIn Menu");
 		screen.setSize(width, height);
 		user = null;
@@ -54,7 +60,12 @@ public class TestLogIn extends Panel implements ActionListener {
 		nextLine = false;
 		Players = new ArrayList<JButton>();
 		names = new ArrayList<String>();
-		client = new LogInClient("gw.kjerkreit.org");
+		client = G;
+	}
+	
+	public void init() {
+//		client.hello();
+		this.LoggingIn();
 	}
 	
 	public void LoggingIn() {
@@ -97,16 +108,24 @@ public class TestLogIn extends Panel implements ActionListener {
 			screen.remove(cancel);
 			screen.setSize(width2, height2);
 			
-			for(int i = 0; i < 20; i++) {
-				names.add("Hans" + i);
-			}
+//			String z = client.getPlayerList();
+			String z = "Hello|I|Am|No|Name|Noob";
 			
 			playerCount = names.size();
 			JButton x;
-			for(int i = 0; i < playerCount; i++) {
-				screen.setLayout(new GridLayout(playerCount, 0));
-				JButton d = new JButton(names.get(i));
+			String k = "";
+			screen.setLayout(new GridLayout(20, 0));
+			for(int i = 0; i < z.length(); i++) {
+				log.trace(k);
+				if(z.charAt(i) == '|') {
+				JButton d = new JButton(k);
 				Players.add(d);
+				k = "";
+				}
+				else k += z.charAt(i);
+			}
+			for(int i = 0; i < Players.size(); i++) {
+				names.add(Players.get(i).getText());
 				x = Players.get(i);
 				screen.add(x);
 				Players.get(i).addActionListener(this);
@@ -122,7 +141,7 @@ public class TestLogIn extends Panel implements ActionListener {
 		Object[] opt = {"Yes",
 				"No"};
 		int n2 = JOptionPane.showOptionDialog(this,
-				names.get(id) + " challenges you to a fight?",
+				names.get(id-1) + " challenges you to a fight?",
 				"Duel Dialog",
 				JOptionPane.YES_NO_CANCEL_OPTION,
 				JOptionPane.QUESTION_MESSAGE,
@@ -136,7 +155,7 @@ public class TestLogIn extends Panel implements ActionListener {
 	public static void main(String[] args)
 	{
 		TestLogIn G = new TestLogIn();
-		G.LoggingIn();
+		G.init();
 	}
 
 	@Override
@@ -159,9 +178,10 @@ public class TestLogIn extends Panel implements ActionListener {
 		 {
 			 if(newU == true)
 			 {
-				 boolean register = true;
-//				 boolean register = client.register(user, pass);
-				 if(register)
+				 String G = user+ "|" + g;
+				 log.debug("G: " + G);
+				 int register = client.sendLogin(G, true);
+				 if(register == 1)
 					 { pass = null;
 					 nextLine = true;
 					 this.LoggingIn(); }

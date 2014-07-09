@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.uni_jena.min.in0043.nine_mens_morris.gui.TestLogIn;
+import de.uni_jena.min.in0043.nine_mens_morris.test.ClientTest;
 
 public class LogInClient extends Thread {
 
@@ -41,6 +42,7 @@ public class LogInClient extends Thread {
 			srv = new Socket(hostName, port);
 			input = new DataInputStream(new BufferedInputStream(srv.getInputStream()));
 			output = new DataOutputStream(srv.getOutputStream());
+			display = null;
 		} catch (UnknownHostException e) {
 			log.error("Unkown host: " + hostName);
 		} catch (IOException e) {
@@ -124,7 +126,7 @@ public class LogInClient extends Thread {
 				retVal = -128;
 			}
 			break;
-		case 0x14:
+		case 0x1A:
 			log.debug("We sent a playWith");
 			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
 				log.debug("and got back an ACK");
@@ -144,6 +146,9 @@ public class LogInClient extends Thread {
 			// shouldn't happen, but hey
 			log.debug("this really shouldn't happen");
 			retVal = -128;
+		}
+		if(rcvBuf[0] == 0x1A) {
+			display.challenged(rcvBuf[1]);
 		}
 		log.exit(retVal);
 		return retVal;
@@ -188,9 +193,14 @@ public class LogInClient extends Thread {
 	}
 
 	public String getPlayerList() {
-		msgExchange(6, 0);
+		cmdBuf[0] = 0x1B;
+		cmdBuf[1] = 0;
+		cmdBuf[2] = 0;
+		log.entry("Trying to send " + cmdBuf.toString());
+		sendMsg();
 		String g = "";
 		try {
+			if(input.available() != 0)
 			g = input.readUTF();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -229,8 +239,8 @@ public class LogInClient extends Thread {
 		return retVal;
 	}
 
-	public int duel(int number) {
-		msgExchange(0x14, number);
+	public int challenge(int number) {
+		msgExchange(0x1A, number);
 		int retVal = parseResponse();
 		return retVal;
 	}
@@ -239,6 +249,8 @@ public class LogInClient extends Thread {
 		if(g) cmdBuf = ProtocolOperators.ACK;
 		else cmdBuf = ProtocolOperators.NACK;
 		sendMsg();
+		//TODO I don't even know if this works LOL
+		ClientTest.main(null);
 	}
 
 }

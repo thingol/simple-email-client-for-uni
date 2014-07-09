@@ -78,6 +78,7 @@ public class TestLogIn extends Panel implements ActionListener {
 	}
 	
 	public void LoggingIn() {
+		client.addDisplay(this);
 		screen.setLayout(null);
 		username.setBounds(width/2 - 100, height/2 - 15, 200, 30);
 		password.setBounds(width/2 - 100, height/2 + 15, 200, 30);
@@ -118,8 +119,7 @@ public class TestLogIn extends Panel implements ActionListener {
 			screen.remove(cancel);
 			screen.setSize(width2, height2);
 			
-//			DemPlayers = client.getPlayerList();
-			DemPlayers = "Hello|I|Am|No|Name|Noob";
+			DemPlayers = client.getPlayerList();
 			
 			JButton x;
 			String k = "";
@@ -147,7 +147,6 @@ public class TestLogIn extends Panel implements ActionListener {
 				screen.add(x);
 				Players.get(i).addActionListener(this);
 			}
-			duel(5); //TODO delete
 			screen.setVisible(false);
 			screen.setVisible(true);
 		}
@@ -181,7 +180,7 @@ public class TestLogIn extends Panel implements ActionListener {
 		screen.setVisible(true);
 	}
 	
-	public void duel(int id) {
+	public void challenged(int id) {
 		Object[] opt = {"Yes",
 				"No"};
 		int n2 = JOptionPane.showOptionDialog(this,
@@ -269,8 +268,11 @@ public class TestLogIn extends Panel implements ActionListener {
 						number = i;
 					}
 				log.trace(number + " was pressed");
-				int worked = client.duel(number);
-			//TODO an den Server senden
+				int worked = client.challenge(number);
+				if(worked == 1)
+					log.debug("Commencing challenge");//TODO Client mit Head aufbauen
+				else if(worked == 0)
+					log.debug("Declined");
 			}
 		}
 	}

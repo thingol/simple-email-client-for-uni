@@ -68,12 +68,14 @@ public class ProtocolOperators {
     
     // sent by server to indicate an illegal or impossible move
     public final static byte[] NACK                = {-2,1,0};
-//    public final static byte[] ACK_w_mill          = {-2,-1,0};
+    public static final byte[] WRONG_CREDS         = {-2, 1, 1};
+    public static final byte[] LOGGED_IN           = {-2, 1, 2};
+    public static final byte[] SERVER_FULL         = {-2, 1, 3};
+    public static final byte[] NO_RESPONSE         = {-2, 1, 4};
+    public static final byte[] DECLINED            = {-2, 1, 5};
     
     // should not be needed
     public final static byte[] UNKNOW_OP           = {-1,-1,-3};
     public final static byte[] ILLEGAL_OP          = {-1,-1,-2};
     public final static byte[] GENERAL_ERROR       = {-1,-1,-1};
-	public static final byte[] NO_RESPONSE         = {-1, 1, 4};
-	public static final byte[] DECLINED            = {-1, 1, 5};
 }

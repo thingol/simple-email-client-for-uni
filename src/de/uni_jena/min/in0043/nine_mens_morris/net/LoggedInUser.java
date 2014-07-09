@@ -12,14 +12,22 @@ public class LoggedInUser {
 	private DataInputStream in;
 	private DataOutputStream out;
 	private boolean playing;
+	private volatile boolean challenged;
+	private int id;
 	
 	
-	public LoggedInUser(String username, Socket sock, DataInputStream in, DataOutputStream out) {
+	public LoggedInUser(int id, String username, Socket sock, DataInputStream in, DataOutputStream out) {
+		this.id = id;
 		this.username = username;
 		this.sock = sock;
 		this.in = in;
 		this.out = out;
+		this.challenged  = false;
 		this.playing = false;
+	}
+	
+	public int getID() {
+		return this.id;
 	}
 	
 	public String getUsername() {
@@ -34,12 +42,32 @@ public class LoggedInUser {
 		return this.out;
 	}
 	
+	public Socket getSocket() {
+		return this.sock;
+	}
+	
 	public void close() throws IOException {
 		this.sock.close();
 	}
 	
 	public boolean isPlaying() {
 		return this.playing;
+	}
+	
+	public void isPlaying(boolean b) {
+		this.playing = b;
+	}
+	
+	public boolean isChallenged() {
+		return this.challenged;
+	}
+	
+	public void isChallenged(boolean b) {
+		this.challenged = b;
+	}
+	
+	public String toString() {
+		return this.username;
 	}
 
 }

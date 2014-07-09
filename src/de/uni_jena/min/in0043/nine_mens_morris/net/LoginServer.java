@@ -98,7 +98,7 @@ public class LoginServer {
 		boolean retVal = false;
 		
 		if(cachedUserDb.containsKey(user[0])
-				&& cachedUserDb.get((String)user[0]).equals(user[0])) {
+				&& cachedUserDb.get((String)user[0]).equals(user[1])) {
 			retVal = true;
 			log.info("user '" + user[0] + "' has been authenticated");
 		} else {

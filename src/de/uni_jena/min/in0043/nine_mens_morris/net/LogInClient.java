@@ -1,9 +1,10 @@
 package de.uni_jena.min.in0043.nine_mens_morris.net;
 
-import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -19,6 +20,8 @@ public class LogInClient extends Thread {
 	private DataOutputStream output;
 	private byte[] rcvBuf;
 	private static Logger log = LogManager.getLogger();
+	private String hostname;
+	private int port;
 	
 	public LogInClient() {
 		this("localhost", DEFAULT_PORT);
@@ -29,22 +32,15 @@ public class LogInClient extends Thread {
 	}
 	
 	public LogInClient(String hostName, int port) {
-		try {
-			log.debug("connection to " + hostName + ":" + port);
-			srv = new Socket(hostName, port);
-			input = new DataInputStream(new BufferedInputStream(srv.getInputStream()));
-			output = new DataOutputStream(srv.getOutputStream());
-		} catch (UnknownHostException e) {
-			log.error("Unkown host: " + hostName);
-		} catch (IOException e) {
-			log.error("caught IOException while setting up");
-		}
+		this.hostname = hostName;
+		this.port = port;
+		
 		rcvBuf = new byte[3];
 	}
 	
 	private boolean initiateHandshake(boolean newUser) throws IOException {
 		log.entry();
-		boolean retVal = false;
+		boolean retVal = true;
 		
 		output.write(ProtocolOperators.HELLO);
 		if(newUser) {
@@ -54,12 +50,12 @@ public class LogInClient extends Thread {
 			output.write(ProtocolOperators.EXISTING_USER);
 			log.debug("old user");
 		}
-		input.readFully(rcvBuf);
+		/*input.readFully(rcvBuf);
 		
 		if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
 			retVal = true;
 			log.debug("handshake went ok");
-		}
+		}*/
 	
 		log.exit();
 		return retVal;
@@ -69,9 +65,22 @@ public class LogInClient extends Thread {
 		log.entry();
 		boolean retVal = false;
 		try {
+			log.debug("connection to " + hostname + ":" + port);
+			srv = new Socket(hostname, port);
+			input = new DataInputStream(srv.getInputStream());
+			output = new DataOutputStream(srv.getOutputStream());
+		} catch (UnknownHostException e) {
+			log.error("Unkown host: " + hostname);
+		} catch (IOException e) {
+			log.error("caught IOException while setting up");
+		}
+		
+		try {
 			if(initiateHandshake(newUser)) {
 				output.writeUTF(user+","+new String(pass));
 				input.readFully(rcvBuf);
+				
+				log.debug("received " + Arrays.toString(rcvBuf) + "from server");
 				if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
 					retVal = true;
 				}
@@ -88,11 +97,32 @@ public class LogInClient extends Thread {
 		
 	}
 	
-	public void updateList() {
-		
+	public String updateList() {
+		String s = "ups";
+		try {
+			log.debug("requsting user list");
+			output.write(ProtocolOperators.GET_USERLIST);
+			log.debug("receiving");
+			System.out.println("there's this much waiting for us: " + input.available());
+			s = new BufferedReader(new InputStreamReader(input, "utf-8")).readLine();
+			//s = input.readUTF();
+			log.debug("received " + s);
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return s;
 	}
 	
 	public boolean disconnect() {
+		
+		try {
+			srv.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return true;
 	}
 }

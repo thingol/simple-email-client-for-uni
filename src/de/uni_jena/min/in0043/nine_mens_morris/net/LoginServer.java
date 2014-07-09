@@ -20,16 +20,20 @@ public class LoginServer {
 	
 	private static Logger log = LogManager.getLogger();
 	private boolean running = true;
+	
 	private static final int DEFAULT_PORT = 6112;
 	private int port = -1;
+	private ServerSocket server;
+	
 	private static final String DEFAULT_USER_DB_FNAME = "user.db";
 	private String dbFname = null;
 	private File userDb;
 	private HashMap<String, String> cachedUserDb;
+	private Lobby lobby;
 
-	private ServerSocket server;
 	
-	private LoginServer(int port, String dbFname) {
+	
+	private LoginServer(int port, String dbFname, Lobby lobby) {
 		
 		if(dbFname != null) {
 			this.dbFname = dbFname;
@@ -42,21 +46,23 @@ public class LoginServer {
 		} else {
 			this.port = DEFAULT_PORT;
 		}
+		
+		this.lobby = lobby;
 	}
 	
-	public LoginServer(String dbFname) {
+	public LoginServer(String dbFname, Lobby lobby) {
 		
-		 this(DEFAULT_PORT, dbFname);
+		 this(DEFAULT_PORT, dbFname, lobby);
 	}
 	
-	public LoginServer(int port) {
+	public LoginServer(int port, Lobby lobby) {
 		
-		 this(port, DEFAULT_USER_DB_FNAME);
+		 this(port, DEFAULT_USER_DB_FNAME, lobby);
 	}
 	
-	public LoginServer() {
+	public LoginServer(Lobby lobby) {
 		
-		 this(DEFAULT_PORT, DEFAULT_USER_DB_FNAME);
+		 this(DEFAULT_PORT, DEFAULT_USER_DB_FNAME, lobby);
 	}
 	
 	
@@ -117,17 +123,25 @@ public class LoginServer {
 			in.readFully(rcvBuf);
 			if(Arrays.equals(rcvBuf, ProtocolOperators.EXISTING_USER)) {
 				log.debug("checking existing user");
-				if(checkUser(in.readUTF().split(","))) {
+				String s = in.readUTF();
+				String[] userinfo = s.split(",");
+				if(checkUser(userinfo)) {
 					retVal = true;
 					out.write(ProtocolOperators.ACK);
+					lobby.add(new LoggedInUser(userinfo[0], player, in, out));
 				} else {
 					out.write(ProtocolOperators.NACK);
 				}
 			} else if(Arrays.equals(rcvBuf, ProtocolOperators.NEW_USER)) {
 				log.debug("add new user");
 				String s = in.readUTF();
-				if(addUser(s.split(","), s)) {
+				String[] userinfo = s.split(",");
+				if(addUser(userinfo, s)) {
 					retVal = true;
+					out.write(ProtocolOperators.ACK);
+					lobby.add(new LoggedInUser(userinfo[0], player, in, out));
+				} else {
+					out.write(ProtocolOperators.NACK);
 				}
 			} else {
 				log.error("Protocol error: Illegal operator after initial 'HELLO'");
@@ -223,13 +237,5 @@ public class LoginServer {
 				log.error("caught exception while processing attempted login: " + e.getClass());
 			}
 		}
-	}
-	
-	public static void main(String[] args) {
-		
-		log.info("starting server");
-		LoginServer ls = new LoginServer();
-		
-		ls.startServer();
 	}
 }

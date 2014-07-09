@@ -26,6 +26,7 @@ public class Lobby {
 	public Lobby() {
 		users = new ConcurrentHashMap<String, LoggedInUser>();
 		games = new LinkedList<GameServer>();
+		challenges = new LinkedList<Challenge>();
 	}
 	
 	public int getGamesStarted() {

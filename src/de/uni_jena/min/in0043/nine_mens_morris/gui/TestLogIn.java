@@ -8,7 +8,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.*;
@@ -79,8 +81,11 @@ public class TestLogIn extends Panel implements ActionListener {
 						"Would you like to close the application?",
 						"A stupid question",
 						JOptionPane.YES_NO_OPTION);
-				if(n == 0)
+				if(n == 0) {
+					client.disconnect();
 					System.exit(0);
+				}
+					
 			}
 		});
 		
@@ -161,6 +166,16 @@ public class TestLogIn extends Panel implements ActionListener {
 			Object source = e.getSource();
 			int number = Integer.parseInt(((JButton)source).getText());
 			log.trace(number + " was pressed");
+			String bla = client.updateList();
+			System.out.println(bla.length());
+			System.out.println(bla.substring(3));
+			System.out.println(Arrays.toString(bla.getBytes()));
+			try {
+				System.out.println(Arrays.toString(bla.getBytes("utf-8")));
+			} catch (UnsupportedEncodingException e1) {
+				System.out.println("oops");
+			}
+			System.out.println(Arrays.toString(bla.getBytes(java.nio.charset.StandardCharsets.ISO_8859_1)));
 			//TODO an den Server senden
 		}
 	}

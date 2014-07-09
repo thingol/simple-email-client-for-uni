@@ -32,6 +32,7 @@ public class LobbyManager extends Thread {
 					log.debug("sleep was interrupted :(");
 				}
 				lobby.pollUsers();
+				lobby.manageChallenges();
 			}
 		}
 	}

@@ -116,11 +116,16 @@ public class TestLogIn extends Panel implements ActionListener {
 			String k = "";
 			screen.setLayout(new GridLayout(20, 0));
 			for(int i = 0; i < z.length(); i++) {
-				log.trace(k);
 				if(z.charAt(i) == '|') {
 				JButton d = new JButton(k);
 				Players.add(d);
 				k = "";
+				}
+				else if(i == z.length()-1) {
+					k += z.charAt(i);
+					JButton d = new JButton(k);
+					Players.add(d);
+					k = "";
 				}
 				else k += z.charAt(i);
 			}

@@ -25,11 +25,13 @@ public class GameServer extends Thread {
 	private byte[] rcvBuf = new byte[3];
 	private final static Random rg = new Random();
 	private boolean twoPlayers = false;
+	private Challenge challenge;
 
-	public GameServer(long sid, LoggedInUser player0, LoggedInUser player1) {
+	public GameServer(long sid, Challenge challenge, LoggedInUser player0, LoggedInUser player1) {
 		ThreadContext.put("sID", "" + sid);
 		log.entry(sid, player0, player1);
 		this.sid = sid;
+		this.challenge = challenge;
 		
 		players[0] = player0;
 		players[1] = player1;
@@ -78,6 +80,7 @@ public class GameServer extends Thread {
 			}
 		}
 
+		challenge.completed(true);
 		log.info("thread terminating");
 		log.exit();
 	}

@@ -3,6 +3,8 @@ package de.uni_jena.min.in0043.nine_mens_morris.net;
 public class ProtocolOperators {
 	// log in and log out
     public final static byte[] HELLO               = {0,0,0};
+    public final static byte[] EXISTING_USER       = {0,1,0};
+    public final static byte[] NEW_USER            = {0,1,1};
     public final static byte[] BYE                 = {4,0,0};
     
     /* 
@@ -50,6 +52,12 @@ public class ProtocolOperators {
     
     public final static byte[] IS_WHITE            = {18,0,0};
     public final static byte[] IS_BLACK            = {19,0,0};
+    
+    /*
+     * sent by players to server
+     */
+    public final static byte[] CHALLENGE           = {20,0,0};
+    public final static byte[] GET_USERLIST        = {21,0,0};
 
     /* 
      * sent by both server and players to acknowledge validity of
@@ -66,13 +74,21 @@ public class ProtocolOperators {
      */
     public final static byte[] MILL_CREATED        = {-2,0,2};
     
-    // sent by server to indicate an illegal or impossible move
+    // General purpose 'NO'
     public final static byte[] NACK                = {-2,1,0};
-    public static final byte[] WRONG_CREDS         = {-2, 1, 1};
-    public static final byte[] LOGGED_IN           = {-2, 1, 2};
-    public static final byte[] SERVER_FULL         = {-2, 1, 3};
-    public static final byte[] NO_RESPONSE         = {-2, 1, 4};
-    public static final byte[] DECLINED            = {-2, 1, 5};
+    
+    /*
+     * error messages sent by server during login sequence
+     */
+    public final static byte[] WRONG_CREDS         = {-2,1,1};
+    public final static byte[] LOGGED_IN           = {-2,1,2};
+    public final static byte[] SERVER_FULL         = {-2,1,3};
+    
+    /*
+     * sent by server when a game can not be started
+     */
+    public final static byte[] NO_RESPONSE         = {-2,1,4};
+    public final static byte[] DECLINED            = {-2,1,5};
     
     // should not be needed
     public final static byte[] UNKNOW_OP           = {-1,-1,-3};

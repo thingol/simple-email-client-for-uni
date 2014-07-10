@@ -19,13 +19,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.uni_jena.min.in0043.nine_mens_morris.core.Game;
-import de.uni_jena.min.in0043.nine_mens_morris.core.TestLogIn;
+import de.uni_jena.min.in0043.nine_mens_morris.core.GameClient;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Logic;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
+import de.uni_jena.min.in0043.nine_mens_morris.net.Client;
 import de.uni_jena.min.in0043.nine_mens_morris.net.LogInClient;
 import de.uni_jena.min.in0043.nine_mens_morris.test.ToyBoard;
 
-public class Head extends Panel implements MouseListener, TestLogIn {
+public class Head extends Panel implements MouseListener, GameClient {
 
 	private static final long serialVersionUID = -5704850734397028920L;
 	private static Logger log = LogManager.getLogger();
@@ -272,12 +273,12 @@ public class Head extends Panel implements MouseListener, TestLogIn {
 					if(n2 == 0)
 					{
 						log.debug("conceding game and requesting new");
-						((LogInClient)game).conceed(true);
+						((Client)game).conceed(true);
 					}
 					else if(n2 == 1)
 					{
 						log.debug("conceding game and exiting");
-						((LogInClient)game).conceed(false);
+						((Client)game).conceed(false);
 						System.exit(0);
 					}
 				}

@@ -12,7 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.uni_jena.min.in0043.nine_mens_morris.core.Game;
-import de.uni_jena.min.in0043.nine_mens_morris.core.TestLogIn;
+import de.uni_jena.min.in0043.nine_mens_morris.core.GameClient;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Phase;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
 
@@ -32,7 +32,7 @@ public class Client extends Thread implements Game {
 	private boolean cmdSent = false;
 	private boolean playing = false;
 	private ClientState state = ClientState.WAITING;
-	private TestLogIn display; 
+	private GameClient display; 
 	
 
 	public Client(String hostName) {
@@ -131,7 +131,7 @@ public class Client extends Thread implements Game {
 	/*
 	 * misc methods
 	 */
-	public void addDisplay(TestLogIn display) {
+	public void addDisplay(GameClient display) {
 		log.entry();
 		synchronized (lock) {
 			log.debug("adding display " + display);

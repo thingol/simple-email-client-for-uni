@@ -1,6 +1,6 @@
 package de.uni_jena.min.in0043.nine_mens_morris.core;
 
-public interface TestLogIn {
+public interface GameClient {
 
 	public void reset();
 	

@@ -120,11 +120,13 @@ public class LoginServer {
 		in.readFully(rcvBuf);
 
 		if(Arrays.equals(rcvBuf, ProtocolOperators.HELLO)) {
+			log.debug("'HELLO' received");
 			
 			in.readFully(rcvBuf);
 			if(Arrays.equals(rcvBuf, ProtocolOperators.EXISTING_USER)) {
 				log.debug("checking existing user");
 				String s = in.readUTF();
+				log.debug("read " + s);
 				String[] userinfo = s.split(",");
 				if(checkUser(userinfo)) {
 					usersAuthenticated++;

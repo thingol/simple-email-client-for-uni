@@ -22,6 +22,7 @@ public class LogInClient extends Thread {
 	private static Logger log = LogManager.getLogger();
 	private String hostname;
 	private int port;
+	private boolean loggedIn = false;
 	
 	public LogInClient() {
 		this("localhost", DEFAULT_PORT);
@@ -38,6 +39,10 @@ public class LogInClient extends Thread {
 		rcvBuf = new byte[3];
 	}
 	
+	public void run() {
+		
+	}
+	
 	private boolean initiateHandshake(boolean newUser) throws IOException {
 		log.entry();
 		boolean retVal = true;
@@ -50,46 +55,43 @@ public class LogInClient extends Thread {
 			output.write(ProtocolOperators.EXISTING_USER);
 			log.debug("old user");
 		}
-		/*input.readFully(rcvBuf);
-		
-		if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
-			retVal = true;
-			log.debug("handshake went ok");
-		}*/
 	
 		log.exit();
 		return retVal;
 	}
 	
-	public boolean loggingIn(String user, char[] pass, boolean newUser) {
+	private void loggingIn(String user, String pass, boolean newUser) {
 		log.entry();
-		boolean retVal = false;
-		try {
-			log.debug("connection to " + hostname + ":" + port);
-			srv = new Socket(hostname, port);
-			input = new DataInputStream(srv.getInputStream());
-			output = new DataOutputStream(srv.getOutputStream());
-		} catch (UnknownHostException e) {
-			log.error("Unkown host: " + hostname);
-		} catch (IOException e) {
-			log.error("caught IOException while setting up");
-		}
-		
-		try {
-			if(initiateHandshake(newUser)) {
-				output.writeUTF(user+","+new String(pass));
-				input.readFully(rcvBuf);
-				
-				log.debug("received " + Arrays.toString(rcvBuf) + "from server");
-				if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
-					retVal = true;
-				}
+		if(!loggedIn) {
+			try {
+				log.debug("connection to " + hostname + ":" + port);
+				srv = new Socket(hostname, port);
+				input = new DataInputStream(srv.getInputStream());
+				output = new DataOutputStream(srv.getOutputStream());
+			} catch (UnknownHostException e) {
+				log.error("Unkown host: " + hostname);
+			} catch (IOException e) {
+				log.error("caught IOException while setting up");
 			}
-		} catch (IOException e) {
-			log.error("caught " + e.getClass() + " while logging in");
+			
+			try {
+				if(initiateHandshake(newUser)) {
+					output.writeUTF(user+","+new String(pass));
+					input.readFully(rcvBuf);
+					
+					log.debug("received " + Arrays.toString(rcvBuf) + "from server");
+					if(!Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
+						log.error("login failed");
+					
+					} else {
+						loggedIn = true;
+					}
+				}
+			} catch (IOException e) {
+				log.error("caught " + e.getClass() + " while logging in");
+			}
 		}
 		log.exit();
-		return retVal;
 	}
 	
 	
@@ -97,7 +99,7 @@ public class LogInClient extends Thread {
 		
 	}
 	
-	public String updateList() {
+	private String updateList() {
 		String s = "ups";
 		try {
 			log.debug("requsting user list");
@@ -109,20 +111,17 @@ public class LogInClient extends Thread {
 			log.debug("received " + s);
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("caught " + e.getClass() + " while updating user list");
 		}
 		return s;
 	}
 	
-	public boolean disconnect() {
+	private void disconnect() {
 		
 		try {
 			srv.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("caught " + e.getClass() + " while logging out");
 		}
-		return true;
 	}
 }

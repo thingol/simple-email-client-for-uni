@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.BindException;
@@ -49,6 +50,7 @@ public class LoginServer {
 		}
 		
 		this.lobby = lobby;
+		cachedUserDb = new HashMap<String,String>();
 	}
 	
 	public LoginServer(String dbFname, Lobby lobby) {
@@ -78,12 +80,12 @@ public class LoginServer {
 			cachedUserDb.put(user[0], user[1]);
 			PrintWriter pw = null;
 			try {
-				pw = new PrintWriter(userDb);
-				pw.append(entry);
+				pw = new PrintWriter(new FileWriter(userDb, true));
+				pw.println(entry);
 				pw.flush();
 				retVal = true;
 				log.info("added '" + user[0] + "'");
-			} catch (FileNotFoundException e) {
+			} catch (IOException e) {
 				log.error("caught " + e.getClass() + " while adding new user to db");
 			} finally {
 				log.debug("closing writer");

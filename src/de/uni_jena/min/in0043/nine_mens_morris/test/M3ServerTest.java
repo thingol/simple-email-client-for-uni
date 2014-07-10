@@ -14,7 +14,6 @@ public class M3ServerTest {
 		lobby = new Lobby();
 		lobbyManager = new LobbyManager(lobby);
 		loginServer = new LoginServer(lobby);
-		
 	}
 	
 	public static void main(String[] args) {

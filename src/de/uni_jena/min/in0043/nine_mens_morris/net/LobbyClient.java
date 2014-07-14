@@ -28,6 +28,9 @@ public class LobbyClient extends Thread {
 	private byte[] rcvBuf = new byte[3];
 	private Object lock = new Object();
 	private LobbyDisplay display;
+	private LobbyClientState state = LobbyClientState.WAITING;
+	private boolean playing = true;
+	private String myName;
 
 	
 	public LobbyClient(String hostName) {
@@ -56,25 +59,23 @@ public class LobbyClient extends Thread {
 		log.exit();
 	}
 
-	private void msgExchange(int op, int opnd0) {
-		log.entry(op, opnd0);
-		cmdBuf = new byte[]{(byte) op, (byte) opnd0, 0};
-    	
-    	sendMsg();
-    	receiveMsg();
-    	log.exit();
-		
-	}
-
-	private void receiveMsg() {
-		log.entry();
+	private void receiveMsg(boolean checkInput) {
 		try {
-			input.readFully(rcvBuf);
-			log.debug("received " + Arrays.toString(rcvBuf));
+			if(checkInput) {
+				if(input.available() != 0) {
+					log.debug("receiving message");
+					input.readFully(rcvBuf);
+					log.debug("input.available() => " + input.available());
+					log.debug("received " + Arrays.toString(rcvBuf));
+				} else {
+					rcvBuf = null;
+				}
+     		} else {
+     			input.readFully(rcvBuf);
+     		}
 		} catch (IOException e) {
 			log.error("caught IOException while reading from server");
 		}
-		log.exit();
 	}
 
 	private void sendMsg() {
@@ -88,71 +89,41 @@ public class LobbyClient extends Thread {
 		log.exit();
 	}
 	
-	private int parseResponse() {
-		log.entry();
-		int i = cmdBuf[0];
-		int retVal = -1;
-		
-		switch(i) {
-		case 0:
-			log.debug("We said hello and tried to log in");
-			log.debug("rcvBuf = " + Arrays.toString(rcvBuf)); 
-			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
-				log.debug("LogIn suceeded");
-				retVal = 1;
-			} else if (Arrays.equals(rcvBuf, ProtocolOperators.WRONG_CREDS)) {
-				log.debug("Wrong User/Password Combination!");
-				retVal = 2;
-			} else if (Arrays.equals(rcvBuf, ProtocolOperators.LOGGED_IN)) {
-				log.debug("You are already logged in!");
-				retVal = 3;
-			} else if (Arrays.equals(rcvBuf, ProtocolOperators.NACK)) {
-				log.debug("LogIn failed due to unknown reasons!");
-				retVal = 0;
-			} else if (Arrays.equals(rcvBuf, ProtocolOperators.SERVER_FULL)) {
-				log.debug("Server is full, sorry!");
-				retVal = 4;
-			} else {
-				log.debug("What happened?");
-				retVal = -128;
-			}
-			break;
-		case 0x1A:
-			log.debug("We sent a playWith");
-			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
-				log.debug("and got back an ACK");
-				retVal = 1;
-			} else if(Arrays.equals(rcvBuf, ProtocolOperators.NACK)) {
-				log.debug("and got back a NACK");
-				retVal = 0;
-			} else if(Arrays.equals(rcvBuf, ProtocolOperators.NO_RESPONSE)) {
-				log.debug("lol no response");
-			} else if(Arrays.equals(rcvBuf, ProtocolOperators.DECLINED)) {
-				log.debug("Declined! Guess you aren't allowed to");
-			}
-			log.debug("and got back something funny");
-			break;
-		default:
-			// shouldn't happen, but hey
-			log.debug("this really shouldn't happen");
-			retVal = -128;
+	private void handleMsgFromServer() {
+		if(rcvBuf == null) {
+			rcvBuf = new byte[3];
+	    } else if(rcvBuf[0] == ProtocolOperators.CHALLENGE[0]) {
+	    	log.info("challenge received");
+			state = LobbyClientState.CHALLENGE_RECEIVED;
+		} else if(Arrays.equals(rcvBuf, ProtocolOperators.GET_USERLIST)) {
+			log.debug("receiving updated list of users");
+			updatePlayerList();
+		} else if(Arrays.equals(rcvBuf, ProtocolOperators.PING)) {
+			log.debug("received PING");
+			cmdBuf = ProtocolOperators.PONG;
+			sendMsg();
 		}
-		if(rcvBuf[0] == 0x1A) {
-			//display.challenged(rcvBuf[1]);
-		}
-		log.exit(retVal);
-		return retVal;
 	}
 	
-	private void handleCmd() {
+	private void handleCmdFromUser() {
 		if(cmdBuf != null) {
-			//...
+			if(cmdBuf[0] == ProtocolOperators.CHALLENGE[0]) {
+				state = LobbyClientState.CHALLENGE_ISSUED;
+			} else if(Arrays.equals(cmdBuf, ProtocolOperators.NACK)) {
+				state = LobbyClientState.NORMAL;
+				//TODO: notify user
+			} else if(Arrays.equals(cmdBuf, ProtocolOperators.ACK)) {
+				state = LobbyClientState.CHALLENGE_ACCEPTED;
+				//TODO: start Client and Head
+			} else if(Arrays.equals(cmdBuf, ProtocolOperators.BYE)) {
+				playing = false;
+			}
+			sendMsg();
 		}
 	}
 	
 	public void run() {
-		boolean playing = true;
-		int reps = 0;
+		log.entry();
 		
 		synchronized (lock) {
 			while(display == null) {
@@ -165,23 +136,21 @@ public class LobbyClient extends Thread {
 			}
 		}
 
+		//updatePlayerList();
+		
 		while(playing) {
 			
-			if(reps < 10) {
-				reps++;
-			} else {
-			    reps = 0;
-			    updatePlayerList();	
-			}
-			
 			cmdBuf = display.getCmdBuf();
-			handleCmd();
+			handleCmdFromUser();
 			
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 				log.error("interrupted while waiting, no idea how that could happen");
 			}
+			
+			receiveMsg(true);
+			handleMsgFromServer();
 		}
 		
 		log.debug("logging off");
@@ -196,28 +165,35 @@ public class LobbyClient extends Thread {
 	}
 
 	private void updatePlayerList() {
-		cmdBuf = ProtocolOperators.GET_USERLIST;
-		sendMsg();
+		//cmdBuf = ProtocolOperators.GET_USERLIST;
+		//sendMsg();
+		log.entry();
 		String[] userNames;
 		int[] userIDs;
 		String[] users;
 		
 		try {
-			users = new BufferedReader(new InputStreamReader(input)).readLine().split(";");//new String(input.read()).split(";");
-			userNames = new String[users.length];
-			userIDs = new int[users.length];
-			
-			String[] u;
+			users = new BufferedReader(new InputStreamReader(input)).readLine().split(";");
+			if(users.length > 1) {
+				userNames = new String[users.length-1];
+				userIDs = new int[users.length-1];
+				
+				String[] u;
 
-			for(int i = 0; i < users.length; i++) {
-				u = users[i].split(",");
-				userNames[i] = u[0];
-				userIDs[i] = Integer.parseInt(u[1]);
+				int n = 0;
+				for(int i = 0; i < users.length; i++) {
+					u = users[i].split(",");
+					if(!u[0].equals(myName)) {
+						userNames[n] = u[0];
+						userIDs[n] = Integer.parseInt(u[1]);
+						n++;
+					}
+				}
+				
+				display.setPlayerList(userNames, userIDs);
+			} else {
+				log.debug("I am alone, so there's nothing to set");
 			}
-			
-			display.setPlayerList(userNames, userIDs);
-			
-			
 		} catch (IOException e) {
 			log.error("caught " + e.getClass() + " while fetching list of users");
 		}
@@ -225,9 +201,39 @@ public class LobbyClient extends Thread {
 		
 	}
 
-	public void disconnect() {
+	private int parseResponse() {
+		log.entry();
+		int retVal = -1;
+
+		log.debug("We said hello and tried to log in"); 
+		if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
+			log.debug("LogIn suceeded");
+			retVal = 1;
+		} else if (Arrays.equals(rcvBuf, ProtocolOperators.WRONG_CREDS)) {
+			log.debug("Wrong User/Password Combination!");
+			retVal = 2;
+		} else if (Arrays.equals(rcvBuf, ProtocolOperators.LOGGED_IN)) {
+			log.debug("You are already logged in!");
+			retVal = 3;
+		} else if (Arrays.equals(rcvBuf, ProtocolOperators.NACK)) {
+			log.debug("LogIn failed due to unknown reasons!");
+			retVal = 0;
+		} else if (Arrays.equals(rcvBuf, ProtocolOperators.SERVER_FULL)) {
+			log.debug("Server is full, sorry!");
+			retVal = 4;
+		} else {
+			log.debug("What happened?");
+			retVal = -128;
+		}
+
+		log.exit(retVal);
+		return retVal;
+	}
+	
+	private void disconnect() {
 		cmdBuf = ProtocolOperators.BYE;
 		sendMsg();
+		System.exit(0);
 	}
 	
 	public int logIn(String userInfo, boolean newUser) {
@@ -240,9 +246,9 @@ public class LobbyClient extends Thread {
 		
 		try {
 			sendMsg();
-			log.entry("Writing " + userInfo + " to Server");
+			log.debug("Writing " + userInfo + " to Server");
 			output.writeUTF(userInfo);
-			receiveMsg();
+			receiveMsg(false);
 		} catch (IOException e) {
 			log.error("caught " + e.getClass() + " while logging in");
 		}
@@ -250,11 +256,7 @@ public class LobbyClient extends Thread {
 		return retVal;
 	}
 	
-	public void acceptChallenge(boolean accept) {
-		if(accept) cmdBuf = ProtocolOperators.ACK;
-		else cmdBuf = ProtocolOperators.NACK;
-		sendMsg();
+	public void setUserName(String userName) {
+		myName = userName;
 	}
-
-
 }

@@ -38,6 +38,11 @@ public class Lobby {
 	public void add(LoggedInUser user) {
 		users.put(user.getUsername(), user);
 		log.debug("admitted user " + user + " to lobby");
+		try {
+			sendUserList();
+		} catch (IOException e) {
+			log.error("caught " + e.getClass() + " while sending list of users");
+		}
 	}
 	
 	public synchronized void manageChallenges() {
@@ -141,29 +146,47 @@ public class Lobby {
 		DataOutputStream out = user.getOutputStream();
 		
 		if(Arrays.equals(rcvBuf, ProtocolOperators.GET_USERLIST)) {
-			log.debug("list of users requested");
+			/*log.debug("list of users requested");
 			String outPut = "";
 			for(Entry<String, LoggedInUser> u : users.entrySet()) {
 				outPut = outPut + u.getKey() + "," + u.getValue().getID() + ";"; 
 			}
 			log.debug("sending user '" + outPut + "'");
 			outPut += '\n';
-			byte[] bla = outPut.getBytes();
-			System.out.println(Arrays.toString(bla));
-			out.write(bla);
-			log.debug("sent");
+			System.out.println(Arrays.toString(outPut.getBytes()));
+			out.write(outPut.getBytes());
+			log.debug("sent");*/
+			
+			sendUserList();
 		} else if(rcvBuf[0] == ProtocolOperators.CHALLENGE[0]) {
 			log.debug("challenge issued to user currently assigned id " + rcvBuf[1]);
 			LoggedInUser challenged = getUserByID(rcvBuf[1]);
 			challenges.add(new Challenge(user, challenged, System.currentTimeMillis()));
 			user.isPlaying(true);
 			challenged.isPlaying(true);
+		} else if(Arrays.equals(rcvBuf, ProtocolOperators.BYE)) {
+			log.info(user + " logged off");
+			users.remove(user.getUsername());
+			sendUserList();
 		} else {
 			log.error("got an illegal operator");
 			out.write(ProtocolOperators.ILLEGAL_OP);
 		}
-		
-		log.debug("flushing stream");
-		out.flush();
+	}
+	
+	private void sendUserList() throws IOException {
+		log.debug("publishing updated list of users");
+		String outPut = "";
+		for(Entry<String, LoggedInUser> u : users.entrySet()) {
+			outPut = outPut + u.getKey() + "," + u.getValue().getID() + ";"; 
+		}
+		outPut += '\n';
+		log.debug("sending '" + outPut + "'");
+		for(LoggedInUser u : users.values()) {
+			log.debug("to " + u.getUsername());
+			u.getOutputStream().write(ProtocolOperators.GET_USERLIST);
+			u.getOutputStream().write(outPut.getBytes());
+		}
+		log.debug("sent");
 	}
 }

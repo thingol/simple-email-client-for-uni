@@ -90,6 +90,12 @@ public class ProtocolOperators {
     public final static byte[] NO_RESPONSE         = {-2,1,4};
     public final static byte[] DECLINED            = {-2,1,5};
     
+    /*
+     * keepalive
+     */
+    public final static byte[] PING                = {-3,0,0};
+    public final static byte[] PONG                = {-3,0,1};
+    
     // should not be needed
     public final static byte[] UNKNOW_OP           = {-1,-1,-3};
     public final static byte[] ILLEGAL_OP          = {-1,-1,-2};

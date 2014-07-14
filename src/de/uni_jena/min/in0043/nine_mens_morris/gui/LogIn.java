@@ -22,6 +22,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.uni_jena.min.in0043.nine_mens_morris.net.LobbyClient;
+import de.uni_jena.min.in0043.nine_mens_morris.net.ProtocolOperators;
 
 public class LogIn {
 
@@ -29,7 +30,6 @@ public class LogIn {
 	private JFrame login;
 	private LobbyDisplay lobbyDisplay;
 	private LobbyClient lobbyClient;
-	private int id;
 	
 	public static class LobbyDisplay extends JFrame {
 		
@@ -51,6 +51,7 @@ public class LogIn {
 		public LobbyDisplay(String title) {
 			super(title);
 			
+			final JFrame me = this;
 			challenge = new JButton("Issue challenge");
 			challenge.addActionListener(new ActionListener() {
 				
@@ -74,6 +75,21 @@ public class LogIn {
 			setSize(width, height);
 			setResizable(false);
 			setLayout(new GridLayout(2, 1));
+			
+			this.addWindowListener(new WindowAdapter() {
+				public void windowClosing(WindowEvent we) {
+					int n = JOptionPane.showConfirmDialog(
+							me,
+							"Would you like to close the application?",
+							null,
+							JOptionPane.YES_NO_OPTION);
+					if(n == 0) {
+						setCmdBuf(ProtocolOperators.BYE);
+						me.setVisible(false);
+					}
+						
+				}
+			});
 		}
 		
 		public synchronized byte[] getCmdBuf() {
@@ -85,20 +101,43 @@ public class LogIn {
 		}
 		
 		public synchronized void setCmdBuf(byte[] cmdBuf) {
+			log.entry();
+			log.debug("cmdSent = " + cmdSent);
 			if(cmdSent) {
 				this.cmdBuf = cmdBuf;
+				cmdSent = false;
 			}
 		}
 		
-		public synchronized void setPlayerList(String[] userNames, int[] userIDs) {
+		public synchronized void setPlayerList(String[] userNames, int[] userIDs) {		
 			players.setListData(userNames);
 			this.userIDs = userIDs;
+		}
+		
+		public void challenged(int challenger) {
+					
+			Object[] opt = {"Yes", "No"};
+			int n2 = JOptionPane.showOptionDialog(this,
+					//names.get(id2-1) + " challenges you to a fight?",
+					"bla",
+					"Duel Dialog",
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					opt,
+					opt[1]);
+			
+			if(n2 == 0) {
+				log.trace("Accepted the duel for life and death");
+			} else if (n2 == 1) {
+				log.trace("Declined the duel");
+			}
 		}
 		
 	}
 	
 	public LogIn()	{
-		this(new LobbyClient("gw.kjerkreit.org"));
+		this(new LobbyClient("localhost"));
 	}
 	
 	public LogIn(LobbyClient lobbyClient)	{
@@ -131,13 +170,13 @@ public class LogIn {
 		password.setBounds(login_width/2 - 100, login_height/2 + 15, 200, 30);
 		newUser.setBounds(login_width/2 - 100, login_height/2 + 50, 200, 30);
 		ok.setBounds(login_width/2 - 100, login_height/2 + 100, 100, 20);
-		cancel.setBounds(login_width/2, login_height/2 + 100, 100, 20);
+		//cancel.setBounds(login_width/2, login_height/2 + 100, 100, 20);
 		
 		frame.add(username);
 		frame.add(password);
 		frame.add(newUser);
 		frame.add(ok);
-		frame.add(cancel);
+		//frame.add(cancel);
 		
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
@@ -146,8 +185,9 @@ public class LogIn {
 						"Would you like to close the application?",
 						"A stupid question",
 						JOptionPane.YES_NO_OPTION);
-				if(n == 0)
+				if(n == 0) {
 					System.exit(0);
+				}
 			}
 		});
 		
@@ -168,7 +208,7 @@ public class LogIn {
 					break;
 				case 1:
 					log.debug("Login succeeded");
-					moveToLobby();
+					moveToLobby(username.getText());
 					break;
 				case 2:
 					log.trace("Wrong user, password combination");
@@ -187,7 +227,7 @@ public class LogIn {
 				}
 			}
 		});
-		cancel.addActionListener(new ActionListener() {
+/*		cancel.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -195,46 +235,22 @@ public class LogIn {
 				lobbyClient.disconnect();
 				System.exit(0);
 			}
-		});
+		});*/
 
 		return frame;
 	}
 
-	private void moveToLobby() {
+	private void moveToLobby(String userName) {
 		log.debug("moving to lobby, disposing of login gui");
+		lobbyClient.setUserName(userName);
 		login.setVisible(false);
 		login.dispose();
 		lobbyDisplay.setVisible(true);
 		lobbyClient.addDisplay(lobbyDisplay);
+		log.debug("staring lobbyClient");
 		lobbyClient.start();
-		
 	}
 
-	public void challenged(int id2) {
-		if(id <= id2) {
-			id2++;
-		}
-		
-		Object[] opt = {"Yes", "No"};
-		int n2 = JOptionPane.showOptionDialog(lobbyDisplay,
-				//names.get(id2-1) + " challenges you to a fight?",
-				"bla",
-				"Duel Dialog",
-				JOptionPane.YES_NO_CANCEL_OPTION,
-				JOptionPane.QUESTION_MESSAGE,
-				null,
-				opt,
-				opt[1]);
-		
-		if(n2 == 0) {
-			log.trace("Accepted the duel for life and death");
-			lobbyClient.acceptChallenge(true);
-		} else if (n2 == 1) {
-			log.trace("Declined the duel");
-			lobbyClient.acceptChallenge(false);
-		}
-	}
-	
 	public static void main(String[] args)
 	{
 		new LogIn();

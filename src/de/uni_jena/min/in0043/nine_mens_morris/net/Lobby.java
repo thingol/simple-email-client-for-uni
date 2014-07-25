@@ -1,6 +1,5 @@
 package de.uni_jena.min.in0043.nine_mens_morris.net;
 
-import java.awt.color.CMMException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -58,7 +57,7 @@ public class Lobby {
 				try {
 					if(challenged.available() > 0) {
 						challenged.readFully(rcvBuf);
-						log.debug("");
+						log.debug("received " + Arrays.toString(rcvBuf));
 						if(Arrays.equals(rcvBuf,ProtocolOperators.ACK)) {
 							out.write(ProtocolOperators.ACK);
 							c.accepted(true);
@@ -87,7 +86,10 @@ public class Lobby {
 					e.printStackTrace();
 				}
 			} else if(c.completed()) {
+				log.debug("challenge " + c + " completed");
 				challenges.remove(c);
+				c.getChallenger().isPlaying(false);
+				c.getChallenged().isPlaying(false);
 			}
 			
 		}
@@ -98,7 +100,7 @@ public class Lobby {
 		DataOutputStream out;
 		byte[] rcvBuf = new byte[3];
 		for(LoggedInUser u : users.values()) {
-			if(u.getSocket().isClosed()) {
+			if(u.getSocket().isClosed()) { // useless
 				users.remove(u.getUsername());
 				log.debug(u.getUsername() + " has left the building");
 			} else if(!u.isPlaying()) {
@@ -143,26 +145,9 @@ public class Lobby {
 	}
 	
 	private void handleRequest(byte[] rcvBuf, LoggedInUser user) throws IOException {
-		/*
-		 * GET_USER_LIST
-		 * CHALLENGE
-		 */
 		DataOutputStream out = user.getOutputStream();
 		
-		if(Arrays.equals(rcvBuf, ProtocolOperators.GET_USERLIST)) {
-			/*log.debug("list of users requested");
-			String outPut = "";
-			for(Entry<String, LoggedInUser> u : users.entrySet()) {
-				outPut = outPut + u.getKey() + "," + u.getValue().getID() + ";"; 
-			}
-			log.debug("sending user '" + outPut + "'");
-			outPut += '\n';
-			System.out.println(Arrays.toString(outPut.getBytes()));
-			out.write(outPut.getBytes());
-			log.debug("sent");*/
-			
-			sendUserList();
-		} else if(rcvBuf[0] == ProtocolOperators.CHALLENGE[0]) {
+		if(rcvBuf[0] == ProtocolOperators.CHALLENGE[0]) {
 			log.debug("challenge issued to user currently assigned id " + rcvBuf[1]);
 			LoggedInUser challenged = getUserByID(rcvBuf[1]);
 			challenges.add(new Challenge(user, challenged, System.currentTimeMillis()));

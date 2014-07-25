@@ -1,6 +1,10 @@
 package de.uni_jena.min.in0043.nine_mens_morris.net;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class Challenge {
+	private static Logger log = LogManager.getLogger();
 	private LoggedInUser challenger;
 	private LoggedInUser challenged;
 	private long timestamp;
@@ -22,6 +26,7 @@ public class Challenge {
 	}
 	
 	public void completed(boolean c) {
+		log.entry();
 		this.completed = c;
 	}
 	

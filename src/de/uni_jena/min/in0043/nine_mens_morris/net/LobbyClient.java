@@ -13,6 +13,8 @@ import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.uni_jena.min.in0043.nine_mens_morris.core.GameClient;
+import de.uni_jena.min.in0043.nine_mens_morris.gui.Head;
 import de.uni_jena.min.in0043.nine_mens_morris.gui.LobbyDisplay;
 
 public class LobbyClient extends Thread {
@@ -105,6 +107,10 @@ public class LobbyClient extends Thread {
 			log.debug("received PING");
 			cmdBuf = ProtocolOperators.PONG;
 			sendMsg();
+		} else if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
+			state = LobbyClientState.CHALLENGE_ACCEPTED;
+			display.setVisible(false);
+			startGame();
 		}
 	}
 	
@@ -119,8 +125,8 @@ public class LobbyClient extends Thread {
 				display.setNormal();
 			} else if(Arrays.equals(cmdBuf, ProtocolOperators.ACK)) {
 				state = LobbyClientState.CHALLENGE_ACCEPTED;
-				//TODO: start Client and Head
-				//TODO: lock LobbyDisplay to prevent new challenges from being issued
+				display.setVisible(false);
+				startGame();
 			} else if(Arrays.equals(cmdBuf, ProtocolOperators.BYE)) {
 				playing = false;
 				log.debug("logging off");
@@ -148,17 +154,39 @@ public class LobbyClient extends Thread {
 			cmdBuf = display.getCmdBuf();
 			handleCmdFromUser();
 			
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				log.error("interrupted while waiting, no idea how that could happen");
+			while(state == LobbyClientState.CHALLENGE_ACCEPTED) {
+				synchronized (this) {
+					log.debug("we've accepted a challenge, I'll be waiting when we're done");
+					try {
+						this.wait();
+						log.debug("we woke up");
+					} catch (InterruptedException e) {
+						log.error("was interrupted while waiting for game to end");
+					}
+				}
 			}
+			
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					log.error("interrupted while waiting, no idea how that could happen");
+				}
 			
 			receiveMsg(true);
 			handleMsgFromServer();
+			
+			while(state == LobbyClientState.CHALLENGE_ACCEPTED) {
+				synchronized (this) {
+					log.debug("our challenge has been accepted, I'll be waiting when we're done");
+					try {
+						this.wait();
+						log.debug("we woke up");
+					} catch (InterruptedException e) {
+						log.error("was interrupted while waiting for game to end");
+					}
+				}
+			}
 		}
-		
-
 
 		try {
 			srv.close();
@@ -235,11 +263,27 @@ public class LobbyClient extends Thread {
 		return retVal;
 	}
 	
-	/*private void disconnect() {
-		cmdBuf = ProtocolOperators.BYE;
-		sendMsg();
-		System.exit(0);
-	}*/
+	private void startGame() {
+		log.entry();
+		Client client = new Client(input,output,this);
+		GameClient display = new Head(client);
+
+		log.debug("firing up Client");
+		client.start();
+		client.addDisplay(display);
+		((Head)display).init();
+			
+		log.exit();
+	}
+
+	public synchronized void gameOver() {
+		log.debug("notifying LobbyClient of game over");
+		state = LobbyClientState.NORMAL;
+		display.setNormal();
+		display.setVisible(true);
+		this.notify();
+		log.exit();
+	}
 	
 	public int logIn(String userInfo, boolean newUser) {
 		cmdBuf = ProtocolOperators.HELLO;

@@ -210,6 +210,7 @@ public class GameServer extends Thread {
 		} else if (Arrays.equals(rcvBuf,ProtocolOperators.NO_MORE)) {
 			log.trace("player does not want a new game");
 			notifyOtherPlayer(ProtocolOperators.NO_MORE);
+			twoPlayers = false;
 		} else {
 			log.trace("illegal operator received");
 			curr_out.write(ProtocolOperators.ILLEGAL_OP);

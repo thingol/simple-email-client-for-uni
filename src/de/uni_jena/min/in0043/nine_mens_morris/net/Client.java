@@ -1,11 +1,8 @@
 package de.uni_jena.min.in0043.nine_mens_morris.net;
 
-import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 
 import org.apache.logging.log4j.LogManager;
@@ -15,14 +12,15 @@ import de.uni_jena.min.in0043.nine_mens_morris.core.Game;
 import de.uni_jena.min.in0043.nine_mens_morris.core.GameClient;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Phase;
 import de.uni_jena.min.in0043.nine_mens_morris.core.Player;
+import de.uni_jena.min.in0043.nine_mens_morris.gui.Head;
 
 public class Client extends Thread implements Game {
 
-	final private static int DEFAULT_PORT = 6112; 
+	//final private static int DEFAULT_PORT = 6112; 
 	
 	private static Logger log = LogManager.getLogger();
 	
-	private Socket srv;
+	//private Socket srv;
 	private DataInputStream input;
 	private DataOutputStream output;
 	private Player colour = null;
@@ -32,26 +30,15 @@ public class Client extends Thread implements Game {
 	private boolean cmdSent = false;
 	private boolean playing = false;
 	private ClientState state = ClientState.WAITING;
-	private GameClient display; 
+	private GameClient display;
+	private LobbyClient lCli;
 	
 
-	public Client(String hostName) {
-		this(hostName, DEFAULT_PORT);
-	}
-	
-	public Client(String hostName, int port) {
-		try {
-			srv = new Socket(hostName, port);
-			input = new DataInputStream(new BufferedInputStream(srv.getInputStream()));
-			output = new DataOutputStream(srv.getOutputStream());
-		} catch (UnknownHostException e) {
-			log.error("Unkown host: " + hostName);
-		} catch (IOException e) {
-			log.error("caught IOException while setting up");
-		}
-	}
-	
-	
+    public Client(DataInputStream input, DataOutputStream output, LobbyClient lCli) {	
+    	this.input = input;
+		this.output = output;
+		this.lCli = lCli;
+    }
 	/*
 	 * situational handlers
 	 */
@@ -140,25 +127,7 @@ public class Client extends Thread implements Game {
 		}
 		log.exit();
 	}
-	
-	private void logIn() {
-		log.entry();
-		try {
-			output.write(ProtocolOperators.HELLO);
-			input.readFully(rcvBuf);
-			
-			if(Arrays.equals(rcvBuf, ProtocolOperators.ACK)) {
-				log.debug("login successful");
-			} else {
-				log.error("login failed");
-			}		
-		} catch (IOException e) {
-			log.error("caught IOException while logging in");
-		}
-		
-		log.exit();
-	}
-	
+
 	private void pokeMe() {
 		log.entry();
 		synchronized (lock) {
@@ -190,28 +159,17 @@ public class Client extends Thread implements Game {
 			cmdBuf = ProtocolOperators.NEW_GAME;
 			log.debug("requesting new game");
 			sendMsg();
-			pokeMe();
 		} else {
 			cmdBuf = ProtocolOperators.NO_MORE;
 			log.debug("signing off");
 			sendMsg();
 			playing = false;
-			log.debug("quitting");
-			cmdBuf = ProtocolOperators.BYE;
-			sendMsg();
 		}
+		pokeMe();
 		
 		log.exit();
 	}
-	
-	public void disconnect() {
-		log.entry();
-		cmdBuf = ProtocolOperators.BYE;
-		sendMsg();
-		playing = false;
-		log.exit();
-	}
-	
+
 	private void msgExchange(int op, int opnd0) {
 		log.entry(op, opnd0);
 		cmdBuf = new byte[]{(byte) op, (byte) opnd0, 0};
@@ -355,11 +313,8 @@ public class Client extends Thread implements Game {
 			}
 		}
 		
-		logIn();
 		handleColour();
-		
-        
-		
+
         /*
          * main loop
          */
@@ -374,40 +329,37 @@ public class Client extends Thread implements Game {
 					}
 				}
 			}
-					
-			receiveFromOtherPlayer();
-			log.debug("state is " + state);
-
-			switch (state) {
-			case MILL_CREATED:
-				// we get a moveStone followed by a removeStone
-				receiveFromOtherPlayer();
-				receiveFromOtherPlayer();
-				break;
-			case GAME_WON:
-				handleGameOver();
-				break;
-			case GAME_LOST:
-				handleGameOver();
-				break;
-			case AWAITING_NEW_GAME:
-				handleAwaitingNewGame();
-				break;
-			default:
-				break;
-			}
 			
-			cmdSent = false;
+			if(playing) { // must rethink this at some point...
+				receiveFromOtherPlayer();
+				log.debug("state is " + state);
+
+				switch (state) {
+				case MILL_CREATED:
+					// we get a moveStone followed by a removeStone
+					receiveFromOtherPlayer();
+					receiveFromOtherPlayer();
+					break;
+				case GAME_WON:
+					handleGameOver();
+					break;
+				case GAME_LOST:
+					handleGameOver();
+					break;
+				case AWAITING_NEW_GAME:
+					handleAwaitingNewGame();
+					break;
+				default:
+					break;
+				}
+				
+				cmdSent = false;
+
+			}
 		}
-		
-		log.debug("logging off");
-		disconnect();
-		try {
-			srv.close();
-		} catch (IOException e) {
-			log.error("an error was encountered while attempting to " +
-		              "close the connection to the server");
-		}
+
+		((Head)display).gameOver();
+		lCli.gameOver();
 		log.exit();
 	}
 	

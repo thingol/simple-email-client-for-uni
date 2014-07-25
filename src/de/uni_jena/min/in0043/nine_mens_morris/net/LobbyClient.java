@@ -13,7 +13,7 @@ import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.uni_jena.min.in0043.nine_mens_morris.gui.LogIn.LobbyDisplay;
+import de.uni_jena.min.in0043.nine_mens_morris.gui.LobbyDisplay;
 
 public class LobbyClient extends Thread {
 
@@ -30,7 +30,8 @@ public class LobbyClient extends Thread {
 	private LobbyDisplay display;
 	private LobbyClientState state = LobbyClientState.WAITING;
 	private boolean playing = true;
-	private String myName;
+	private String myName = "";
+	private int myID = -1;
 
 	
 	public LobbyClient(String hostName) {
@@ -64,8 +65,8 @@ public class LobbyClient extends Thread {
 			if(checkInput) {
 				if(input.available() != 0) {
 					log.debug("receiving message");
-					input.readFully(rcvBuf);
 					log.debug("input.available() => " + input.available());
+					input.readFully(rcvBuf);
 					log.debug("received " + Arrays.toString(rcvBuf));
 				} else {
 					rcvBuf = null;
@@ -95,6 +96,8 @@ public class LobbyClient extends Thread {
 	    } else if(rcvBuf[0] == ProtocolOperators.CHALLENGE[0]) {
 	    	log.info("challenge received");
 			state = LobbyClientState.CHALLENGE_RECEIVED;
+			display.setChallenge();
+			display.challenged(rcvBuf[2]);
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.GET_USERLIST)) {
 			log.debug("receiving updated list of users");
 			updatePlayerList();
@@ -109,14 +112,18 @@ public class LobbyClient extends Thread {
 		if(cmdBuf != null) {
 			if(cmdBuf[0] == ProtocolOperators.CHALLENGE[0]) {
 				state = LobbyClientState.CHALLENGE_ISSUED;
+				cmdBuf[2] = (byte)myID;
+				display.setChallenge();
 			} else if(Arrays.equals(cmdBuf, ProtocolOperators.NACK)) {
 				state = LobbyClientState.NORMAL;
-				//TODO: notify user
+				display.setNormal();
 			} else if(Arrays.equals(cmdBuf, ProtocolOperators.ACK)) {
 				state = LobbyClientState.CHALLENGE_ACCEPTED;
 				//TODO: start Client and Head
+				//TODO: lock LobbyDisplay to prevent new challenges from being issued
 			} else if(Arrays.equals(cmdBuf, ProtocolOperators.BYE)) {
 				playing = false;
+				log.debug("logging off");
 			}
 			sendMsg();
 		}
@@ -135,8 +142,6 @@ public class LobbyClient extends Thread {
 				}
 			}
 		}
-
-		//updatePlayerList();
 		
 		while(playing) {
 			
@@ -153,8 +158,8 @@ public class LobbyClient extends Thread {
 			handleMsgFromServer();
 		}
 		
-		log.debug("logging off");
-		disconnect();
+
+
 		try {
 			srv.close();
 		} catch (IOException e) {
@@ -165,8 +170,6 @@ public class LobbyClient extends Thread {
 	}
 
 	private void updatePlayerList() {
-		//cmdBuf = ProtocolOperators.GET_USERLIST;
-		//sendMsg();
 		log.entry();
 		String[] userNames;
 		int[] userIDs;
@@ -187,18 +190,20 @@ public class LobbyClient extends Thread {
 						userNames[n] = u[0];
 						userIDs[n] = Integer.parseInt(u[1]);
 						n++;
+					} else {
+						myID = Integer.parseInt(u[1]);
 					}
 				}
 				
+				log.debug("updating list of active users");
 				display.setPlayerList(userNames, userIDs);
 			} else {
-				log.debug("I am alone, so there's nothing to set");
+				log.debug("we are alone");
+				display.setPlayerList(null, null);
 			}
 		} catch (IOException e) {
 			log.error("caught " + e.getClass() + " while fetching list of users");
 		}
-		
-		
 	}
 
 	private int parseResponse() {
@@ -230,11 +235,11 @@ public class LobbyClient extends Thread {
 		return retVal;
 	}
 	
-	private void disconnect() {
+	/*private void disconnect() {
 		cmdBuf = ProtocolOperators.BYE;
 		sendMsg();
 		System.exit(0);
-	}
+	}*/
 	
 	public int logIn(String userInfo, boolean newUser) {
 		cmdBuf = ProtocolOperators.HELLO;

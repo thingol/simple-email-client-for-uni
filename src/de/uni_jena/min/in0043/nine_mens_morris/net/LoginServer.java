@@ -129,7 +129,8 @@ public class LoginServer {
 				log.debug("checking existing user");
 				String s = in.readUTF();
 				log.debug("read " + s);
-				String[] userinfo = s.split(",");
+				String[] userinfo = s.split(",", -1);
+				log.debug("userinfo.length = " + userinfo.length);
 				if(checkUser(userinfo)) {
 					usersAuthenticated++;
 					retVal = true;

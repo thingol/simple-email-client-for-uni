@@ -1,5 +1,6 @@
 package de.uni_jena.min.in0043.nine_mens_morris.net;
 
+import java.awt.color.CMMException;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -57,16 +58,19 @@ public class Lobby {
 				try {
 					if(challenged.available() > 0) {
 						challenged.readFully(rcvBuf);
-						if(rcvBuf[0] == ProtocolOperators.CHALLENGE[0]) {
+						log.debug("");
+						if(Arrays.equals(rcvBuf,ProtocolOperators.ACK)) {
 							out.write(ProtocolOperators.ACK);
 							c.accepted(true);
+							log.debug("challenge " + c + " accepted");
 							startGameServer(c, c.getChallenger(), c.getChallenged());
 						} else {
+							log.debug("challenge " + c + " declined");
 							out.write(ProtocolOperators.NACK);
 							challenges.remove(c);
 						}
 					} else if(c.getTimestamp() - now > 5000) {
-						
+						log.debug("no response from challenged");
 						try {
 							out.write(ProtocolOperators.NO_RESPONSE);
 							out = c.getChallenged().getOutputStream();
@@ -164,10 +168,14 @@ public class Lobby {
 			challenges.add(new Challenge(user, challenged, System.currentTimeMillis()));
 			user.isPlaying(true);
 			challenged.isPlaying(true);
+			challenged.getOutputStream().write(rcvBuf);
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.BYE)) {
 			log.info(user + " logged off");
 			users.remove(user.getUsername());
-			sendUserList();
+			if(users.size() > 0) {
+				log.debug("there are still users connected");
+				sendUserList();
+			}
 		} else {
 			log.error("got an illegal operator");
 			out.write(ProtocolOperators.ILLEGAL_OP);

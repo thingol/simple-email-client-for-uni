@@ -42,7 +42,7 @@ public class Head extends Panel implements MouseListener, GameClient {
 	private int globalRetVal = 0;
 	private boolean sessionOver = false;
 	
-	private boolean debug = true;
+	private boolean debug = false;
 	private JFrame debugFrame;
 	private JPanel mousePanel,mainPanel;
 	private JLabel mouseClick, offsetMouseClick;
@@ -187,11 +187,12 @@ public class Head extends Panel implements MouseListener, GameClient {
 
 		
 		sF.places(mFra);
-		for(int i = 0; i < sF.placed.length; i++) {
-			board.p[i].setText(""+sF.placed[i]);
+		if(debug) {
+			for(int i = 0; i < sF.placed.length; i++) {
+				board.p[i].setText(""+sF.placed[i]);
+			}
 		}
-			
-		
+
 		if(winner != null) {
 			String victoryInfo;
 			if(winner == colour) {
@@ -240,47 +241,24 @@ public class Head extends Panel implements MouseListener, GameClient {
 
 		mFra.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
-				Object[] options = {"Disconnect!",
-						"Concede!",
-				"Stahp!"};
+				Object[] options =
+					{"Concede w/rematch",
+					 "Return to lobby",
+					 "Cancel"};
 				int n = JOptionPane.showOptionDialog(mFra,
-						"Do you want to disconnect or to concede?",
+						"Do you want to concede the game and request a rematch, or return to the lobby?",
 						"Exit Dialog",
 						JOptionPane.YES_NO_CANCEL_OPTION,
 						JOptionPane.QUESTION_MESSAGE,
 						null,
 						options,
 						options[2]);
-				if(n == 0)
-				{
-					log.debug("Disconnecting from server and exiting");
-					((Client)game).disconnect();
-					System.exit(0);
-				}
-				else if(n == 1)
-				{
-					Object[] opt = {"Yes",
-							"No",
-					"Stahp!"};
-					int n2 = JOptionPane.showOptionDialog(mFra,
-							"Do you want to start a new Game?",
-							"Concede Dialog",
-							JOptionPane.YES_NO_CANCEL_OPTION,
-							JOptionPane.QUESTION_MESSAGE,
-							null,
-							opt,
-							opt[2]);
-					if(n2 == 0)
-					{
-						log.debug("conceding game and requesting new");
-						((Client)game).conceed(true);
-					}
-					else if(n2 == 1)
-					{
-						log.debug("conceding game and exiting");
-						((Client)game).conceed(false);
-						System.exit(0);
-					}
+				if(n == 0) {
+					log.debug("conceding game and requesting new");
+					((Client)game).conceed(true);
+				} else if(n == 1) {
+					log.debug("conceding game and returning to lobby");
+					((Client)game).conceed(false);
 				}
 			}
 		});
@@ -602,12 +580,17 @@ public class Head extends Panel implements MouseListener, GameClient {
 		
 	}
 	
+	public void gameOver() {
+		log.entry();
+		mFra.dispose();
+	}
+	
 	public Player getColour() {
 		return colour;
 	}
 
-	public void setWinner(Player colour2) {
-		this.winner = colour2;
+	public void setWinner(Player colour) {
+		this.winner = colour;
 	}
 
 

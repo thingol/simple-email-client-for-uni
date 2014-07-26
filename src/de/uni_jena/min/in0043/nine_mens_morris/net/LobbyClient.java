@@ -111,6 +111,12 @@ public class LobbyClient extends Thread {
 			state = LobbyClientState.CHALLENGE_ACCEPTED;
 			display.setVisible(false);
 			startGame();
+		} else if(Arrays.equals(rcvBuf, ProtocolOperators.DECLINED)) {
+			state = LobbyClientState.NORMAL;
+			display.setNormal();
+		} else if(Arrays.equals(rcvBuf, ProtocolOperators.BUSY)) {
+			state = LobbyClientState.NORMAL;
+			display.setNormal();
 		}
 	}
 	
@@ -150,10 +156,10 @@ public class LobbyClient extends Thread {
 		}
 		
 		while(playing) {
-			
+
 			cmdBuf = display.getCmdBuf();
 			handleCmdFromUser();
-			
+
 			while(state == LobbyClientState.CHALLENGE_ACCEPTED) {
 				synchronized (this) {
 					log.debug("we've accepted a challenge, I'll be waiting when we're done");
@@ -165,16 +171,16 @@ public class LobbyClient extends Thread {
 					}
 				}
 			}
-			
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					log.error("interrupted while waiting, no idea how that could happen");
-				}
-			
+
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				log.error("interrupted while waiting, no idea how that could happen");
+			}
+
 			receiveMsg(true);
 			handleMsgFromServer();
-			
+
 			while(state == LobbyClientState.CHALLENGE_ACCEPTED) {
 				synchronized (this) {
 					log.debug("our challenge has been accepted, I'll be waiting when we're done");

@@ -54,6 +54,7 @@ public class Lobby {
 			challenged = c.getChallenged().getInputStream();
 			out  = c.getChallenger().getOutputStream();
 			if(!c.accepted()) {
+				log.debug("checking " + c);
 				try {
 					if(challenged.available() > 0) {
 						challenged.readFully(rcvBuf);
@@ -65,7 +66,7 @@ public class Lobby {
 							startGameServer(c, c.getChallenger(), c.getChallenged());
 						} else {
 							log.debug("challenge " + c + " declined");
-							out.write(ProtocolOperators.NACK);
+							out.write(ProtocolOperators.DECLINED);
 							challenges.remove(c);
 						}
 					} else if(c.getTimestamp() - now > 5000) {
@@ -82,8 +83,7 @@ public class Lobby {
 						}
 					}
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					log.catching(e);
 				}
 			} else if(c.completed()) {
 				log.debug("challenge " + c + " completed");
@@ -150,10 +150,14 @@ public class Lobby {
 		if(rcvBuf[0] == ProtocolOperators.CHALLENGE[0]) {
 			log.debug("challenge issued to user currently assigned id " + rcvBuf[1]);
 			LoggedInUser challenged = getUserByID(rcvBuf[1]);
-			challenges.add(new Challenge(user, challenged, System.currentTimeMillis()));
-			user.isPlaying(true);
-			challenged.isPlaying(true);
-			challenged.getOutputStream().write(rcvBuf);
+			if(challenged.isPlaying()) {
+				user.getOutputStream().write(ProtocolOperators.BUSY);
+			} else {
+				challenges.add(new Challenge(user, challenged, System.currentTimeMillis()));
+				user.isPlaying(true);
+				challenged.isPlaying(true);
+				challenged.getOutputStream().write(rcvBuf);
+			}
 		} else if(Arrays.equals(rcvBuf, ProtocolOperators.BYE)) {
 			log.info(user + " logged off");
 			users.remove(user.getUsername());

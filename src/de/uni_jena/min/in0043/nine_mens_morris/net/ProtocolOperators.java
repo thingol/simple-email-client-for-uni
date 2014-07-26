@@ -89,6 +89,7 @@ public class ProtocolOperators {
      */
     public final static byte[] NO_RESPONSE         = {-2,1,4};
     public final static byte[] DECLINED            = {-2,1,5};
+    public final static byte[] BUSY                = {-2,1,6};
     
     /*
      * keepalive
